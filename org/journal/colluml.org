@@ -1,0 +1,4 @@
+* visible
+  colluml
+* invisible
+  NOcolluml
