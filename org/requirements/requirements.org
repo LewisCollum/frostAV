@@ -1,6 +1,7 @@
 ** Functional
    #+include: "./functional.org"
 ** Performance
+   #+include: "./performance.org"
 ** UI
    #+include: "./ui.org"
 ** Standards
