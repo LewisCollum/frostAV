@@ -1,13 +1,15 @@
 The finished product for the Automated Car project must be capable of
 navigating a test circuit which contains lanes, corners and signs. The
 car needs to travel within the lane provided and recover when it
-leaves the lane.The car
+leaves the lane. The car
 must be able to recognize and follow signs, and stop for
 obstacles until they are removed from the circuit.
 The system should be minimally invasive (ex. not using encoders
 or speed sensors built into the car) so that it can easily be adapted
 to other car platforms. The car should be able to repeatedly follow the circuit.
 While turning, the car must be able to maintain its lane and return if it accidentaly leaves it.
+The system must be capable of accepting commands over Wifi, and the vehicle must stop if the network connection is lost
+The car must be assembled well, using printed circuit boards (no breadboards), reliable fixtures for all components and reliable electrical interconnects.
 
 
 

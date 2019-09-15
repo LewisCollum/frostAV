@@ -1,4 +1,4 @@
-** Functional
+** Functional Requirements
    #+include: "./functional.org"
 ** Performance
 ** UI
