@@ -1,0 +1,30 @@
+Performance Requirements
+
+1. All power must be supplied from 2 seperate litium-ion batteries.
+
+2. The total power consumption of the design cannot exceed the maximum capacity of the battery. 
+
+3. The design must be transferable to any medium sized RC car without modifying the servo or motor.
+
+4. The car must not move outside the track more than 3 times per lap.
+   Definintion: When all four tires are outside the marked edge, the car is considered off track.
+
+5. The car must identify different road signs and react accordingly.
+
+6. The car must stop and wait until the obsticle is removed.
+   Definition: If the car touches the obstacle, then it fails this requirement.
+
+7. The stopping distance for obstacle collision cannot be closer than 2 inches. 
+
+8. The embedded linux controller, as well as all other controllers,
+   will communicate using  on the car shall cumminicate using an I2C bus.
+
+9.
+
+
+
+
+
+
+ 
+
