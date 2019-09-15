@@ -1,6 +1,9 @@
 #+property: header-args :dir ../source/ :cache yes :noweb yes :exports code :eval no :results output
 #+options: toc:nil num:nil
-  
+
+* Requirements
+  #+include: "./requirements/requirements.org" 
+
 * Journal
    #+include: "./journal/colluml.org::visible" :only-contents t
    #+include: "./journal/marcyj.org::visible" :only-contents t
