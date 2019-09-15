@@ -1,6 +1,8 @@
 ** Functional
+   #+include: "./functional.org"
 ** Performance
 ** UI
 ** Standards
 ** Constraints
+   #+include: "./constraints.org"
 ** Test
