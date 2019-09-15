@@ -1,0 +1,17 @@
+* Test Environment
+In order to test the overall system, the car will be placed on a designated circuit.
+The circuit will be created, with the lane edges defined by tape with a width less than 2 inches.
+The lanes need to be wider than the width of the car.
+The circuit will have at least one sign, printed onto paper and placed perpendicular to the floor.
+Each corner of the circuit must be less than 45°.
+There will also be automated obstacles placed onto the course which will force the car to stop, and then they will be automatically removed.
+
+* Test requirements
+The car must be able to travel in a lane, approximately parallel to it an remain within its boundaries.
+If the car leaves the lane then it must promptly return to it.
+When the car reaches a corner, the car must turn, following the lane boundaries consistently.
+When presented with an obstacle the car must stop until it is moved away from the car's path.
+The car must be able to complete a full loop of the circuit.
+
+* Module Testing
+As the car is assembled, each module will be tested individually to ensure that they function as intended.
