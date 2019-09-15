@@ -1,6 +1,7 @@
 ** Functional
 ** Performance
 ** UI
+   #+include: "./ui.org"
 ** Standards
 ** Constraints
 ** Test
