@@ -6,6 +6,7 @@
 ** UI
    #+include: "./ui.org"
 ** Standards
+   #+include: "./standards.org"
 ** Constraints
    #+include: "./constraints.org"
 ** Test
