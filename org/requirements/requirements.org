@@ -5,7 +5,7 @@
 The intention of this document is not to over-constrain the
 development of Frost; rather, it provides a framework for which a
 minimally working autonomous vehicle can emerge. This document does
-not take precedence over the [[https://agilemanifesto.org/][Agile Manifesto]], nor should it interfere
+not take precedence over the [[https://agilemanifesto.org/][Agile Manifesto]], and should not interfere
 with the use of the [[https://www.scrum.org/resources/what-is-scrum][Scrum]] framework.
 
 * Contents
@@ -13,7 +13,6 @@ with the use of the [[https://www.scrum.org/resources/what-is-scrum][Scrum]] fra
   :TOC:      this
   :END:
   -  [[#introduction][Introduction]]
-    -  [[#purpose][Purpose]]
     -  [[#scope][Scope]]
   -  [[#system-description][System Description]]
     -  [[#system-context][System Context]]
@@ -27,8 +26,6 @@ with the use of the [[https://www.scrum.org/resources/what-is-scrum][Scrum]] fra
     -  [[#performance-requirements][Performance Requirements]]
 
 * Introduction
-** Purpose
-   Specify the purpose the SyRS and its intended audience. 
 ** Scope
    Describe the scope of the system to be produced. Within the
    description, include: • The identity of the system • A brief
