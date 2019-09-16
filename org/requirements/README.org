@@ -1,7 +1,75 @@
-# Created 2019-09-16 Mon 12:51
+# Created 2019-09-16 Mon 16:04
+#+OPTIONS: num:nil toc:t
 #+TITLE: 
 #+EXPORT_FILE_NAME: README
-* Functional Requirements
+* System Requirements Specification
+The intention of this document is not to over-constrain the
+development of Frost; rather, it provides a framework for which a
+minimally working autonomous vehicle can emerge. This document does
+not take precedence over the [[https://agilemanifesto.org/][Agile Manifesto]], nor should it interfere
+with the use of the [[https://www.scrum.org/resources/what-is-scrum][Scrum]] framework.
+
+* Introduction
+** Purpose
+Specify the purpose the SyRS and its intended audience. 
+** Scope
+Describe the scope of the system to be produced. Within the
+description, include: • The identity of the system • A brief
+description of the system’s functionality • An explanation of what the
+system will and will not do • A description of the application of the
+system • A description of the relevant benefits, objectives, and goals
+of the system This description should be consistent with similar
+statements in preceding project documents.
+* System Description
+** System Context
+Provide appropriate diagrams and accompanying narratives to provide
+an overview of the context of the system, defining all significant
+interfaces crossing the system’s boundaries.
+** Operational Scenarios
+Provide descriptive operational scenarios for the system. An
+operational scenario is a step-by-step description of how the
+system should operate and interact with its users and its external
+interfaces under a given set of circumstances. Scenarios may also
+be used to describe what the system should not do.
+** Major System Capabilities
+Provide diagrams and accompanying narratives to depict major
+capability groupings of the requirements.
+** Major System Constraints
+Describe the major system constraints. Constraints limit the scope
+and functionality of the system including, but not limited to,
+regulatory policies, infrastructure limitations, resources, and
+licensing. Constraints are requirements that are imposed on the
+solution by circumstance, force, or compulsion. They limit,
+absolutely, the options available to a designer of a solution by
+imposing immovable boundaries and limits.
+*** System Constraints
+The system should be capable of controlling the car without any
+sensors built into the car chassis itself (no encoders, speed sensors,
+etc.) The main navigation system should run on embedded Linux, and
+interface with the car using an AVR or similar microcontroller. The
+car use two cameras in a stereo configuration, along
+with an IMU (accelerometer and gyroscope) for navigating the course.
+
+*** Lower Chassis Constraints
+1. Must have the ability to store up to two 3-cell Litium Ion Battery.
+2. Must house the drive train and gearbox through the middle.
+3. Must contain all required components with little to no interference.
+4. Must be secrely fastened using M5 bolts to the rest of the lower chasis, as it is reponsible for holding the weight of the upper chassis and hardware.
+5. Batteries must be secured using velcro straps.
+6. Electronic Speed Controller (Motor Driver) may optionally be mounted in the lower chasis.
+
+*** Upper Chassis Constraints
+1. The second tier must mount the central processing unit, power supply unit, AVR chips, and both cameras.
+2. This layer must implement a quick disconnect mounting system.
+3. Must having a hole through the platform for wire managment and connections.
+** Assumptions
+Assumptions are factors that are believed to be true during the
+life cycle of the project that, if changed, may affect the project
+outcomes negatively including, but not limited to, end-user
+characteristics, known technology infrastructure, resource
+availability, and funding availability.
+* System Capabilities, Conditions, and Constraints
+** Functional Requirements
 The finished product for the Automated Car project must be capable of
 navigating a test circuit which contains lanes, corners and signs. The
 car needs to travel within the lane provided and recover when it
@@ -14,7 +82,10 @@ to other car platforms. The car should be able to repeatedly follow the circuit.
 While turning, the car must be able to maintain its lane and return if it accidentaly leaves it.
 The system must be capable of accepting commands over Wifi, and the vehicle must stop if the network connection is lost
 The car must be assembled well, using printed circuit boards (no breadboards), reliable fixtures for all components and reliable electrical interconnects.
-* Performance
+** Interfaces
+The car will be powered on via a power switch. 
+The car will receive commands over a WiFi network.
+** Performance Requirements
 Performance Requirements
 
 1. The total power consumption of the design cannot exceed the maximum capacity of the batteries.
@@ -39,32 +110,3 @@ Performance Requirements
    shall cumminicate using a shared I2C bus.
 
 10. The car power must be independently supplied using two 3-cell lithium ion batteries.
-* UI
-The car will be powered on via a power switch. 
-The car will receive commands over a WiFi network.
-* Standards
-* Constraints
-The system should be capable of controlling the car without any
-sensors built into the car chassis itself (no encoders, speed sensors,
-etc.) The main navigation system should run on embedded Linux, and
-interface with the car using an AVR or similar microcontroller. The
-car use two cameras in a stereo configuration, along
-with an IMU (accelerometer and gyroscope) for navigating the course.
-* Test
-** Test Environment
-In order to test the overall system, the car will be placed on a designated circuit.
-The circuit will be created, with the lane edges defined by tape with a width less than 2 inches.
-The lanes need to be wider than the width of the car.
-The circuit will have at least one sign, printed onto paper and placed perpendicular to the floor.
-Each corner of the circuit must be less than 45°.
-There will also be automated obstacles placed onto the course which will force the car to stop, and then they will be automatically removed.
-
-** Test requirements
-The car must be able to travel in a lane, approximately parallel to it an remain within its boundaries.
-If the car leaves the lane then it must promptly return to it.
-When the car reaches a corner, the car must turn, following the lane boundaries consistently.
-When presented with an obstacle the car must stop until it is moved away from the car's path.
-The car must be able to complete a full loop of the circuit.
-
-** Module Testing
-As the car is assembled, each module will be tested individually to ensure that they function as intended.
