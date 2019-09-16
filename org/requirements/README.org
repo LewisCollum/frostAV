@@ -1,0 +1,70 @@
+# Created 2019-09-16 Mon 12:51
+#+TITLE: 
+#+EXPORT_FILE_NAME: README
+* Functional Requirements
+The finished product for the Automated Car project must be capable of
+navigating a test circuit which contains lanes, corners and signs. The
+car needs to travel within the lane provided and recover when it
+leaves the lane. The car
+must be able to recognize and follow signs, and stop for
+obstacles until they are removed from the circuit.
+The system should be minimally invasive (ex. not using encoders
+or speed sensors built into the car) so that it can easily be adapted
+to other car platforms. The car should be able to repeatedly follow the circuit.
+While turning, the car must be able to maintain its lane and return if it accidentaly leaves it.
+The system must be capable of accepting commands over Wifi, and the vehicle must stop if the network connection is lost
+The car must be assembled well, using printed circuit boards (no breadboards), reliable fixtures for all components and reliable electrical interconnects.
+* Performance
+Performance Requirements
+
+1. The total power consumption of the design cannot exceed the maximum capacity of the batteries.
+
+2. The design must be transferable to any similar sized RC car without modifying the servo or motor.
+
+3. The car must not move outside the track more than 3 times per lap.
+   Definintion: When all four tires are outside the marked edge, the car is considered off track.
+
+4. The car must identify multiple road signs using optical character recognition and react accordingly.
+
+5. In the event of a stop sign, the car must wait exactly 5 seconds before proceeding.
+
+6. In the event of a SLOW sign, the car must reduce its current speed by 50%.
+
+7. In the event of an obstacle, the car must stop and wait until the obstacle is removed.
+   Definition: If the car touches the obstacle, then it fails this requirement.
+
+8. The minimum stopping distance for obstacle collision is 2 inches.
+
+9. The embedded linux system, as well as all other controllers,
+   shall cumminicate using a shared I2C bus.
+
+10. The car power must be independently supplied using two 3-cell lithium ion batteries.
+* UI
+The car will be powered on via a power switch. 
+The car will receive commands over a WiFi network.
+* Standards
+* Constraints
+The system should be capable of controlling the car without any
+sensors built into the car chassis itself (no encoders, speed sensors,
+etc.) The main navigation system should run on embedded Linux, and
+interface with the car using an AVR or similar microcontroller. The
+car use two cameras in a stereo configuration, along
+with an IMU (accelerometer and gyroscope) for navigating the course.
+* Test
+** Test Environment
+In order to test the overall system, the car will be placed on a designated circuit.
+The circuit will be created, with the lane edges defined by tape with a width less than 2 inches.
+The lanes need to be wider than the width of the car.
+The circuit will have at least one sign, printed onto paper and placed perpendicular to the floor.
+Each corner of the circuit must be less than 45°.
+There will also be automated obstacles placed onto the course which will force the car to stop, and then they will be automatically removed.
+
+** Test requirements
+The car must be able to travel in a lane, approximately parallel to it an remain within its boundaries.
+If the car leaves the lane then it must promptly return to it.
+When the car reaches a corner, the car must turn, following the lane boundaries consistently.
+When presented with an obstacle the car must stop until it is moved away from the car's path.
+The car must be able to complete a full loop of the circuit.
+
+** Module Testing
+As the car is assembled, each module will be tested individually to ensure that they function as intended.
