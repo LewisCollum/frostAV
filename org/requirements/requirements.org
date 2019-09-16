@@ -1,6 +1,7 @@
+#+title: System Requirements Specification
 #+export_file_name: README
 #+options: num:nil toc:t
-* System Requirements Specification
+
 The intention of this document is not to over-constrain the
 development of Frost; rather, it provides a framework for which a
 minimally working autonomous vehicle can emerge. This document does
