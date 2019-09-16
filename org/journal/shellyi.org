@@ -1,4 +1,0 @@
-* visible
-  shellyi
-* invisible
-  NOshellyi

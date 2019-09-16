@@ -1,4 +1,0 @@
-* visible
-  marcyj
-* invisible
-  NOmarcyj
