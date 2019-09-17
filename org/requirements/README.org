@@ -19,7 +19,6 @@ and fundamental requirements for the system.
 
 * Introduction
   :PROPERTIES:
-  :CUSTOM_ID: introduction
   :TOC:      0
   :END:
   The system to be specified requires the design and construction of
