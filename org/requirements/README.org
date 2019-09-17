@@ -1,5 +1,4 @@
 #+title: FrostAV: System Requirements Specification
-#+export_file_name: README
 #+options: num:t toc:nil
 
 Note that, as per the Scrum framework, the system will be negotiated,
@@ -89,7 +88,7 @@ and fundamental requirements for the system.
   [[./figure/2019-09-16_AbstractSystem.png]]
 
   In reference to figure [[system-abstraction_diagram]], the
-  "car-idependent" components include the Networker, Sensor Systems,
+  "car-independent" components include the Networker, Sensor Systems,
   and the abstract portion of the Bridge Controllers; the
   "car-dependent" components include any motors, servos, or power
   systems for car, plus the concrete portions of the Bridge
