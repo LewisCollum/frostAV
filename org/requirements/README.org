@@ -50,6 +50,10 @@ and fundamental requirements for the system.
    #+attr_html: :width 300px
    #+attr_latex: :width \linewidth/2
    [[./figure/environment.png]]
+   
+   #+BEGIN_HTML
+    <img align="middle" src="./figure/environment.png"  width="400">
+   #+END_HTML
 
 ** Environmental Definitions
    :PROPERTIES:
