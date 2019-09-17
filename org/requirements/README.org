@@ -1,6 +1,7 @@
-# Created 2019-09-16 Mon 17:07
-#+OPTIONS: num:nil toc:nil
+# Created 2019-09-16 Mon 22:04
+#+OPTIONS: num:t toc:nil
 #+TITLE: System Requirements Specification
+#+AUTHOR: Lewis Collum
 #+EXPORT_FILE_NAME: README
 The intention of this document is not to over-constrain the
 development of Frost; rather, it provides a framework for which a
@@ -8,21 +9,30 @@ minimally working autonomous vehicle can emerge. This document does
 not take precedence over the [[https://agilemanifesto.org/][Agile Manifesto]], and should not interfere
 with the use of the [[https://www.scrum.org/resources/what-is-scrum][Scrum]] framework.
 
-* Contents
-- [[#introduction][Introduction]]
-  - [[#scope][Scope]]
-- [[#system-description][System Description]]
-  - [[#system-context][System Context]]
-  - [[#operational-scenarios][Operational Scenarios]]
-  - [[#major-system-capabilities][Major System Capabilities]]
-  - [[#major-system-constraints][Major System Constraints]]
-  - [[#assumptions][Assumptions]]
-- [[#system-capabilities-conditions-and-constraints][System Capabilities, Conditions, and Constraints]]
-  - [[#functional-requirements][Functional Requirements]]
-  - [[#interfaces][Interfaces]]
-  - [[#performance-requirements][Performance Requirements]]
-
 * Introduction
+FrostAV entails building an autonomous vehicle that has the ability
+to navigate within a _lane_.
+
+#+CAPTION: The environment which the car must navigate. Provides visuals for the definitions in section [[#environmental-definitions]].
+[[file:./figure/environment.png]]
+
+** System Task
+1. Given a _lane_, the car must travel approximately parallel to it,
+   such that the car stays within its _boundaries_ consistently,
+   and, if the car is to accidentally leave it, it promptly
+   returns.
+2. Given a _corner_, the car must turn, continuing from the car’s
+   current _lane_ to the next, such that the car stays within its
+   _boundaries_ consistently, and, if the car is to accidentally
+   leave it, it promptly returns.
+3. Given an _obstacle_, the car must stop until it is moved
+   further from the car, or it is removed from _circuit boundaries_.
+4. Given a _sign_, the car must respond to the event provided by it.
+5. Given a _circuit_, the car must complete a full loop.
+
+** Environmental Definitions:
+
+
 ** Scope
 Describe the scope of the system to be produced. Within the
 description, include: • The identity of the system • A brief
@@ -31,6 +41,7 @@ system will and will not do • A description of the application of the
 system • A description of the relevant benefits, objectives, and goals
 of the system This description should be consistent with similar
 statements in preceding project documents.
+
 * System Description
 ** System Context
 Provide appropriate diagrams and accompanying narratives to provide
