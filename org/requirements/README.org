@@ -1,5 +1,5 @@
 #+title: FrostAV: System Requirements Specification
-#+options: num:t toc:nil
+#+options: num:nil toc:nil
 
 Note that, as per the Scrum framework, the system will be negotiated,
 designed, constructed and released in stages. Resultingly, this
