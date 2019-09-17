@@ -52,7 +52,9 @@ and fundamental requirements for the system.
    [[./figure/environment.png]]
    
    #+BEGIN_HTML
-    <img align="middle" src="./figure/environment.png"  width="400">
+   <p align="center">
+      <img align="middle" src="./figure/environment.png"  width="400">
+   </p>
    #+END_HTML
 
 ** Environmental Definitions
