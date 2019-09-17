@@ -1,0 +1,10 @@
+| Term             | Definition                                                              |
+|------------------+-------------------------------------------------------------------------|
+| Corner           | A sharp change in path direction that connects two lanes                |
+| Lane             | A path that has a _boundary_                                            |
+| Boundary         | The area between two parallel _edges_                                   |
+| Edge             | A line or a curve                                                       |
+| Circuit Boundary | All connected _boundaries_ which define the total area of the _circuit_ |
+| Circuit          | A closed path defined by connected _lanes_ and _corners_                |
+| Obstacle         | Any object that lies within _circuit boundaries_                        |
+| Sign             | A flat image mounted to a post outside of _circuit boundaries_          |
