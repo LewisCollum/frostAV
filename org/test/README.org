@@ -1,3 +1,6 @@
+#+title: FrostAV: Test Plan
+#+options: num:f toc:nil
+
 * Test Environment
 In order to test the overall system, the car will be placed on a designated circuit.
 The circuit will be created, with the lane edges defined by tape with a width less than 2 inches.

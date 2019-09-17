@@ -1,134 +1,239 @@
-# Created 2019-09-16 Mon 22:04
-#+OPTIONS: num:t toc:nil
-#+TITLE: System Requirements Specification
-#+AUTHOR: Lewis Collum
-#+EXPORT_FILE_NAME: README
-The intention of this document is not to over-constrain the
-development of Frost; rather, it provides a framework for which a
-minimally working autonomous vehicle can emerge. This document does
-not take precedence over the [[https://agilemanifesto.org/][Agile Manifesto]], and should not interfere
-with the use of the [[https://www.scrum.org/resources/what-is-scrum][Scrum]] framework.
+#+title: FrostAV: System Requirements Specification
+#+options: num:t toc:nil
+
+Note that, as per the Scrum framework, the system will be negotiated,
+designed, constructed and released in stages. Resultingly, this
+document provides only enough detail to provide minimum constraints
+and fundamental requirements for the system.
+
+* Contents 
+  :PROPERTIES:
+  :TOC:      this
+  :END:
+  -  [[#introduction][Introduction]]
+    -  [[#car-tasks][Car Tasks]]
+    -  [[#environmental-definitions][Environmental Definitions]]
+  -  [[#system-abstraction][System Abstraction]]
+  -  [[#system-constraints][System Constraints]]
+    -  [[#sensor-constraints][Sensor Constraints]]
+  -  [[#vehicle-constraints][Vehicle Constraints]]
+    -  [[#lower-chassis-constraints][Lower Chassis Constraints]]
+    -  [[#upper-chassis-constraints][Upper Chassis Constraints]]
+  -  [[#financial-constraints][Financial Constraints]]
+  -  [[#system-requirements][System Requirements]]
+    -  [[#functional-requirements][Functional Requirements]]
+    -  [[#interface-requirements][Interface Requirements]]
+      -  [[#physical-interface-requirements][Physical Interface Requirements]]
+      -  [[#wireless-interface-requirements][Wireless Interface Requirements]]
+      -  [[#system-to-car-interface-requirements-bridge-controllers][System-to-Car Interface Requirements (Bridge Controllers)]]
+    -  [[#performance-requirements][Performance Requirements]]
 
 * Introduction
-FrostAV entails building an autonomous vehicle that has the ability
-to navigate within a _lane_.
+  :PROPERTIES:
+  :CUSTOM_ID: introduction
+  :END:
+  The system to be specified requires the design and construction of
+  an autonomous car that has the ability to navigate within a
+  _lane_. The system should satisfy the tasks specified below, in
+  section [[#car-tasks]]. Furthermore, the car must have wireless
+  communication abilities. And, the sensor systems implemented on the
+  car must be minimally invasive (See section
+  [[#sensor-constraints]]).
+  
+** Car Tasks
+   :PROPERTIES:
+   :CUSTOM_ID: car-tasks
+   :END:
+   1. Given a _lane_, the car must travel approximately parallel to it,
+      such that the car stays within its _boundaries_ consistently,
+      and, if the car is to accidentally leave it, it promptly
+      returns.
+   2. Given a _corner_, the car must turn, continuing from the car’s
+      current _lane_ to the next, such that the car stays within its
+      _boundaries_ consistently, and, if the car is to accidentally
+      leave it, it promptly returns.
+   3. Given an _obstacle_, the car must stop until it is moved
+      further from the car, or it is removed from _circuit boundaries_.
+   4. Given a _sign_, the car must respond to the event provided by it.
+   5. Given a _circuit_, the car must complete a full loop.
 
-#+CAPTION: The environment which the car must navigate. Provides visuals for the definitions in section [[#environmental-definitions]].
-[[file:./figure/environment.png]]
+   #+caption: An example _circuit_ which the car must navigate through. Provides visuals for the definitions in section [[#environmental-definitions]].
+   #+attr_html: :width 300px
+   #+attr_latex: :width \linewidth/2
+   [[./figure/environment.png]]
 
-** System Task
-1. Given a _lane_, the car must travel approximately parallel to it,
-   such that the car stays within its _boundaries_ consistently,
-   and, if the car is to accidentally leave it, it promptly
-   returns.
-2. Given a _corner_, the car must turn, continuing from the car’s
-   current _lane_ to the next, such that the car stays within its
-   _boundaries_ consistently, and, if the car is to accidentally
-   leave it, it promptly returns.
-3. Given an _obstacle_, the car must stop until it is moved
-   further from the car, or it is removed from _circuit boundaries_.
-4. Given a _sign_, the car must respond to the event provided by it.
-5. Given a _circuit_, the car must complete a full loop.
+** Environmental Definitions
+   :PROPERTIES:
+   :CUSTOM_ID: environmental-definitions
+   :END:
 
-** Environmental Definitions:
+   | Term             | Definition                                                              |
+   |------------------+-------------------------------------------------------------------------|
+   | Corner           | A sharp change in path direction that connects two lanes                |
+   | Lane             | A path that has a _boundary_                                            |
+   | Boundary         | The area between two parallel _edges_                                   |
+   | Edge             | A line or a curve                                                       |
+   | Circuit Boundary | All connected _boundaries_ which define the total area of the _circuit_ |
+   | Circuit          | A closed path defined by connected _lanes_ and _corners_                |
+   | Obstacle         | Any object that lies within _circuit boundaries_                        |
+   | Sign             | A flat image mounted to a post outside of _circuit boundaries_          |
 
+* System Abstraction
+  :PROPERTIES:
+  :CUSTOM_ID: system-abstraction
+  :END:
+  Each stage of the project will rest on the following fundamental
+  diagrammatic abstraction. This abstraction satisfies the
+  requirements for a minimally invasive sensor system, and the ability
+  to network wirelessly. These requirements are discussed in section
+  [[#functional-requirements]].
 
-** Scope
-Describe the scope of the system to be produced. Within the
-description, include: • The identity of the system • A brief
-description of the system’s functionality • An explanation of what the
-system will and will not do • A description of the application of the
-system • A description of the relevant benefits, objectives, and goals
-of the system This description should be consistent with similar
-statements in preceding project documents.
+  Also, note that the design presented in figure
+  [[system-abstraction_diagram]] exists entirely on the body of the car.
+  
+  #+name: system-abstraction_diagram
+  #+caption: A Networker provides a path for data or commands from the wirless bus to the wired bus and vice versa. System components on the vehicle communicate to each other via the wired bus. 
+  #+attr_latex: :width \linewidth/2  
+  [[./figure/2019-09-16_AbstractSystem.png]]
 
-* System Description
-** System Context
-Provide appropriate diagrams and accompanying narratives to provide
-an overview of the context of the system, defining all significant
-interfaces crossing the system’s boundaries.
-** Operational Scenarios
-Provide descriptive operational scenarios for the system. An
-operational scenario is a step-by-step description of how the
-system should operate and interact with its users and its external
-interfaces under a given set of circumstances. Scenarios may also
-be used to describe what the system should not do.
-** Major System Capabilities
-Provide diagrams and accompanying narratives to depict major
-capability groupings of the requirements.
-** Major System Constraints
-Describe the major system constraints. Constraints limit the scope
-and functionality of the system including, but not limited to,
-regulatory policies, infrastructure limitations, resources, and
-licensing. Constraints are requirements that are imposed on the
-solution by circumstance, force, or compulsion. They limit,
-absolutely, the options available to a designer of a solution by
-imposing immovable boundaries and limits.
-*** System Constraints
-The system should be capable of controlling the car without any
-sensors built into the car chassis itself (no encoders, speed sensors,
-etc.) The main navigation system should run on embedded Linux, and
-interface with the car using an AVR or similar microcontroller. The
-car use two cameras in a stereo configuration, along
-with an IMU (accelerometer and gyroscope) for navigating the course.
+  In reference to figure [[system-abstraction_diagram]], the
+  "car-idependent" components include the Networker, Sensor Systems,
+  and the abstract portion of the Bridge Controllers; the
+  "car-dependent" components include any motors, servos, or power
+  systems for car, plus the concrete portions of the Bridge
+  Controllers.
+  
+* System Constraints
+  :PROPERTIES:
+  :CUSTOM_ID: system-constraints
+  :END:
+** Sensor Constraints
+   :PROPERTIES:
+   :CUSTOM_ID: sensor-constraints
+   :END:
+   The sensor system must be minimally invasive such that any sensor
+   attached to the chassis is not coupled to an existing mechanism on
+   the chassis. For example, an encoder cannot be used since it is
+   coupled to the vehicle drive system. Sensors such as accelerometers
+   and cameras can be used since they can be attached to the chassis,
+   but are independent of existing vehicle mechanisms.
 
-*** Lower Chassis Constraints
-1. Must have the ability to store up to two 3-cell Litium Ion Battery.
-2. Must house the drive train and gearbox through the middle.
-3. Must contain all required components with little to no interference.
-4. Must be secrely fastened using M5 bolts to the rest of the lower chasis, as it is reponsible for holding the weight of the upper chassis and hardware.
-5. Batteries must be secured using velcro straps.
-6. Electronic Speed Controller (Motor Driver) may optionally be mounted in the lower chasis.
+* Vehicle Constraints
+  :PROPERTIES:
+  :CUSTOM_ID: vehicle-constraints
+  :END:
+** Lower Chassis Constraints
+   :PROPERTIES:
+   :CUSTOM_ID: lower-chassis-constraints
+   :END:
+   1. Must have the ability to store up to two 3-cell Litium Ion Battery.
+   2. Must house the drive train and gearbox through the middle.
+   3. Must contain all required components with little to no interference.
+   4. Must be secrely fastened to the rest of the lower chasis, as it is reponsible for holding the weight of the upper chassis and hardware.
+   5. Batteries must be secured, such that they do not shift while the
+      car is in motion.
 
-*** Upper Chassis Constraints
-1. The second tier must mount the central processing unit, power supply unit, AVR chips, and both cameras.
-2. This layer must implement a quick disconnect mounting system.
-3. Must having a hole through the platform for wire managment and connections.
-** Assumptions
-Assumptions are factors that are believed to be true during the
-life cycle of the project that, if changed, may affect the project
-outcomes negatively including, but not limited to, end-user
-characteristics, known technology infrastructure, resource
-availability, and funding availability.
-* System Capabilities, Conditions, and Constraints
+** Upper Chassis Constraints
+   :PROPERTIES:
+   :CUSTOM_ID: upper-chassis-constraints
+   :END:
+   1. The second tier must mount the electronic boards.
+   2. This layer must implement a quick disconnect mounting system.
+   3. Must permit easy wire managment.
+  
+* Financial Constraints
+  :PROPERTIES:
+  :CUSTOM_ID: financial-constraints
+  :END:
+  The FrostAV team has been permitted $300 towards parts. Before
+  purchasing a part, a need for the part must be depicted in the
+  current stage design.
+
+* System Requirements
+  :PROPERTIES:
+  :CUSTOM_ID: system-requirements
+  :END:
 ** Functional Requirements
-The finished product for the Automated Car project must be capable of
-navigating a test circuit which contains lanes, corners and signs. The
-car needs to travel within the lane provided and recover when it
-leaves the lane. The car
-must be able to recognize and follow signs, and stop for
-obstacles until they are removed from the circuit.
-The system should be minimally invasive (ex. not using encoders
-or speed sensors built into the car) so that it can easily be adapted
-to other car platforms. The car should be able to repeatedly follow the circuit.
-While turning, the car must be able to maintain its lane and return if it accidentaly leaves it.
-The system must be capable of accepting commands over Wifi, and the vehicle must stop if the network connection is lost
-The car must be assembled well, using printed circuit boards (no breadboards), reliable fixtures for all components and reliable electrical interconnects.
-** Interfaces
-The car will be powered on via a power switch. 
-The car will receive commands over a WiFi network.
+   :PROPERTIES:
+   :CUSTOM_ID: functional-requirements
+   :END:
+   The finished product for the Automated Car project must be capable
+   of navigating a test circuit which contains lanes, corners and
+   signs. The car needs to travel within the lane provided and recover
+   when it leaves the lane. The car must be able to recognize and
+   follow signs, and stop for obstacles until they are removed from
+   the circuit.  The system should be minimally invasive (e.g. not
+   using encoders built into the car) so that it can easily be adapted
+   to other car platforms. The car should be able to repeatedly follow
+   the circuit.  While turning, the car must be able to maintain its
+   lane and return if it accidentaly leaves it.  The system must be
+   capable of accepting commands wirelessly, and the vehicle must stop
+   if the network connection is lost. The car must be assembled well,
+   using printed circuit boards (no breadboards), reliable fixtures
+   for all components and reliable electrical interconnects.
+
+** Interface Requirements
+   :PROPERTIES:
+   :CUSTOM_ID: interface-requirements
+   :END:
+*** Physical Interface Requirements
+    :PROPERTIES:
+    :CUSTOM_ID: physical-interface-requirements
+    :END:
+    | Term         | Definition                                                    |
+    |--------------+---------------------------------------------------------------|
+    | Logic        | The electronic boards on the car                              |
+    | Drive System | The electromechanical parts on the car, such as, the motor(s) |
+
+    1. The car must be able to be physically turned on and off. A car
+       that is off, receives no power to the drive system or logic.
+    2. The car must be able to have its logic turned on, while the
+       drive system is off.
+    3. The car must never be able to have its drive system on, while
+       the logic is off.
+*** Wireless Interface Requirements
+    :PROPERTIES:
+    :CUSTOM_ID: wireless-interface-requirements
+    :END:
+    1. The car must be able to be accessed via a wireless tunneling
+       method (e.g. SSH)
+    2. The car must be able to connect to a server.
+*** System-to-Car Interface Requirements (Bridge Controllers)
+    :PROPERTIES:
+    :CUSTOM_ID: system-to-car-interface-requirements-bridge-controllers
+    :END:
+    1. The car must not be coupled in any other way, than through
+       Bride Controllers. Bridge Controllers must be the only
+       electrical connection between the system and the car.
+    2. The Bridge Controllers must be able to communicate through the
+       "wired bus" (figure [[system-abstraction_diagram]]).
+    
 ** Performance Requirements
-Performance Requirements
+   :PROPERTIES:
+   :CUSTOM_ID: performance-requirements
+   :END:
+   1. The total power consumption of the design cannot exceed the
+      maximum capacity of the batteries.
+   2. The design must be transferable to any similar sized RC car
+      without modifying the servo or motor.
+   3. The car must not move outside the track more than 3 times per
+      lap.  Definintion: When all four tires are outside the marked
+      edge, the car is considered off track.
+   4. The car must identify multiple road signs using optical character
+      recognition and react accordingly.
+   5. In the event of a stop sign, the car must wait exactly 5 seconds
+      before proceeding.
+   6. In the event of a SLOW sign, the car must reduce its current
+      speed by 50%.
+   8. In the event of an obstacle, the car must stop and wait until the
+      obstacle is removed.  Definition: If the car touches the
+      obstacle, then it fails this requirement.
+   9. The minimum stopping distance for obstacle collision is 2 inches.
+   10. The embedded linux system, as well as all other controllers,
+       shall cumminicate using a shared I2C bus.
+   11. The car power must be independently supplied using two 3-cell
+       lithium ion batteries.
 
-1. The total power consumption of the design cannot exceed the maximum capacity of the batteries.
 
-2. The design must be transferable to any similar sized RC car without modifying the servo or motor.
 
-3. The car must not move outside the track more than 3 times per lap.
-   Definintion: When all four tires are outside the marked edge, the car is considered off track.
 
-4. The car must identify multiple road signs using optical character recognition and react accordingly.
-
-5. In the event of a stop sign, the car must wait exactly 5 seconds before proceeding.
-
-6. In the event of a SLOW sign, the car must reduce its current speed by 50%.
-
-7. In the event of an obstacle, the car must stop and wait until the obstacle is removed.
-   Definition: If the car touches the obstacle, then it fails this requirement.
-
-8. The minimum stopping distance for obstacle collision is 2 inches.
-
-9. The embedded linux system, as well as all other controllers,
-   shall cumminicate using a shared I2C bus.
-
-10. The car power must be independently supplied using two 3-cell lithium ion batteries.

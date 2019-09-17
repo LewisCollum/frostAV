@@ -1,2 +1,0 @@
-The car will be powered on via a power switch. 
-The car will receive commands over a WiFi network.
