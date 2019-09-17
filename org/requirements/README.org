@@ -1,4 +1,5 @@
 #+title: FrostAV: System Requirements Specification
+#+export_file_name: README
 #+options: num:t toc:nil
 
 Note that, as per the Scrum framework, the system will be negotiated,
@@ -11,26 +12,16 @@ and fundamental requirements for the system.
   :TOC:      this
   :END:
   -  [[#introduction][Introduction]]
-    -  [[#car-tasks][Car Tasks]]
-    -  [[#environmental-definitions][Environmental Definitions]]
   -  [[#system-abstraction][System Abstraction]]
   -  [[#system-constraints][System Constraints]]
-    -  [[#sensor-constraints][Sensor Constraints]]
   -  [[#vehicle-constraints][Vehicle Constraints]]
-    -  [[#lower-chassis-constraints][Lower Chassis Constraints]]
-    -  [[#upper-chassis-constraints][Upper Chassis Constraints]]
   -  [[#financial-constraints][Financial Constraints]]
   -  [[#system-requirements][System Requirements]]
-    -  [[#functional-requirements][Functional Requirements]]
-    -  [[#interface-requirements][Interface Requirements]]
-      -  [[#physical-interface-requirements][Physical Interface Requirements]]
-      -  [[#wireless-interface-requirements][Wireless Interface Requirements]]
-      -  [[#system-to-car-interface-requirements-bridge-controllers][System-to-Car Interface Requirements (Bridge Controllers)]]
-    -  [[#performance-requirements][Performance Requirements]]
 
 * Introduction
   :PROPERTIES:
   :CUSTOM_ID: introduction
+  :TOC:      0
   :END:
   The system to be specified requires the design and construction of
   an autonomous car that has the ability to navigate within a
@@ -81,6 +72,7 @@ and fundamental requirements for the system.
 * System Abstraction
   :PROPERTIES:
   :CUSTOM_ID: system-abstraction
+  :TOC:      0
   :END:
   Each stage of the project will rest on the following fundamental
   diagrammatic abstraction. This abstraction satisfies the
@@ -106,6 +98,7 @@ and fundamental requirements for the system.
 * System Constraints
   :PROPERTIES:
   :CUSTOM_ID: system-constraints
+  :TOC:      0
   :END:
 ** Sensor Constraints
    :PROPERTIES:
@@ -121,6 +114,7 @@ and fundamental requirements for the system.
 * Vehicle Constraints
   :PROPERTIES:
   :CUSTOM_ID: vehicle-constraints
+  :TOC:      0
   :END:
 ** Lower Chassis Constraints
    :PROPERTIES:
@@ -144,6 +138,7 @@ and fundamental requirements for the system.
 * Financial Constraints
   :PROPERTIES:
   :CUSTOM_ID: financial-constraints
+  :TOC:      0
   :END:
   The FrostAV team has been permitted $300 towards parts. Before
   purchasing a part, a need for the part must be depicted in the
@@ -152,6 +147,7 @@ and fundamental requirements for the system.
 * System Requirements
   :PROPERTIES:
   :CUSTOM_ID: system-requirements
+  :TOC:      0
   :END:
 ** Functional Requirements
    :PROPERTIES:
