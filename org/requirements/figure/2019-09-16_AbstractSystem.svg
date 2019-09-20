@@ -315,7 +315,7 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     showborder="false">
+     showborder="true">
     <inkscape:grid
        type="xygrid"
        id="grid7679"
@@ -323,8 +323,8 @@
        spacingx="6.35"
        spacingy="6.35"
        empspacing="4"
-       originx="-28.324999"
-       originy="-812.30002" />
+       originx="-28.324997"
+       originy="-812.30004" />
     <inkscape:grid
        type="xygrid"
        id="grid7681"
@@ -332,8 +332,8 @@
        spacingx="1.5875"
        spacingy="1.5875"
        empspacing="4"
-       originx="-28.324999"
-       originy="-812.30002" />
+       originx="-28.324997"
+       originy="-812.30004" />
   </sodipodi:namedview>
   <metadata
      id="metadata7112">
