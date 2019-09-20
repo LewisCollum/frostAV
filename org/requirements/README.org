@@ -1,4 +1,4 @@
-#+options: num:t toc:2
+#+options: num:nil toc:nil
 #+latex_header: \usepackage[letterpaper, margin = 0.8in]{geometry}
 #+export_exclude_tags: noexport
 
@@ -6,7 +6,7 @@
 #+author: Lewis Collum, Ian Shelly, Justin Marcy
 #+date: Updated \today
 
-* Contents                                                         :noexport:
+* Contents
   :PROPERTIES:
   :TOC:      this
   :END:
@@ -17,7 +17,7 @@
 * Introduction
   :PROPERTIES:
   :CUSTOM_ID: introduction
-  :TOC:      0
+  :TOC:      1
   :END:
 ** Identification
    This document is the System Requirements Specification (SyRS) for
@@ -65,13 +65,12 @@
 * System Requirements
   :PROPERTIES:
   :CUSTOM_ID: system-requirements
-  :TOC:      0
+  :TOC:      1
   :END:
 ** Problem-Domain Requirements
    :PROPERTIES:
    :CUSTOM_ID: problem-domain-requirements
    :END:
-   <<problem-domain-requirements>>
    1. Given a _lane_, the car must travel approximately parallel to it,
       such that the car stays within its _boundaries_ consistently,
       and, if the car is to accidentally leave it, it promptly
@@ -176,7 +175,7 @@
 * System Constraints
   :PROPERTIES:
   :CUSTOM_ID: system-constraints
-  :TOC:      0
+  :TOC:      1
   :END:
 ** Sensor Constraints
    :PROPERTIES:
