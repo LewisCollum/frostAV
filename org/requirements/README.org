@@ -1,39 +1,77 @@
-#+title: FrostAV: System Requirements Specification
-#+options: num:nil toc:nil
+#+options: num:t toc:2
 #+latex_header: \usepackage[letterpaper, margin = 0.8in]{geometry}
+#+export_exclude_tags: noexport
 
-Note that, as per the Scrum framework, the system will be negotiated,
-designed, constructed and released in stages. Resultingly, this
-document provides only enough detail to provide minimum constraints
-and fundamental requirements for the system.
+#+title: FrostAV: System Requirements Specification
+#+author: Lewis Collum, Ian Shelly, Justin Marcy
+#+date: Updated \today
 
-* Contents 
+* Contents                                                         :noexport:
   :PROPERTIES:
   :TOC:      this
   :END:
   -  [[#introduction][Introduction]]
-  -  [[#system-abstraction][System Abstraction]]
+  -  [[#system-requirements][System Requirements]]
   -  [[#system-constraints][System Constraints]]
   -  [[#vehicle-constraints][Vehicle Constraints]]
   -  [[#financial-constraints][Financial Constraints]]
-  -  [[#system-requirements][System Requirements]]
 
 * Introduction
   :PROPERTIES:
   :CUSTOM_ID: introduction
   :TOC:      0
   :END:
+** Identification
+   This document is the System Requirements Specification (SyRS) for
+   FrostAV, an autonomous vehicle project, under the supervision of
+   Clarkson University's Computer Engineering department. 
+
+** Problem Overview
   The system to be specified requires the design and construction of
   an autonomous car that has the ability to navigate within a
-  _lane_. The system should satisfy the tasks specified below, in
-  section [[#car-tasks]]. Furthermore, the car must have wireless
-  communication abilities. And, the sensor systems implemented on the
-  car must be minimally invasive (See section
+  _lane_. The system should satisfy the tasks specified in section
+  [[#problem-domain-requirements]]. Furthermore, the car must have
+  wireless communication abilities. And, the sensor systems
+  implemented on the car must be minimally invasive (see section
   [[#sensor-constraints]]).
   
-** Car Tasks
+# * COMMENT System Abstraction
+#   :PROPERTIES:
+#   :CUSTOM_ID: system-abstraction
+#   :TOC:      0
+#   :END:
+#   Each stage of the project will rest on the following fundamental
+#   diagrammatic abstraction. This abstraction satisfies the
+#   requirements for a minimally invasive sensor system, and the ability
+#   to network wirelessly. These requirements are discussed in section
+#   [[#functional-requirements]].
+
+#   Also, note that the design presented in figure
+#   [[system-abstraction_diagram]] exists entirely on the body of the car.
+  
+#   #+name: system-abstraction_diagram
+#   #+caption: A Networker provides a path for data or commands from the wirless bus to the wired bus and vice versa. System components on the vehicle communicate to each other via the wired bus. 
+#   #+attr_latex: :width \linewidth/2  
+#   [[./figure/2019-09-16_AbstractSystem.png]]
+
+#   In reference to figure [[system-abstraction_diagram]], the
+#   "car-independent" components include the Networker, Sensor Systems,
+#   and the abstract portion of the Bridge Controllers; the
+#   "car-dependent" components include any motors, servos, or power
+#   systems for car, plus the concrete portions of the Bridge
+#   Controllers.
+
+** Intended Standards
+   - ISO/IEC 29110: Systems and Software Life Cycle Profiles and Guidelines for Very Small Entities (VSEs)
+
+* System Requirements
+  :PROPERTIES:
+  :CUSTOM_ID: system-requirements
+  :TOC:      0
+  :END:
+** Problem-Domain Requirements
    :PROPERTIES:
-   :CUSTOM_ID: car-tasks
+   :CUSTOM_ID: problem-domain-requirements
    :END:
    1. Given a _lane_, the car must travel approximately parallel to it,
       such that the car stays within its _boundaries_ consistently,
@@ -53,54 +91,89 @@ and fundamental requirements for the system.
    #+attr_latex: :width \linewidth/2
    [[./figure/environment.png]]
    
-   # #+BEGIN_HTML
-   # <p align="center">
-   #    <img align="middle" src="./figure/environment.png"  width="400">
-   # </p>
-   # #+END_HTML
+*** Problem-Domain Definitions
+    :PROPERTIES:
+    :CUSTOM_ID: environmental-definitions
+    :END:
 
-** Environmental Definitions
+    | Term             | Definition                                                              |
+    |------------------+-------------------------------------------------------------------------|
+    | Corner           | A sharp change in path direction that connects two lanes                |
+    | Lane             | A path that has a _boundary_                                            |
+    | Boundary         | The area between two parallel _edges_                                   |
+    | Edge             | A line or a curve                                                       |
+    | Circuit Boundary | All connected _boundaries_ which define the total area of the _circuit_ |
+    | Circuit          | A closed path defined by connected _lanes_ and _corners_                |
+    | Obstacle         | Any object that lies within _circuit boundaries_                        |
+    | Sign             | A flat image mounted to a post outside of _circuit boundaries_          |
+
+** Control Requirements
    :PROPERTIES:
-   :CUSTOM_ID: environmental-definitions
+   :CUSTOM_ID: control-requirements
    :END:
+*** Control System:
+    The Control System shall:
+   1. Interface with vehicle peripherals, such as, motors, servos,
+      batteries, etc.
+   2. Be the only system coupled to the vehicle. 
+   3. Have a subset of Control Modules for each peripheral in need
+      of control.
 
-   | Term             | Definition                                                              |
-   |------------------+-------------------------------------------------------------------------|
-   | Corner           | A sharp change in path direction that connects two lanes                |
-   | Lane             | A path that has a _boundary_                                            |
-   | Boundary         | The area between two parallel _edges_                                   |
-   | Edge             | A line or a curve                                                       |
-   | Circuit Boundary | All connected _boundaries_ which define the total area of the _circuit_ |
-   | Circuit          | A closed path defined by connected _lanes_ and _corners_                |
-   | Obstacle         | Any object that lies within _circuit boundaries_                        |
-   | Sign             | A flat image mounted to a post outside of _circuit boundaries_          |
+*** Control Modules:
+    Each Control Module shall:
+   1. Encapsulate a single purpose, such that, one controller controls
+      a single peripheral.
+   2. Couple to a peripheral electronically, not mechanically.
+   3. Be able to communicate with other controllers via a wired bus.
+   4. Be able to communicate with non-controllers that depend on it,
+      via a wired bus.
+   5. Communicate with other controllers and non-controllers via a
+      single shared wired bus.
+      
+** Autonomy Requirements
+   The Autonomy System shall:
+   1. Not be directly coupled to the Vehicle Interface (section [[#vehicle-interface-requirements]]).
+   2. Be able to fit on the vehicle.
+   3. Allow the vehicle to navigate, as per section
+      [[#problem-domain-requirements]], without user interaction.
+   4. Be able to communicate with the Control System (section [[#control-requirements]]).
+** Interface Requirements
+   :PROPERTIES:
+   :CUSTOM_ID: interface-requirements
+   :END:
+*** Vehicle Interface Requirements
+    :PROPERTIES:
+    :CUSTOM_ID: vehicle-interface-requirements
+    :END:
+    The Vehicle Interface shall:
+    1. Include a way for the vehicle to be turned on and off, such
+       that, the vehicle receives no power to the _drive system_ or
+       _logic_ when off.
+    2. Include a way for the vehicle to have its _logic_ turned on,
+       while the _drive system_ is off.
+    3. Provide a battery peripheral that powers the _logic_.
+    4. Provide a battery peripheral that powers the _drive system_.
+    5. The total power consumption of the _logic_ and _drive system_
+       cannot exceed the maximum capacity of the battery
+       peripheral(s).
+    6. Provide a peripheral that moves the vehicle.
+    7. Provide a peripheral that steers the vehicle.
+    8. Provide an electronic interface from each peripheral.
 
-* System Abstraction
-  :PROPERTIES:
-  :CUSTOM_ID: system-abstraction
-  :TOC:      0
-  :END:
-  Each stage of the project will rest on the following fundamental
-  diagrammatic abstraction. This abstraction satisfies the
-  requirements for a minimally invasive sensor system, and the ability
-  to network wirelessly. These requirements are discussed in section
-  [[#functional-requirements]].
-
-  Also, note that the design presented in figure
-  [[system-abstraction_diagram]] exists entirely on the body of the car.
-  
-  #+name: system-abstraction_diagram
-  #+caption: A Networker provides a path for data or commands from the wirless bus to the wired bus and vice versa. System components on the vehicle communicate to each other via the wired bus. 
-  #+attr_latex: :width \linewidth/2  
-  [[./figure/2019-09-16_AbstractSystem.png]]
-
-  In reference to figure [[system-abstraction_diagram]], the
-  "car-independent" components include the Networker, Sensor Systems,
-  and the abstract portion of the Bridge Controllers; the
-  "car-dependent" components include any motors, servos, or power
-  systems for car, plus the concrete portions of the Bridge
-  Controllers.
-  
+    | Term         | Definition                                                    |
+    |--------------+---------------------------------------------------------------|
+    | Logic        | Eletronic Systems including the Control and Autonomy Systems  |
+    | Drive System | The electromechanical parts on the car, such as, the motor(s) |
+    
+*** Wireless Interface Requirements
+    :PROPERTIES:
+    :CUSTOM_ID: wireless-interface-requirements
+    :END:
+    The Wireless Interface shall:
+    1. Allow for wireless tunneling (e.g. via SSH)
+    2. Be able to access a server.
+    3. Provide bi-directional communication.
+    
 * System Constraints
   :PROPERTIES:
   :CUSTOM_ID: system-constraints
@@ -110,132 +183,19 @@ and fundamental requirements for the system.
    :PROPERTIES:
    :CUSTOM_ID: sensor-constraints
    :END:
-   The sensor system must be minimally invasive such that any sensor
-   attached to the chassis is not coupled to an existing mechanism on
-   the chassis. For example, an encoder cannot be used since it is
-   coupled to the vehicle drive system. Sensors such as accelerometers
-   and cameras can be used since they can be attached to the chassis,
-   but are independent of existing vehicle mechanisms.
+   1. The sensors to go on the vehicle must be minimally invasive such
+      that any sensor attached to the chassis is not coupled to an
+      existing mechanism on the chassis. For example, an encoder
+      cannot be used since it is coupled to the vehicle drive
+      system. Sensors such as accelerometers and cameras can be used
+      since they can be attached to the chassis, but are independent
+      of existing vehicle mechanisms.
 
-* Vehicle Constraints
-  :PROPERTIES:
-  :CUSTOM_ID: vehicle-constraints
-  :TOC:      0
-  :END:
-** Lower Chassis Constraints
+** Financial Constraints
    :PROPERTIES:
-   :CUSTOM_ID: lower-chassis-constraints
+   :CUSTOM_ID: financial-constraints
+   :TOC:      0
    :END:
-   1. Must have the ability to store up to two 3-cell Litium Ion Battery.
-   2. Must house the drive train and gearbox through the middle.
-   3. Must contain all required components with little to no interference.
-   4. Must be secrely fastened to the rest of the lower chasis, as it is reponsible for holding the weight of the upper chassis and hardware.
-   5. Batteries must be secured, such that they do not shift while the
-      car is in motion.
-
-** Upper Chassis Constraints
-   :PROPERTIES:
-   :CUSTOM_ID: upper-chassis-constraints
-   :END:
-   1. The second tier must mount the electronic boards.
-   2. This layer must implement a quick disconnect mounting system.
-   3. Must permit easy wire managment.
-  
-* Financial Constraints
-  :PROPERTIES:
-  :CUSTOM_ID: financial-constraints
-  :TOC:      0
-  :END:
-  The FrostAV team has been permitted $300 towards parts. Before
-  purchasing a part, a need for the part must be depicted in the
-  current stage design.
-
-* System Requirements
-  :PROPERTIES:
-  :CUSTOM_ID: system-requirements
-  :TOC:      0
-  :END:
-** Functional Requirements
-   :PROPERTIES:
-   :CUSTOM_ID: functional-requirements
-   :END:
-   The finished product for the Automated Car project must be capable
-   of navigating a test circuit which contains lanes, corners and
-   signs. The car needs to travel within the lane provided and recover
-   when it leaves the lane. The car must be able to recognize and
-   follow signs, and stop for obstacles until they are removed from
-   the circuit.  The system should be minimally invasive (e.g. not
-   using encoders built into the car) so that it can easily be adapted
-   to other car platforms. The car should be able to repeatedly follow
-   the circuit.  While turning, the car must be able to maintain its
-   lane and return if it accidentaly leaves it.  The system must be
-   capable of accepting commands wirelessly, and the vehicle must stop
-   if the network connection is lost. The car must be assembled well,
-   using printed circuit boards (no breadboards), reliable fixtures
-   for all components and reliable electrical interconnects.
-
-** Interface Requirements
-   :PROPERTIES:
-   :CUSTOM_ID: interface-requirements
-   :END:
-*** Physical Interface Requirements
-    :PROPERTIES:
-    :CUSTOM_ID: physical-interface-requirements
-    :END:
-    | Term         | Definition                                                    |
-    |--------------+---------------------------------------------------------------|
-    | Logic        | The electronic boards on the car                              |
-    | Drive System | The electromechanical parts on the car, such as, the motor(s) |
-
-    1. The car must be able to be physically turned on and off. A car
-       that is off, receives no power to the drive system or logic.
-    2. The car must be able to have its logic turned on, while the
-       drive system is off.
-    3. The car must never be able to have its drive system on, while
-       the logic is off.
-*** Wireless Interface Requirements
-    :PROPERTIES:
-    :CUSTOM_ID: wireless-interface-requirements
-    :END:
-    1. The car must be able to be accessed via a wireless tunneling
-       method (e.g. SSH)
-    2. The car must be able to connect to a server.
-*** System-to-Car Interface Requirements (Bridge Controllers)
-    :PROPERTIES:
-    :CUSTOM_ID: system-to-car-interface-requirements-bridge-controllers
-    :END:
-    1. The car must not be coupled in any other way, than through
-       Bride Controllers. Bridge Controllers must be the only
-       electrical connection between the system and the car.
-    2. The Bridge Controllers must be able to communicate through the
-       "wired bus" (figure [[system-abstraction_diagram]]).
-    
-** Performance Requirements
-   :PROPERTIES:
-   :CUSTOM_ID: performance-requirements
-   :END:
-   1. The total power consumption of the design cannot exceed the
-      maximum capacity of the batteries.
-   2. The design must be transferable to any similar sized RC car
-      without modifying the servo or motor.
-   3. The car must not move outside the track more than 3 times per
-      lap.  Definintion: When all four tires are outside the marked
-      edge, the car is considered off track.
-   4. The car must identify multiple road signs using optical character
-      recognition and react accordingly.
-   5. In the event of a stop sign, the car must wait exactly 5 seconds
-      before proceeding.
-   6. In the event of a SLOW sign, the car must reduce its current
-      speed by 50%.
-   8. In the event of an obstacle, the car must stop and wait until the
-      obstacle is removed.  Definition: If the car touches the
-      obstacle, then it fails this requirement.
-   9. The minimum stopping distance for obstacle collision is 2 inches.
-   10. The embedded linux system, as well as all other controllers,
-       shall cumminicate using a shared I2C bus.
-   11. The car power must be independently supplied using two 3-cell
-       lithium ion batteries.
-
-
-
-
+   1. The FrostAV team shall not exceed $300 towards parts under the
+      superivision of Clarkson University's Department of Computer
+      Engineering.
