@@ -13,8 +13,6 @@
   -  [[#introduction][Introduction]]
   -  [[#system-requirements][System Requirements]]
   -  [[#system-constraints][System Constraints]]
-  -  [[#vehicle-constraints][Vehicle Constraints]]
-  -  [[#financial-constraints][Financial Constraints]]
 
 * Introduction
   :PROPERTIES:
@@ -73,6 +71,7 @@
    :PROPERTIES:
    :CUSTOM_ID: problem-domain-requirements
    :END:
+   <<problem-domain-requirements>>
    1. Given a _lane_, the car must travel approximately parallel to it,
       such that the car stays within its _boundaries_ consistently,
       and, if the car is to accidentally leave it, it promptly
