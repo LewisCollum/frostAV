@@ -1,5 +1,6 @@
 #+title: FrostAV: System Requirements Specification
 #+options: num:nil toc:nil
+#+latex_header: \usepackage[letterpaper, margin = 0.8in]{geometry}
 
 Note that, as per the Scrum framework, the system will be negotiated,
 designed, constructed and released in stages. Resultingly, this
@@ -19,6 +20,7 @@ and fundamental requirements for the system.
 
 * Introduction
   :PROPERTIES:
+  :CUSTOM_ID: introduction
   :TOC:      0
   :END:
   The system to be specified requires the design and construction of
@@ -51,11 +53,11 @@ and fundamental requirements for the system.
    #+attr_latex: :width \linewidth/2
    [[./figure/environment.png]]
    
-   #+BEGIN_HTML
-   <p align="center">
-      <img align="middle" src="./figure/environment.png"  width="400">
-   </p>
-   #+END_HTML
+   # #+BEGIN_HTML
+   # <p align="center">
+   #    <img align="middle" src="./figure/environment.png"  width="400">
+   # </p>
+   # #+END_HTML
 
 ** Environmental Definitions
    :PROPERTIES:
