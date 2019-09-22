@@ -1,5 +1,5 @@
 * Milestone
-#+BEGIN_SRC plantuml :file figure/gantt_course.png
+#+BEGIN_SRC plantuml :file figure/gantt_course.png :exports results
 @startgantt
 Project starts 2nd of September 2019
 [Milestone 1] lasts 2 weeks
