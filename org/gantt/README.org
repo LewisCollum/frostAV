@@ -1,0 +1,21 @@
+* Milestone
+#+BEGIN_SRC plantuml :file figure/gantt_course.png
+@startgantt
+Project starts 2nd of September 2019
+[Milestone 1] lasts 2 weeks
+then [Milestone 2] lasts 2 weeks
+then [Milestone 3] lasts 3 weeks
+then [Milestone 4] lasts 2 weeks
+then [Milestone 5] lasts 2 weeks
+[Final Demo Prep] ends at December 10th, 2019 
+[Final Demo Prep] starts at [Milestone 5]'s end
+[Final Presentation Prep] ends at December 12th, 2019
+[Final Presentation Prep] starts at [Milestone 5]'s end
+[Final Report] ends at December 19, 2019
+[Final Report] starts at [Milestone 5]'s end
+@endgantt
+#+END_SRC
+
+#+RESULTS:
+[[file:figure/gantt_course.png]]
+
