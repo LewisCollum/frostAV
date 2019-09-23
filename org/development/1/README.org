@@ -1,0 +1,20 @@
+* Stage 1: Base
+** System Abstraction
+   [[../figure/2019-09-16_AbstractSystem.png]]
+
+** System Implementation
+   [[./figure/2019-09-22_Implementation.png]]
+
+
+* Future
+** I2C Arbitration
+   It is expected that modules communicating on the wired bus will
+   need to communicate with each-other. In this case, there would be
+   multiple masters on a single i2c bus. To implement this,
+   arbitration would be necessary so that masters on the bus do not
+   interrupt each other.
+    
+    
+** COMMENT Resources
+   - http://www.mbeddedc.com/2017/09/i2c-bus-arbitration.html
+   - https://www.geeksforgeeks.org/bus-arbitration-in-computer-organization/
