@@ -1,10 +1,9 @@
-* Stage 1: Base
-** System Abstraction
-   [[../figure/2019-09-16_AbstractSystem.png]]
+#+title: Stage 1: Base
+* System Abstraction
+  [[../figure/2019-09-16_AbstractSystem.png]]
 
-** System Implementation
-   [[./figure/2019-09-22_Implementation.png]]
-
+* System Implementation
+  [[./figure/2019-09-22_Implementation.png]]
 
 * Future
 ** I2C Arbitration
