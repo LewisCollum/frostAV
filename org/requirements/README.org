@@ -6,7 +6,7 @@
 #+author: Lewis Collum, Ian Shelly, Justin Marcy
 #+date: Updated \today
 
-* Contents
+* Contents                                                         :noexport:
   :PROPERTIES:
   :TOC:      this
   :END:

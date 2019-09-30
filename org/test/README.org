@@ -1,5 +1,5 @@
 #+title: FrostAV: Test Plan
-#+options: num:nil toc:nil
+#+options: num:t toc:t
 
 * Test Environment
 In order to test the overall system, the car will be placed on a designated circuit.
