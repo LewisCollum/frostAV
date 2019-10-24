@@ -44,7 +44,7 @@
    Sensor System should receive information from a sensor, process the
    information, and send the result to the wired-bus.
   
-* System Implementation 
+* System Plan
   #+attr_latex: :width 0.8\linewidth :placement [H]
   [[./figure/2019-09-22_Implementation.png]]
 
@@ -103,6 +103,10 @@
     Takes in a PWM signal and outputs an amplified and directional PWM
     wave to the vehicle's motor.
 
+
+* Control Plan
+  #+attr_latex: :width \linewidth :placement [H]
+  [[../figure/2019-10-24_cameraToControl.png]]
 
 * Future
 ** I2C Arbitration
