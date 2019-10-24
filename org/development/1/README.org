@@ -104,9 +104,14 @@
     wave to the vehicle's motor.
 
 
+* Control Abstraction
+  #+attr_latex: :width \linewidth :placement [H]
+  [[../figure/2019-10-24_controlLoop.png]]
+
 * Control Plan
   #+attr_latex: :width \linewidth :placement [H]
   [[../figure/2019-10-24_cameraToControl.png]]
+
 
 * Future
 ** I2C Arbitration
