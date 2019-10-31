@@ -124,7 +124,19 @@ prevents the car from going out of control if the logic battery runs out before 
 
 [[./figure/schematic.PNG]]
 
-The current monitoring section of the power supply 
+The switching regulator section of the power supply consists of C1, C2, L1, D1 and U2 in the schematic diagram.
+The regulator operates in a buck configuration, in continuous mode (the inductor current never falls to zero).
+
+The input capacitor C1 is used to prevent large voltage transients from occurring at the input of the regulator,
+and provide the large instantanious current when the "switch" is turned on. This capacitor is a 680uF low-ESR
+(equivalent series resistance) electrolytic. Low ESR is important in a buck converter because it allows the capacitor to 
+handle higher current spikes. The output capacitor C2 (also a 680uF low-esr electrolytic) is used to reduce the ripple on the 
+regulator's output and provide stability to the control loop. Even though the regulator's maximum output
+voltage is 5v, a 35v electrolytic is used because capacitors with a higher voltage rating have a lower ESR than ones with a 
+lower voltage rating.
+
+The 
+
 
 * Control Abstraction
   #+attr_latex: :width \linewidth :placement [H]
