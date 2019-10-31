@@ -105,6 +105,13 @@
 *** Power Supply
     Takes the 12v input from the battery and steps the voltage down to 5v
     to power the vehicle's systems. Also provides current and voltage monitoring.
+    
+* Power Supply Design
+The function of the power supply is to step down the 12v (nominal) battery voltage to 5v
+for powering the vehicle's systems. The power supply is designed to be cabable of outputting
+3A with a 9v input (9v is the lowest safe charge for a 3-cell LiPo battery). The system should
+use much less than 3A on average, but a 3A output provides a large saftey margin. 
+[[./figure/pcb_3d_render.PNG]]
 
 
 * Control Abstraction
