@@ -102,6 +102,9 @@
 *** Electronic Speed Controller (DYNS2211)
     Takes in a PWM signal and outputs an amplified and directional PWM
     wave to the vehicle's motor.
+*** Power Supply
+    Takes the 12v input from the battery and steps the voltage down to 5v
+    to power the vehicle's systems. Also provides current and voltage monitoring.
 
 
 * Control Abstraction
