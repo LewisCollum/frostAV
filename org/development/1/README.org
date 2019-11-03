@@ -148,6 +148,9 @@ switches at 150kHz and a standard silicon diode would not switch fast enough.
 
 ** Power Measurement
 
+** PCB Design
+
+** Testing
 
 * Control Abstraction
   #+attr_latex: :width \linewidth :placement [H]
