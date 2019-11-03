@@ -188,14 +188,14 @@ other devices.
 
 ** Testing
 
-#+caption: Test Setup
-#+attr_latex: :width 0.5 \linewidth :placement [H]
-[[./figure/test_diagram.png]]
-
-To test the power supply, the setup shown above will be used. The voltmeters and ammeters are used to measure the current and
+To test the power supply, the setup shown below will be used. The voltmeters and ammeters are used to measure the current and
 voltage at the input and output of the power supply. The potentiometer (or decade resistance box) will be used to place a load
 on the system. The bench power supply can be used to test the range of input voltages, and an oscilloscope can be placed across 
 the power supply's (DUT) terminals to measure the ripple on the output.
+
+#+caption: Test Setup
+#+attr_latex: :width 0.5 \linewidth :placement [H]
+[[./figure/test_diagram.png]]
 
 The switching regulator will be tested first by providing 12.6v to the input, which is the batteries maximum voltage. Then the load on 
 the output will be increased from 0A to 3A in 0.5A steps, and the input and output voltages and currents will be recorded, along 
