@@ -107,6 +107,9 @@
     to power the vehicle's systems. Also provides current and voltage monitoring.
     
 * Power Supply Design
+
+[[./figure/pcb_3d_render.PNG]]
+
 The function of the power supply is to step down the 12v (nominal) battery voltage to 5v
 for powering the vehicle's systems. The power supply is designed to be cabable of outputting
 3A with a 9v input (9v is the lowest safe charge for a 3-cell LiPo battery). The system should
@@ -114,11 +117,10 @@ use much less than 3A on average, but a 3A output provides a large margin of err
 is also capable of measuring the battery voltage and battery current draw and reporting these values
 over the I2C bus.
 
-[[./figure/pcb_3d_render.PNG]]
-
 ** Switching Regulator
-The power supply is implemented using a TI LM2596SM-5.0 buck switching regulator. The switching regulator operates as a buck
-converter. The switching regulator section of the power supply consists of C1, C2, L1, D1 and U2 in the schematic diagram.
+
+The power supply is implemented using a TI LM2596SM-5.0 buck switching regulator. The switching regulator section of the power 
+supply consists of C1, C2, L1, D1 and U2 in the schematic diagram.
 A switching regulator is used instead of a linear regulator (ex. 7805) for efficency reasons. A linear regulator has an 
 efficency of about 40% with a 12v input, whereas a buck converter will have an efficency of about 80-90%.
 A linear regulator also produces a large amount of heat, which would require a large heatsink.
@@ -143,6 +145,8 @@ current of over 3A is needed for the regulator to operate, there were issues wit
 saturating at about 2A and causing the output voltage to go out of regulation. The diode D1 is a 50WQ04 Shottky diode,
 which was choosen because of its low forward voltage and fast recovery. Fast recovery is important because the regulator 
 switches at 150kHz and a standard silicon diode would not switch fast enough.
+
+** Power Measurement
 
 
 * Control Abstraction
