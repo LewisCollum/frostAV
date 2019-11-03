@@ -176,16 +176,39 @@ need to be as thick and short as possible. The back side of the board uses coppe
 to ground as low as possible, and to act as a heatsink for the LM2596. Multiple vias are placed under the LM2596 to help with
 thermal and electrical conductivity. Surface mount components are used to keep leads short and make the finished product as compact as possible. Since the board will be hand soldered, larger pads are used for all components.
 
-The power input and output connectors are 5mm pitch terminal blocks, with a USB port on the output as well. The terminal blocks
-were picked because they are capable of accepting a 20 to 12 AWG wire which will allow more flexability when connecting the 
-power supply into the system. The USB port is used to power the Raspberry Pi, and the terminal block will be used for all the 
-other devices.
 
 #+caption: PCB Layout
 #+attr_latex: :width 0.5 \linewidth :placement [H]
 [[./figure/pcb_2d_render.PNG]]
 
+The power input and output connectors are 5mm pitch terminal blocks, with a USB port on the output as well. The terminal blocks
+were picked because they are capable of accepting a 20 to 12 AWG wire which will allow more flexability when connecting the 
+power supply into the system. The USB port is used to power the Raspberry Pi, and the terminal block will be used for all the 
+other devices.
+
 ** Testing
+
+#+caption: Test Setup
+#+attr_latex: :width 0.5 \linewidth :placement [H]
+[[./figure/test_diagram.png]]
+
+To test the power supply, the setup shown above will be used. The voltmeters and ammeters are used to measure the current and
+voltage at the input and output of the power supply. The potentiometer (or decade resistance box) will be used to place a load
+on the system. The bench power supply can be used to test the range of input voltages, and an oscilloscope can be placed across 
+the power supply's (DUT) terminals to measure the ripple on the output.
+
+The switching regulator will be tested first by providing 12.6v to the input, which is the batteries maximum voltage. Then the load on 
+the output will be increased from 0A to 3A in 0.5A steps, and the input and output voltages and currents will be recorded, along 
+with the peak-to-peak ripple. This will then be repeated with an input voltage of 12.0v 11v 10v and 9v which will simulate the 
+full range of battery voltages. These tests will ensure that the switching regulator is capable of providing the required output
+at all possible battery voltages.
+
+Next, the power measurement section will be tested and calibrated. An Arduino will be connected to the I2C terminals on the 
+power supply, and a simple sketch will be used to report the measured voltage, current and power over the serial console.
+The bench power supply will be adjusted until it is outputting exactly 10v, and then the difference between the measured and
+actual voltage will be found to get a calibration factor. Next, the power supply will be loaded until the input current is
+exactly 1.0A. Then the difference between the measured and actual current will be found to find a calibration factor.
+The calibration factors will then be written into the calibration registers on the INA226.
 
 
 * Control Abstraction
