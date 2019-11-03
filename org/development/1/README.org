@@ -181,10 +181,17 @@ thermal and electrical conductivity. Surface mount components are used to keep l
 #+attr_latex: :width 0.5 \linewidth :placement [H]
 [[./figure/pcb_2d_render.PNG]]
 
-The power input and output connectors are 5mm pitch terminal blocks, with a USB port on the output as well. The terminal blocks
+The PCB and schematic were designed in KiCad, and while component footprints were available for most parts there was nothing
+matching the inductor so a custom footprint was made. The custom footprint was designed in the KiCad component editor. 
+The component's datasheet was referenced for the size and spacing of the solder pads. The solder pads were widened and 
+lengthened slightly to allow for easier hand soldering, although the spacing between them remains unchanged. Two 2.1 mm diameter
+mounting holes are included in the layout.
+
+The power input and output connectors are 5mm pitch terminal blocks, in addition to a USB output port. The terminal blocks
 were picked because they are capable of accepting a 20 to 12 AWG wire which will allow more flexability when connecting the 
-power supply into the system. The USB port is used to power the Raspberry Pi, and the terminal block will be used for all the 
-other devices.
+power supply into the system. The battery will be directly connected to the input terminals, the Raspberry Pi will be connected
+to the USB port (with a small microUSB cable) and all other 5v devices will be connected to the output terminals. The I2C 
+signals from the INA226 are routed to a pin header, with pull up resistors.
 
 ** Testing
 
