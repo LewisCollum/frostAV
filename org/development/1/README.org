@@ -125,6 +125,7 @@ A switching regulator is used instead of a linear regulator (ex. 7805) for effic
 efficency of about 40% with a 12v input, whereas a buck converter will have an efficency of about 80-90%.
 A linear regulator also produces a large amount of heat, which would require a large heatsink.
 
+#+caption: Power Supply Schematic
 [[./figure/schematic.PNG]]
 
 The regulator operates in a buck configuration, in continuous mode (the inductor current never falls to zero).
@@ -134,6 +135,7 @@ across the load (following KVL). When the switch opens again, the inductor acts 
 through the load. This switching creates voltage spikes, so the output capacitor is used to smooth them out. The output
 voltage is controlled by varying the ratio of switch on time vs off time.
 
+#+name: buck_diagram
 #+attr_latex: :width 0.5 \linewidth
 [[./figure/buck_diagram.png]]
 
@@ -144,7 +146,7 @@ SRP1038C-330M) was chosen because it is capable of handling 4A of DC current and
 current of over 3A is needed for the regulator to operate, there were issues with the prototype where the inductor was 
 saturating at about 2A and causing the output voltage to go out of regulation. The diode D1 is a 50WQ04 Shottky diode,
 which was choosen because of its low forward voltage and fast recovery. Fast recovery is important because the regulator 
-switches at 150kHz and a standard silicon diode would not switch fast enough.
+switches at 150kHz and a standard silicon diode would not switch fast enough. 
 
 ** Power Measurement
 
@@ -162,6 +164,15 @@ wired-bus with an I2C address of 0x40. The power and voltage measurements will b
 and the voltage measurement will be used to allow the system to put the car into a safe state before the battery is empty.
 
 ** PCB Design
+
+A PCB (printed circuit board) was designed for the power supply to provide more physical durability, as well as more stability
+for the buck converter. Since the buck converter operates at 150kHz traces connecting the inductor, output capacitor and diode
+need to be as thick and short as possible. The back side of the board uses copper fill as a ground plane to keep the impedance
+to ground as low as possible, and to act as a heatsink for the LM2596. Multiple vias are placed under the LM2596 to help with
+thermal and electrical conductivity. Surface mount components are used to keep leads short and make the finished product as compact as possible. Since the board will be hand soldered, the
+
+#+attr_latex: :width 0.5 \linewidth
+[[./figure/pcb_2d_render.PNG]]
 
 ** Testing
 
