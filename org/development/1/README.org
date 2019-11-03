@@ -148,6 +148,19 @@ switches at 150kHz and a standard silicon diode would not switch fast enough.
 
 ** Power Measurement
 
+#+attr_latex: :width 0.5 \linewidth
+[[./figure/ina226.png]]
+
+A TI INA226 power monitor IC is used to measure the total power used by the system. This IC measures the total system power
+by measuring the input voltage and the voltage across a shunt resistor. The shunt resistor (shown as Rsense in the schematic)
+is connected in series with the input of the switching regulator to provide a more accurate reading. The resistor has a value of
+0.002 ohm, and the current flowing through it can be calculated using Ohm's law. 
+
+The INA226 communicates using I2C and provides current, voltage and power measurements as well as the voltage across the shunt
+resistor. It also supports alerts over I2C and a dedicated digital output. The INA226 will be connected into the system wide
+wired-bus with an I2C address of 0x40. The power and voltage measurements will be used to calculate the remaining battery life, 
+and the voltage measurement will be used to allow the system to put the car into a safe state before the battery is empty.
+
 ** PCB Design
 
 ** Testing
