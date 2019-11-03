@@ -136,12 +136,11 @@ voltage is controlled by varying the ratio of switch on time vs off time.
 #+ATTR_HTML: :style margin-left: auto; margin-right: auto;
 [[./figure/buck_diagram.png]]
 
-The input capacitor C1 is used to prevent large voltage transients from occurring at the input of the regulator,
-and provide the large instantanious current when the "switch" is turned on. This capacitor is a 680uF low-ESR
-(equivalent series resistance) electrolytic. Low ESR is important in a buck converter because it allows the capacitor to 
-handle higher current spikes. The output capacitor C2 (also a 680uF low-esr electrolytic) is used to reduce the ripple on the 
-regulator's output and provide stability to the control loop.
-
+The capacitors used for the switching section, C1 and C2 are both low ESR (equivalent series resistance) electrolytics.
+Low ESR capacitors are used so that they are capable of handling high current spikes without overheating. The inductor has a 
+value of 330uH, which allows the regulator to operate in continuous mode to improve efficency. The specific inductor (Bourns
+SRP1038C-330M) was chosen because it is capable of handling 4A of DC current and has a saturation current of 6A. A saturation 
+current of over 3A is needed for the regulator to operate, 
 
 
 * Control Abstraction
