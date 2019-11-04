@@ -8,8 +8,8 @@ class TestClamp: public CxxTest::TestSuite {
 public:
     void setUp() {
         bounds = {
-            .upper = 20,
-            .lower = 10
+            .lower = 10,
+            .upper = 20
         };
         
         clamp = Clamp::makeFromBounds(bounds);
