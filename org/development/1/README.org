@@ -109,11 +109,11 @@
 * Power Supply Design
 
 #+caption: 3D Render of Power Supply
-#+attr_latex: :placement [H]
+#+attr_latex: :width 0.8\linewidth :placement [H]
 [[./figure/pcb_3d_render.PNG]]
 
 The function of the power supply is to step down the 12v (nominal) battery voltage to 5v
-for powering the vehicle's systems. The power supply is designed to be cabable of outputting
+for powering the vehicle's systems. The power supply is designed to be capable of outputting
 3A with a 9v input (9v is the lowest safe charge for a 3-cell LiPo battery). The system should
 use much less than 3A on average, but a 3A output provides a large margin of error. The power supply
 is also capable of measuring the battery voltage and battery current draw and reporting these values
@@ -123,12 +123,12 @@ over the I2C bus.
 
 The power supply is implemented using a TI LM2596SM-5.0 buck switching regulator. The switching regulator section of the power 
 supply consists of C1, C2, L1, D1 and U2 in the schematic diagram.
-A switching regulator is used instead of a linear regulator (ex. 7805) for efficency reasons. A linear regulator has an 
-efficency of about 40% with a 12v input, whereas a buck converter will have an efficency of about 80-90%.
+A switching regulator is used instead of a linear regulator (ex. 7805) for efficiency reasons. A linear regulator has an 
+efficiency of about 40% with a 12v input, whereas a buck converter will have an efficiency of about 80-90%.
 A linear regulator also produces a large amount of heat, which would require a large heatsink.
 
 #+caption: Power Supply Schematic
-#+attr_latex: :placement [H]
+#+attr_latex: :width \linewidth :placement [H]
 [[./figure/schematic.PNG]]
 
 The regulator operates in a buck configuration, in continuous mode (the inductor current never falls to zero).
@@ -145,11 +145,11 @@ voltage is controlled by varying the ratio of switch on time vs off time.
 
 The capacitors used for the switching section, C1 and C2 are both low ESR (equivalent series resistance) electrolytics.
 Low ESR capacitors are used so that they are capable of handling high current spikes without overheating. The inductor has a 
-value of 330uH, which allows the regulator to operate in continuous mode to improve efficency. The specific inductor (Bourns
+value of 330uH, which allows the regulator to operate in continuous mode to improve efficiency. The specific inductor (Bourns
 SRP1038C-330M) was chosen because it is capable of handling 4A of DC current and has a saturation current of 6A. A saturation 
 current of over 3A is needed for the regulator to operate, there were issues with the prototype where the inductor was 
 saturating at about 2A and causing the output voltage to go out of regulation. The diode D1 is a 50WQ04 Shottky diode,
-which was choosen because of its low forward voltage and fast recovery. Fast recovery is important because the regulator 
+which was chosen because of its low forward voltage and fast recovery. Fast recovery is important because the regulator 
 switches at 150kHz and a standard silicon diode would not switch fast enough. 
 
 ** Power Measurement
@@ -188,7 +188,7 @@ lengthened slightly to allow for easier hand soldering, although the spacing bet
 mounting holes are included in the layout.
 
 The power input and output connectors are 5mm pitch terminal blocks, in addition to a USB output port. The terminal blocks
-were picked because they are capable of accepting a 20 to 12 AWG wire which will allow more flexability when connecting the 
+were picked because they are capable of accepting a 20 to 12 AWG wire which will allow more flexibility when connecting the 
 power supply into the system. The battery will be directly connected to the input terminals, the Raspberry Pi will be connected
 to the USB port (with a small microUSB cable) and all other 5v devices will be connected to the output terminals. The I2C 
 signals from the INA226 are routed to a pin header, with pull up resistors.
@@ -201,7 +201,7 @@ on the system. The bench power supply can be used to test the range of input vol
 the power supply's (DUT) terminals to measure the ripple on the output.
 
 #+caption: Test Setup
-#+attr_latex: :width 0.5 \linewidth :placement [H]
+#+attr_latex: :width 0.8 \linewidth :placement [H]
 [[./figure/test_diagram.png]]
 
 The switching regulator will be tested first by providing 12.6v to the input, which is the batteries maximum voltage. Then the load on 
