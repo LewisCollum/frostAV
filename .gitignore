@@ -5,3 +5,8 @@
 *.tex
 *scrap*
 clean
+
+# C/C++
+**.o
+**.elf
+**.hex
