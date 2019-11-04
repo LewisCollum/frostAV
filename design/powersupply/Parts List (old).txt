@@ -1,0 +1,24 @@
+Parts list:
+
+LM2596SX-5.0 -- regulator
+
+SRP1038C-330M --inductor
+
+VS-50WQ04FN-M3 --diode
+
+
+EEU-FK1V681L --680uf capacitor
+
+UPM1V471MPD --470uf capacitor
+
+SS-52100-001 -- USB connector
+
+2x AK300/2 -- Terminal Block
+
+INA226AIDGSR -- current monitor
+
+PA1206FRF070R002L -- shunt resistor
+
+2x CRCW08054K70FKEBC -- pull up i2c
+
+C0805C104J5RACTU -- current monitor bypass capacitor 0.1 uF
