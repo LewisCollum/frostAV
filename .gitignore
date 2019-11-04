@@ -10,3 +10,6 @@ clean
 **.o
 **.elf
 **.hex
+
+# CxxTest
+**runner*
