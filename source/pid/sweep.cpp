@@ -30,10 +30,10 @@ int main() {
 	ICR1 = hertzToCycles(pwmFrequency)-1;
 
 	while(1) {
-		OCR1A = ICR1 - microsToCycles(2000);
-		_delay_ms(1000);
-		OCR1A = ICR1 - microsToCycles(1000);
-		_delay_ms(1000);
+		OCR1A = ICR1 - microsToCycles(2200);
+		_delay_ms(500);
+		OCR1A = ICR1 - microsToCycles(750);
+		_delay_ms(500);
 	}
 
 	return 0;
