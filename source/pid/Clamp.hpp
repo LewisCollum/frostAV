@@ -4,24 +4,24 @@
 #include <stdint.h>
 
 struct Bounds {
-    int16_t upper;
     int16_t lower;
+    int16_t upper;
 };
 
 class Clamp {
     Bounds bounds;
 
 public:
-    static Clamp makeFromBounds(Bounds bounds) {
+    inline static Clamp makeFromBounds(Bounds bounds) {
         return Clamp(bounds);
     }
 
     Clamp(Bounds bounds): bounds{bounds} {}
     Clamp() {}
     int16_t clamp(int16_t value) {
-        if (value >= bounds.upper) return bounds.upper;
-        else if (value <= bounds.lower) return bounds.lower;
-        else return value;
+        return (value < bounds.lower) ? bounds.lower :
+            (value > bounds.upper) ? bounds.upper:
+            value;
     }
 };
 
