@@ -1,6 +1,8 @@
 #+LATEX_HEADER: \usepackage[letterpaper, margin = 1in]{geometry}
 #+options: toc:t num:t
 #+export_exclude_tags: noexport
+#+latex_header: \usepackage{xcolor}
+#+latex_header: \definecolor{code}{rgb}{0.95,0.95,0.95}
 
 #+title: FrostAV Development
 #+subtitle: Stage 1: Base
@@ -135,7 +137,6 @@
    #+caption: A block diagram of a PID controller in a feedback loop. r(t) is the desired process value or setpoint (SP), and y(t) is the measured process value (PV). \footnotesize /Arturo Urquizo, CC BY-SA 3.0 https://creativecommons.org/licenses/by-sa/3.0/
    #+attr_latex: :width 0.6\linewidth :placement [H]
    [[./figure/2019-11-05_pidBlockDiagram.png]]
-
    
 ** Parts
    #+name: table:pidParts
