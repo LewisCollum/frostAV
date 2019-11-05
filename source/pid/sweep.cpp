@@ -1,9 +1,10 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdlib.h>
-#include <string.h>
-//#include "Pid.hpp"
+#include "Pid.hpp"
 #include "Clamp.hpp"
+#include "String.hpp"
+#include "usart.hpp"
 
 constexpr uint8_t prescaler = 8;
 constexpr uint32_t clockFrequency = F_CPU;
@@ -36,81 +37,53 @@ static void setupServoPwm() {
 	ICR1 = hertzToCycles(pwmFrequency)-1;
 }
 
-static void putChar(char c) {
-    while (!(UCSR0A & 1<<UDRE0));
-    UDR0 = c;    
-}
-
-static void putString(char* string) {
-    while (*string) putChar(*string++);
-}
-
-static void print(char* string) {
-    putString(string);
-    putChar('\n');
-}
-
-static char getChar() {
-    while (!(UCSR0A & 1<<RXC0));
-    return UDR0;    
-}
-
-template<int16_t capacity>
-class String {
-    int16_t size;
-    char string[capacity];
-    
-public:
-    void append(char c) {
-        if (size < capacity) string[size++] = c;
-    }
-    
-    String(): size{0}, string{0} {}
-
-    void clear() {
-        memset(string, 0, size);
-        size = 0;
-    }
-
-    operator char*() { return string; }
-    operator const char*() { return string; }
-};
-
-
 int main() {
-    
-    Clamp steeringClamp = Clamp(Bounds{
-            .lower = 750,
-            .upper = 2200
-        });
-
-
+    usart::setup(clockFrequency, baud);
     setupServoPwm();
-
-    uint8_t ubrr = clockFrequency/16/baud - 1;
-    UBRR0H = ubrr >> 8;
-    UBRR0L = ubrr;
-
-    //Enable Transmitter & Receiver
-    UCSR0B = 1 << RXEN0 | 1 << TXEN0;
-    //Frame Format: 8 data, 2 stop
-    UCSR0C = 1 << USBS0 | 3 << UCSZ00;
-
+    
+    Clamp steeringClamp = Clamp::makeFromBounds({
+            .lower = 800,
+            .upper = 2200 });
+    Pid steeringPid = Pid::makeFromScaledGain(10, {
+            .proportional = 10,
+            .integral = 0,
+            .derivative = 0 });
+    
     String<10> message;
     char currentChar;
+    int16_t idealServoMicros = 1500;
 	while(1) {
-        currentChar = getChar();
-        if (currentChar != '\n') {
-            message.append(currentChar);
-        }
+        currentChar = usart::getChar();
+        
+        if (currentChar != '\n') message.append(currentChar);
         else {
-            print(message);
-            int16_t packet = atoi(message);
-            int16_t servoMicros = steeringClamp.clamp(packet);
+            usart::print("GOT: ");
+            usart::print(message);
+            usart::print('\n');
+            
+            int16_t initialServoMicros = atoi(message);
+            int16_t servoMicros = steeringClamp.clamp(initialServoMicros);
+            OCR1A = ICR1 - microsToCycles(initialServoMicros);
+            _delay_ms(1000);            
+            
+            int16_t error = idealServoMicros - servoMicros;
+            for (uint32_t i = 0; i < 15; ++i) {
+                servoMicros = steeringPid.updateError(error) + servoMicros;
 
-            OCR1A = ICR1 - microsToCycles(servoMicros);
-            _delay_ms(1000);
+                String<10> buffer;
+                itoa(servoMicros, buffer, 10); 
+                usart::print(buffer); usart::print('\n');
+
+                servoMicros = steeringClamp.clamp(servoMicros);
+                OCR1A = ICR1 - microsToCycles(servoMicros);
+                _delay_ms(100);
+
+                //TODO replace with actual feedback error
+                error = idealServoMicros - servoMicros;
+            }
+            
             message.clear();
+            usart::print(">> ");
         } 
 	}
 }
