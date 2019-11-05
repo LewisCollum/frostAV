@@ -63,7 +63,7 @@ int main() {
             
             int16_t initialServoMicros = atoi(message);
             int16_t servoMicros = steeringClamp.clamp(initialServoMicros);
-            OCR1A = ICR1 - microsToCycles(initialServoMicros);
+            OCR1A = ICR1 - microsToCycles(servoMicros);
             _delay_ms(1000);            
             
             int16_t error = idealServoMicros - servoMicros;
