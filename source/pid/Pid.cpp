@@ -7,5 +7,5 @@ int16_t Pid::updateError(int16_t newError) {
 
     return (gain.proportional*error.proportional +
             gain.integral*error.integral +
-            gain.derivative*error.derivative) / scale ;    
+            gain.derivative*error.derivative) / scale ;
 }

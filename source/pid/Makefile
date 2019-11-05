@@ -10,10 +10,10 @@ OBJCOPY=$(CROSS_COMPILE)objcopy
 CXXFLAGS=-Os -Wall -DF_CPU=$(F_CPU) -mmcu=atmega328p -std=gnu++17
 
 F_CPU=16000000UL
-PORT=/dev/ttyACM0
+PORT=/dev/ttyUSB0
 DEVICE=ATMEGA328P
 PROGRAMMER=arduino
-FLASH_BAUD=115200
+FLASH_BAUD=57600
 COM_BAUD=9600
 
 TESTS = TestPid.hpp TestClamp.hpp
@@ -49,3 +49,4 @@ clean:
 	rm -f ${BIN}.elf ${BIN}.hex $(OBJ) $(TEST_RUNNER)* $(DEP)
 
 .PHONY: clean
+

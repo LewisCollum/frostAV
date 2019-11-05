@@ -1,15 +1,18 @@
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include <util/delay.h>
 #include <stdlib.h>
 #include "Pid.hpp"
 #include "Clamp.hpp"
 #include "String.hpp"
-#include "usart.hpp"
+//#include "usart.hpp"
+#include "I2C_slave.hpp"
 
 constexpr uint8_t prescaler = 8;
 constexpr uint32_t clockFrequency = F_CPU;
 constexpr uint8_t pwmFrequency = 50;
 constexpr uint32_t baud = 9600;
+constexpr uint8_t addr = 0x12;
 
 static constexpr uint32_t microsToCycles(uint16_t micros) {
     constexpr uint32_t unitConversion = 1E6;
@@ -38,7 +41,8 @@ static void setupServoPwm() {
 }
 
 int main() {
-    usart::setup(clockFrequency, baud);
+    //usart::setup(clockFrequency, baud);
+    I2C_init(addr);
     setupServoPwm();
     
     Clamp steeringClamp = Clamp::makeFromBounds({
@@ -53,13 +57,13 @@ int main() {
     char currentChar;
     int16_t idealServoMicros = 1500;
 	while(1) {
-        currentChar = usart::getChar();
+        //currentChar = usart::getChar();
         
         if (currentChar != '\n') message.append(currentChar);
         else {
-            usart::print("GOT: ");
-            usart::print(message);
-            usart::print('\n');
+            //usart::print("GOT: ");
+            //usart::print(message);
+            //usart::print('\n');
             
             int16_t initialServoMicros = atoi(message);
             int16_t servoMicros = steeringClamp.clamp(initialServoMicros);
@@ -72,7 +76,7 @@ int main() {
 
                 String<10> buffer;
                 itoa(servoMicros, buffer, 10); 
-                usart::print(buffer); usart::print('\n');
+                //usart::print(buffer); usart::print('\n');
 
                 servoMicros = steeringClamp.clamp(servoMicros);
                 OCR1A = ICR1 - microsToCycles(servoMicros);
@@ -83,7 +87,7 @@ int main() {
             }
             
             message.clear();
-            usart::print(">> ");
+            //usart::print(">> ");
         } 
 	}
 }
