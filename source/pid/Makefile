@@ -1,33 +1,40 @@
-F_CPU=16000000UL
 BIN=sweep
-OBJS=sweep.o
+
+CPP = $(BIN).cpp $(wildcard *.cpp)
+OBJ = $(CPP:%.cpp=%.o)
+DEP = $(OBJ:%.o=%.d)
+
+CROSS_COMPILE=avr-
+CXX=$(CROSS_COMPILE)g++
+OBJCOPY=$(CROSS_COMPILE)objcopy
+CXXFLAGS=-Os -Wall -DF_CPU=$(F_CPU) -mmcu=atmega328p -std=gnu++17
+
+F_CPU=16000000UL
+PORT=/dev/ttyACM0
+DEVICE=ATMEGA328P
+PROGRAMMER=arduino
+FLASH_BAUD=115200
+COM_BAUD=9600
+
 TESTS = TestPid.hpp TestClamp.hpp
 TEST_SOURCES= Pid.cpp
 TEST_RUNNER = runner
 
-OBJ = $(SRC:.cpp=.o)
-
-CXX=avr-g++
-OBJCOPY=avr-objcopy
-CXXFLAGS=-Os -Wall -DF_CPU=$(F_CPU) -mmcu=atmega328p -std=gnu++14
-port=/dev/ttyACM0
-
-avrDevice=ATMEGA328P
-programmer=arduino
-baud=115200
 
 
-${BIN}.hex: ${BIN}.elf
+$(BIN).hex: $(BIN).elf
 	${OBJCOPY} -O ihex -R .eeprom $< $@
 
-${BIN}.elf: ${OBJS} Clamp.hpp 
-	${CXX} -o $@ $^
+$(BIN).elf: $(OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+-include $(DEP)
 
 %.o: %.cpp
-	 ${CXX} $< -c -o $@ ${CXXFLAGS}
+	 $(CXX) $(CXXFLAGS) -MMD -c $< -o $@ 
 
-install: ${BIN}.hex
-	avrdude -c ${programmer} -P ${port} -p ${avrDevice} -b ${baud} -U flash:w:$<
+flash: $(BIN).hex
+	avrdude -c $(PROGRAMMER) -P $(PORT) -p $(DEVICE) -b $(FLASH_BAUD) -U flash:w:$<
 
 test: $(TESTS)
 	cxxtestgen --error-printer -o $(TEST_RUNNER).cpp $(TESTS)
@@ -35,8 +42,10 @@ test: $(TESTS)
 	./$(TEST_RUNNER)
 
 com:
-	picocom -b 9600 $(port) -p 2
+	picocom -b $(COM_BAUD) $(PORT) -p 2
 
 
 clean:
-	rm -f ${BIN}.elf ${BIN}.hex ${OBJS} $(TEST_RUNNER)*
+	rm -f ${BIN}.elf ${BIN}.hex $(OBJ) $(TEST_RUNNER)* $(DEP)
+
+.PHONY: clean
