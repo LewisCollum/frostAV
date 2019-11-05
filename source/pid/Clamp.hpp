@@ -12,17 +12,19 @@ class Clamp {
     Bounds bounds;
 
 public:
-    inline static Clamp makeFromBounds(Bounds bounds) {
+    constexpr static Clamp makeFromBounds(Bounds bounds) {
         return Clamp(bounds);
     }
 
-    Clamp(Bounds bounds): bounds{bounds} {}
-    Clamp() {}
+    constexpr Clamp(Bounds bounds): bounds{bounds} {}
+
     int16_t clamp(int16_t value) {
         return (value < bounds.lower) ? bounds.lower :
             (value > bounds.upper) ? bounds.upper:
             value;
     }
+
+    Clamp() {}
 };
 
 #endif

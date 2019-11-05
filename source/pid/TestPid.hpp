@@ -2,18 +2,30 @@
 #include "Pid.hpp"
 
 class TestPid: public CxxTest::TestSuite {
-    Pid pid;
-    
 public:
     void test_errorInput_returnsCorrectedOutput() {
-        pid = Pid::makeFromGain({1, 2, 3});
-        pid.updateError(2);
-        TS_ASSERT_EQUALS(pid.output, -12);
+        Pid pid = Pid::makeFromGain({
+                .proportional = 1,
+                .integral = 2,
+                .derivative = 3 });
+        
+        int16_t actual = pid.updateError(2);
+        int16_t expected = 12;
+
+        TS_ASSERT_EQUALS(actual, expected);
     }
 
     void test_scaledGain() {
-        pid = Pid::makeFromScaledGain({100, 200, 300}, 100);
-        pid.updateError(2);
-        TS_ASSERT_EQUALS(pid.output, -12);
+        int16_t scale = 100;
+        
+        Pid pid = Pid::makeFromScaledGain(scale, {
+                .proportional = 100,
+                .integral = 200,
+                .derivative = 300 });
+        
+        int16_t actual = pid.updateError(2);
+        int16_t expected = 12;
+
+        TS_ASSERT_EQUALS(actual, expected);
     }
 };
