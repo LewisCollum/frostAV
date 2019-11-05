@@ -1,6 +1,8 @@
 #+LATEX_HEADER: \usepackage[letterpaper, margin = 1in]{geometry}
 #+options: toc:t num:t
 #+export_exclude_tags: noexport
+#+latex_header: \usepackage{xcolor}
+#+latex_header: \definecolor{code}{rgb}{0.95,0.95,0.95}
 
 #+title: FrostAV Development
 #+subtitle: Stage 1: Base
