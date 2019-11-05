@@ -5,3 +5,6 @@
 *.tex
 *scrap*
 clean
+
+#Latex Minted Artifacts
+**_minted-*
