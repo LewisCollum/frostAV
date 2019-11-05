@@ -125,3 +125,64 @@
 ** COMMENT Resources
    - http://www.mbeddedc.com/2017/09/i2c-bus-arbitration.html
    - https://www.geeksforgeeks.org/bus-arbitration-in-computer-organization/
+
+* Steering PID
+** Concept
+   :PROPERTIES:
+   :CUSTOM_ID: sec:steeringPid_concept
+   :END:
+   #+name: fig:pidBlockDiagram
+   #+caption: A block diagram of a PID controller in a feedback loop. r(t) is the desired process value or setpoint (SP), and y(t) is the measured process value (PV). \footnotesize /Arturo Urquizo, CC BY-SA 3.0 https://creativecommons.org/licenses/by-sa/3.0/
+   #+attr_latex: :width 0.6\linewidth :placement [H]
+   [[./figure/2019-11-05_pidBlockDiagram.png]]
+
+   
+** Parts
+   #+name: table:pidParts
+   #+attr_latex: :placement [H]
+   +----------------+-------------------------------------------+
+   | Part           | Purpose                                   |
+   +----------------+-------------------------------------------+
+   |Arduino Uno (AVR|Steering Vehicle Interface Controller that |
+   |  attmega328p)  | interfaces between the Pi and the vehicle |
+   |                |                  servo.                   |
+   +----------------+-------------------------------------------+
+   |Standard Hobby  |The same type of servo that will be to     |
+   |Servo           |steer the vehicle.                         |
+   +----------------+-------------------------------------------+
+
+** Experimental Setup
+   #+name: fig:pidExperimentalSetup
+   #+caption: The Arduino provides microsecond PWM values from 800 to 2200\(\mu s\) to the servo. The servo reacts to an error value via a software PID controller. Since there is nothing in this setup that generates a true error value, error values must either be simulated or retrieved from a feedback sensor (such as a camera). The values along the circumference are microsecond values that correspond to the servo position; they help verify the accuracy of the PID.
+   #+attr_latex: :width 0.5\linewidth :placement [H]
+   [[./figure/2019-11-05_pidExperimentalSetup.JPG]]
+
+** Software Design
+   All code in this section was compiled using the avr-g++ tool, and
+   using C++17. Test code was compiled with g++ as opposed to avr-g++.
+
+*** USART to Command the Servo from a Terminal Emulator
+    In order to talk to the servo, we need to set up the USART on the
+    AVR microcontroller.
+*** Servo Control 
+    To control the position of the servo, the attmega328p has a 16-bit
+    timer. Once we set up the timer, we can provide it a pulse
+    duration between the accepted values of the servo (typically
+    1-2\(\si{ms}\)).
+*** Clamping
+    One common problem is providing a servo with a PWM value outside
+    the valid range of the servo. For example, our servo has a maximum
+    acceptable pulse width of 2200\(\mu s\). If we provide our servo
+    with a pulse width 2300\(\mu s\), it could damage the servo. We
+    will discuss a simple method for clamping the pulse widths
+    provided to the servo.
+*** PID
+    As discussed in section [[#sec:steeringPid_concept]], a PID will
+    provide reactive control to the servo from error feedback. In our
+    system, the camera detects lanes. The further the car is from
+    being centered between those lanes, the greater the error that is
+    input into our steering PID. We've encapsulated the algorithm for
+    a PID in a class.
+*** Makefile to Facilitate Building, Running, and Testing
+    A makefile keeps builds up to date. It can also be as a general
+    purpose script for shell commands, as we will see.
