@@ -504,7 +504,6 @@ public:
     =makeFromGain=.
 
     The definition of the =updateError= function is
-    #+attr_latex: :options bgcolor=code
     #+BEGIN_SRC C++
 int16_t Pid::updateError(int16_t newError) {
     error.integral += newError;
@@ -576,18 +575,6 @@ public:
     #+caption: Note that this PID is not tuned at all, and that the error we are using is not based on a real feedback error from a sensor. This demo is purely to show that the system is prepared for real feedback error from the OpenCV system.
     #+attr_latex: :width 0.8\linewidth :placement [H]
     [[./figure/2019-11-06_steeringPid_usartLog.png]]
-* Future
-** I2C Arbitration
-   It is expected that modules communicating on the wired bus will
-   need to communicate with each-other. In this case, there would be
-   multiple masters on a single i2c bus. To implement this,
-   arbitration would be necessary so that masters on the bus do not
-   interrupt each other.
-    
-    
-** COMMENT Resources
-   - http://www.mbeddedc.com/2017/09/i2c-bus-arbitration.html
-   - https://www.geeksforgeeks.org/bus-arbitration-in-computer-organization/
 
 * Appendix: Code
 ** Steering PID
@@ -909,9 +896,11 @@ clean:
     #+END_SRC
 
 * Resources                                                        :noexport:
+   - http://www.mbeddedc.com/2017/09/i2c-bus-arbitration.html
+   - https://www.geeksforgeeks.org/bus-arbitration-in-computer-organization/
+
 ** Images
    - Raspi 2 B+:
      https://images-na.ssl-images-amazon.com/images/I/810xXvVWWwL._SX679_.jpg
    - Attmega328p:     https://robu.in/wp-content/uploads/2018/11/ATmega328P-PU-PDIP-28-Microcontroller-1.jpg
    - 
-
