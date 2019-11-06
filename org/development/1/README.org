@@ -137,6 +137,29 @@
    #+caption: A block diagram of a PID controller in a feedback loop. r(t) is the desired process value or setpoint (SP), and y(t) is the measured process value (PV). \footnotesize /Arturo Urquizo, CC BY-SA 3.0 https://creativecommons.org/licenses/by-sa/3.0/
    #+attr_latex: :width 0.6\linewidth :placement [H]
    [[./figure/2019-11-05_pidBlockDiagram.png]]
+
+   A PID controller can be used to correct the steering of an
+   autonomous vehicle. Given a vehicle with the task of following a
+   line or path, the vehicle must be able to detect the path as well
+   as where it is in relation to the path. The difference can be
+   taken from these two pieces of information to form the cross-track
+   error. The cross-track error will be sent as the input to the PID
+   --- in figure [[fig:pidBlockDiagram]], the cross-track error is denoted
+   \(e(t)\). 
+
+   The PID has three control terms that are summed together to get a
+   control variable output. Proportional control allows the vehicle to
+   steer harder when it is further from the path. Derivative control
+   induces a resistance to the pull from the proportional control;
+   this brings the car smoothly back to the path in a timely manner
+   while reducing the chance that the vehicle will overshoot the path
+   due to the proportional control. Finally, the integral control
+   corrects for external effects such as wind and terrain. 
+
+   Each of these controls rely on a properly tuned PID. To tune a PID,
+   each control term has a gain which must be adjusted until the
+   system is stable. Such details will not be covered in this
+   document.
    
 ** Parts
    #+name: table:pidParts
@@ -170,13 +193,152 @@
     timer. Once we set up the timer, we can provide it a pulse
     duration between the accepted values of the servo (typically
     1-2\(\si{ms}\)).
+
+    The code for the servo is at the register level. Ideally, one
+    should use a hardware abstraction layer (HAL) to avoid writing
+    production code at a register level. In our =main.cpp= file, we
+    have the following to set up our servo.
+
+    #+BEGIN_SRC C++
+#include <avr/io.h>
+
+static constexpr uint32_t hertzToCycles(uint16_t hertz) {
+    return clockFrequency/prescaler/hertz;
+}
+
+static void setupServoPwm() {
+	DDRB |= 1 << PINB1; //Set pin 9 on arduino to output
+
+	TCCR1A |=
+        1 << WGM11 | //PWM Mode 14 (1/3)
+        1 << COM1A0 | //Inverting Mode (1/2)
+        1 << COM1A1; //Inverting Mode (2/2)
+    
+	TCCR1B |=
+        1 << WGM12 | //PWM Mode 14 (2/3)
+        1 << WGM13 | //PWM Mode 14 (3/3)
+        1 << CS11; //Prescaler: 8
+
+    //50Hz PWM to cycles for servo
+	ICR1 = hertzToCycles(pwmFrequency)-1;
+}
+    #+END_SRC
+
+    Information regarding the registers is in the attmega328p
+    datasheet. Importantly, the servo uses the MCU's 16-bit
+    Timer/Counter1 with PWM.
 *** Clamping
     One common problem is providing a servo with a PWM value outside
     the valid range of the servo. For example, our servo has a maximum
     acceptable pulse width of 2200\(\mu s\). If we provide our servo
     with a pulse width 2300\(\mu s\), it could damage the servo. We
     will discuss a simple method for clamping the pulse widths
-    provided to the servo.
+    provided to the servo. 
+
+    The =Clamp= class looks as follows:
+    
+    #+attr_latex: :options bgcolor=code
+    #+BEGIN_SRC C++
+#ifndef CLAMP_HPP
+#define CLAMP_HPP
+
+#include <stdint.h>
+
+struct Bounds {
+    int16_t lower;
+    int16_t upper;
+};
+
+class Clamp {
+    Bounds bounds;
+
+public:
+    constexpr static Clamp makeFromBounds(Bounds bounds) {
+        return Clamp(bounds);
+    }
+
+    constexpr Clamp(Bounds bounds): bounds{bounds} {}
+
+    int16_t clamp(int16_t value) {
+        return (value < bounds.lower) ? bounds.lower :
+            (value > bounds.upper) ? bounds.upper:
+            value;
+    }
+
+    Clamp() {}
+};
+
+#endif    
+    #+END_SRC
+
+    The class takes in a =Bounds= and uses the =clamp= member function
+    to output a value between the upper and lower bounds. Since we are
+    using this code on a microcontroller, we want an object of type
+    =Clamp= to be initialized at compile-time. To do this we declare
+    the constructor, and the static factory method, as =constexpr=. To
+    ensure compile-time initialization, we must pass a constant
+    expression or rvalue to either the static factory method or the
+    constructor. 
+    
+    Here is a unit test suite, using CxxTest, for the =Clamp= class:
+    #+attr_latex: :options bgcolor=code
+    #+BEGIN_SRC C++
+#include <cxxtest/TestSuite.h>
+#include "Clamp.hpp"
+
+class TestClamp: public CxxTest::TestSuite {
+    Clamp clamp;
+    Bounds bounds;
+    
+public:
+    void setUp() {
+        bounds = {
+            .lower = 10,
+            .upper = 20
+        };
+        
+        clamp = Clamp::makeFromBounds(bounds);
+    }
+    
+    void test_inputAboveUpper_clampsToUpper() {
+        int16_t expected = bounds.upper;
+        int16_t actual = clamp.clamp(25);
+        TS_ASSERT_EQUALS(actual, expected);
+    }
+
+    void test_inputBelowLower_clampsToLower() {
+        int16_t expected = bounds.lower;
+        int16_t actual = clamp.clamp(5);
+        TS_ASSERT_EQUALS(actual, expected);
+    }
+
+    void test_inputBetweenBounds_noClamp() {
+        int16_t expected = 15;
+        int16_t actual = clamp.clamp(15);
+        TS_ASSERT_EQUALS(actual, expected);
+    }
+};
+    #+END_SRC
+
+    Each =test_= function in the test suite demonstrates the
+    functionality of the =Clamp= class. It also includes the way we
+    recommend instantiating the =Clamp= class. That is, by using the
+    static factory method as opposed to the constructor.
+    #+attr_latex: :options bgcolor=code
+    #+BEGIN_SRC C++
+clamp = Clamp::makeFromBounds({
+        .lower = 10,
+        .upper = 20 });
+    #+END_SRC
+
+    This is purely for readability, so the reader can understand
+    that a =Clamp= object requires a =Bounds=.
+
+    Again, after instantiating the =Clamp= class, you can use it as,
+    #+BEGIN_SRC C++
+int16_t clampedValue = clamp.clamp(5); // Returns 10 since the lower bound is 10.
+    #+END_SRC
+ 
 *** PID
     As discussed in section [[#sec:steeringPid_concept]], a PID will
     provide reactive control to the servo from error feedback. In our
@@ -184,6 +346,114 @@
     being centered between those lanes, the greater the error that is
     input into our steering PID. We've encapsulated the algorithm for
     a PID in a class.
+
+    #+BEGIN_SRC C++
+#ifndef PID_HPP
+#define PID_HPP
+
+#include <stdint.h>
+
+struct Pid {
+    struct Component {
+        int16_t proportional;
+        int16_t integral;
+        int16_t derivative;
+    };
+
+private:    
+    Component gain;
+    Component error;
+    int16_t scale;
+    
+public:
+    int16_t updateError(int16_t error);
+    
+    constexpr static Pid makeFromGain(Component gain) {
+        return Pid(gain);
+    }
+    
+    constexpr explicit Pid(Component gain):
+        gain{gain}, error{}, scale{1} {}
+
+    
+    constexpr static Pid makeFromScaledGain(int16_t scale, Component gain) {
+        return Pid(scale, gain);
+    }
+    
+    constexpr Pid(int16_t scale, Component gain):
+        gain{gain}, error{}, scale{scale} {}
+
+    Pid() {}
+};
+
+#endif
+    #+END_SRC
+
+    The PID takes in a structure of gains (proportional, integral, and
+    derivative). Then, when =updateError= is called, it will return
+    the control variable output of the PID. 
+
+    Since we may have gains that are decimal values, and assuming we
+    don't want to do floating point arithmetic on a microcontroller,
+    we've included a scale variable which divides the final output of
+    the PID. This means if we provide a gain value of =1= (for one of
+    the control gains) and a scale of =10=, then we equivalently have
+    a gain value of =1/10=. To get this behavior, we use the
+    =makeFromScaleGain= to instantiate the =Pid= class, instead of
+    =makeFromGain=.
+
+    The definition of the =updateError= function is
+    #+BEGIN_SRC C++
+int16_t Pid::updateError(int16_t newError) {
+    error.integral += newError;
+    error.derivative = newError - error.proportional;
+    error.proportional = newError;
+
+    return (gain.proportional*error.proportional +
+            gain.integral*error.integral +
+            gain.derivative*error.derivative) / scale ;    
+}
+    #+END_SRC
+
+    Notice the result is divided by scale, as discussed
+    above. Furthermore, we've provided a unit test that demonstrates
+    how to use this class.
+
+    #+BEGIN_SRC C++
+#include <cxxtest/TestSuite.h>
+#include "Pid.hpp"
+
+class TestPid: public CxxTest::TestSuite {
+public:
+    void test_errorInput_returnsCorrectedOutput() {
+        Pid pid = Pid::makeFromGain({
+                .proportional = 1,
+                .integral = 2,
+                .derivative = 3 });
+        
+        int16_t actual = pid.updateError(2);
+        int16_t expected = 12;
+
+        TS_ASSERT_EQUALS(actual, expected);
+    }
+
+    void test_scaledGain() {
+        int16_t scale = 100;
+        
+        Pid pid = Pid::makeFromScaledGain(scale, {
+                .proportional = 100,
+                .integral = 200,
+                .derivative = 300 });
+        
+        int16_t actual = pid.updateError(2);
+        int16_t expected = 12;
+
+        TS_ASSERT_EQUALS(actual, expected);
+    }
+};    
+    #+END_SRC
+
+    Ideally, the user would call =updateError= iteratively
 *** Makefile to Facilitate Building, Running, and Testing
     A makefile keeps builds up to date. It can also be as a general
     purpose script for shell commands, as we will see.
