@@ -3,16 +3,14 @@
 #+export_exclude_tags: noexport
 #+latex_header: \usepackage{xcolor}
 #+latex_header: \definecolor{code}{rgb}{0.95,0.95,0.95}
+#+latex_header: \setlength\parindent{0pt}
+#+latex_header: \usepackage{parskip}
 
 #+title: FrostAV Development
 #+subtitle: Stage 1: Base
 #+date: Updated \today
 
 * System Abstraction
-  #+attr_latex: :width 0.8\linewidth :placement [H]
-  #+caption: Fundamental module abstraction. Consists of a wired-bus for inter-communication between modules on the Frost vehicle, and a wireless-bus for communication with a server or an ssh client. Bridge Controllers act as the coupling between the vehicle and the modules that do not depend on the vehicle interface. 
-  [[../figure/2019-09-16_AbstractSystem.png]]
-
 ** Abstract System Operation Description
    The Frost Autonomous Vehicle consists of a vehicle and a system for
    controlling the vehicle. The vehicle provides an interface mainly
@@ -28,6 +26,10 @@
    devices that are not on the vehicle itself. Overall, the abstract
    system provides a map for how information is received and directed
    towards the vehicle's interaction with the environment. 
+
+   #+attr_latex: :width 0.8\linewidth :placement [H]
+   #+caption: Fundamental module abstraction. Consists of a wired-bus for inter-communication between modules on the Frost vehicle, and a wireless-bus for communication with a server or an ssh client. Bridge Controllers act as the coupling between the vehicle and the modules that do not depend on the vehicle interface. 
+   [[../figure/2019-09-16_AbstractSystem.png]]
 
 ** Bridge Controllers
    "Bridge" refers to a software design pattern from the Gang of Four,
@@ -60,6 +62,19 @@
    Bridge Controller has a PWM output that is handled by the
    electronic speed controller (ESC), which drives the motor.
 
+   Overall, this system operates in a feedback loop commonly
+   illustrated similar to the figure below.
+
+   #+name: fig:controlLoop
+   #+attr_latex: :width 0.6\linewidth :placement [H]
+   #+caption: A simple feedback loop for an autonomous car.
+  [[../figure/2019-10-24_controlLoop.png]]   
+
+** Feedback Loop Flow of Information
+   #+attr_latex: :width \linewidth :placement [H]
+   #+caption: A concrete illustration of the feedback loop in figure [[fig:controlLoop]]
+   [[../figure/2019-10-24_cameraToControl.png]]
+
 ** System Assumptions
   The assumption made in this development stage is that the motor
   speed and servo steering angle can be controlled individually, such
@@ -69,7 +84,6 @@
   meant to simplify the \(I^2C\) wired-bus configuration - since
   bi-directional communication on this bus would require
   arbitration. 
-
 ** Bus Communication
    JSON will be used as the format for data for both the wireless and
    wired buses. JSON provides easy to understand data structure
@@ -93,42 +107,31 @@
     for processing camera information from the PS3 Eye. It is also
     responsible for being the Networker, which transfers information
     between the wired and wireless buses.
-*** Servo Bridge Controller (ATMEGA328P)
-    Processes commands from the wired-bus to control the vehicle
-    steering servo.
-*** Motor Bridge Controller (ATMEGA328P)
-    Processes commands from the wired-bus to control the vehicle
-    motor's speed.
+    
+    #+attr_latex: :width 0.4\linewidth :placement [H]
+    [[./figure/2019-11-06_raspberryPi2BPlus.jpg]]
+
+*** Steering Servo & Motor Bridge Controllers (ATMEGA328P)
+    Processes commands from the wired-bus to control the vehicle's
+    steering servo and motor.
+
+    #+attr_latex: :width 0.3\linewidth :placement [H]
+    [[./figure/2019-11-06_attmega328p_photo.png]]
+
 *** PS3 Eye Camera
     Provides images over USB, for environmental perception.
+
+    #+attr_latex: :width 0.3\linewidth :placement [H]
+    [[./figure/2019-11-06_ps3eye_photo.png]]
+
 *** Electronic Speed Controller (DYNS2211)
     Takes in a PWM signal and outputs an amplified and directional PWM
     wave to the vehicle's motor.
 
+    #+attr_latex: :width 0.4\linewidth :placement [H]
+    [[./figure/2019-11-06_dyns2211_photo.png]]
 
-* Control Abstraction
-  #+attr_latex: :width \linewidth :placement [H]
-  [[../figure/2019-10-24_controlLoop.png]]
-
-* Control Plan
-  #+attr_latex: :width \linewidth :placement [H]
-  [[../figure/2019-10-24_cameraToControl.png]]
-
-
-* Future
-** I2C Arbitration
-   It is expected that modules communicating on the wired bus will
-   need to communicate with each-other. In this case, there would be
-   multiple masters on a single i2c bus. To implement this,
-   arbitration would be necessary so that masters on the bus do not
-   interrupt each other.
-    
-    
-** COMMENT Resources
-   - http://www.mbeddedc.com/2017/09/i2c-bus-arbitration.html
-   - https://www.geeksforgeeks.org/bus-arbitration-in-computer-organization/
-
-* Steering PID
+* Controlling the Steering Servo with a PID
 ** Concept
    :PROPERTIES:
    :CUSTOM_ID: sec:steeringPid_concept
@@ -187,8 +190,56 @@
 
 *** USART to Command the Servo from a Terminal Emulator
     In order to talk to the servo, we need to set up the USART on the
-    AVR microcontroller.
+    AVR microcontroller. We will only show the code for a basic USART
+    setup. Since the USART is only being used for experimental
+    purposes only, we will not explain the code. For reference of how
+    the code was used in our experiment, see the =main.c= file in the
+    code appendix section [[#sec:appendixCode_steeringPid_main]].
+
+    =usart.hpp=:
+    #+attr_latex: :options bgcolor=code
+    #+BEGIN_SRC C++
+#ifndef USART_HPP
+#define USART_HPP
+
+#include <avr/io.h>
+#include <stdint.h>
+
+namespace usart {
+    void setup(uint32_t clockFrequency, uint16_t baud) {
+        uint8_t ubrr = clockFrequency/16/baud - 1;
+        UBRR0H = ubrr >> 8;
+        UBRR0L = ubrr;
+
+        //Enable Transmitter & Receiver
+        UCSR0B = 1 << RXEN0 | 1 << TXEN0;
+        //Frame Format: 8 data, 2 stop
+        UCSR0C = 1 << USBS0 | 3 << UCSZ00;
+
+    }
+
+    void print(char c) {
+        while (!(UCSR0A & 1<<UDRE0));
+        UDR0 = c;    
+    }
+        
+    void print(char* string) {
+        while (*string) print(*string++);
+    }
+    
+    char getChar() {
+        while (!(UCSR0A & 1<<RXC0));
+        return UDR0;    
+    }
+}
+
+#endif
+    
+    #+END_SRC
 *** Servo Control 
+    :PROPERTIES:
+    :CUSTOM_ID: sec:softwareDesign_servoControl
+    :END:
     To control the position of the servo, the attmega328p has a 16-bit
     timer. Once we set up the timer, we can provide it a pulse
     duration between the accepted values of the servo (typically
@@ -199,6 +250,8 @@
     production code at a register level. In our =main.cpp= file, we
     have the following to set up our servo.
 
+    #+name: code:servoSetup
+    #+attr_latex: :options bgcolor=code
     #+BEGIN_SRC C++
 #include <avr/io.h>
 
@@ -223,10 +276,57 @@ static void setupServoPwm() {
 	ICR1 = hertzToCycles(pwmFrequency)-1;
 }
     #+END_SRC
+    The servo uses the MCU's 16-bit Timer/Counter1 with PWM. It is
+    connected to pin 9 on the Arduino Uno (port B, pin 1).
 
-    Information regarding the registers is in the attmega328p
-    datasheet. Importantly, the servo uses the MCU's 16-bit
-    Timer/Counter1 with PWM.
+    #+name: fig:attmega16BitTimer_blockDiagram
+    #+caption: ICRn stores the number of cycles needed for a 50Hz PWM signal for the servo. OCRnA stores the number of cycles until the counter reaches the TOP. OCRnA is used to change the pulse width of the PWM signal.
+    #+attr_latex: :width 0.8\linewidth :placement [H]
+    [[./figure/2019-11-06_attmega16BitTimer.png]]
+
+    We also need to specify that we want to use Fast PWM Mode (resets
+    counter when it reaches the TOP) and set ICR1 as the TOP. This
+    corresponds to =mode 14=.
+
+    #+name: fig:attmega16BitTimer_fastPwmMode
+    #+caption: Shows the =WGM= flags needed for mode 14.
+    #+attr_latex: :width 0.8\linewidth :placement [H]
+    [[./figure/2019-11-06_attmega16BitTimer_fastPwmMode.png]]
+
+    We do this on the register level by setting the =WGM= flags from
+    figure [[fig:attmega16BitTimer_fastPwmMode]] in the =TCCRnA= and
+    =TCCRnB= registers (as shown in the code above).
+
+    Since the Arduino Uno uses a \(16\si{MHz}\) clock, we will need a
+    prescaler to divide the frequency such that, 
+    \[\frac{16\si{MHz}}{50\si{Hz}\cdot \texttt{prescaler}} < 2^{16}-1.\]
+
+    \(50\si{MHz}\) is the needed frequency for the PWM signal for the
+    servo and \(2^{16}-1\) is the maximum value that will fit in the
+    =OCRnA= register (the size of an =int= on the attmega328p). If we
+    set the prescaler to 8, the inequality above is true. We can do
+    that by setting the =TCCRnB= register using the figure
+    below. Setting this register for a prescaler of 8, looks like
+    ~TCCR1B |= 1 << CS11~ (as shown in the code above).
+
+    #+name: fig:attmega16BitTimer_prescaler
+    #+caption: We are using a prescaler of 8, which corresponds to =CS1 = 0b010=.
+    #+attr_latex: :width 0.8\linewidth :placement [H]
+    [[./figure/2019-11-06_attmega16BitTimer_prescaler.png]]
+    
+    Finally, we can set the timer to inverted mode, meaning the pulse
+    will occur at the end of the PWM period, as opposed to the
+    beginning of the period. This is trivial for our application, but
+    we still must choose either inverting or non-inverting. To set the
+    timer to inverted we set the corresponding flags in the =TCCRnA=
+    register, as ~TCCR1A |= 1 << COM1A0 | 1 << COM1A1~ (as shown in
+    the code above).
+
+    #+name: fig:attmega16BitTimer_invertingMode
+    #+caption: We make sure to set the =COM1A1= and =COM1A0= flags in the =TCCRnA= register.
+    #+attr_latex: :width 0.8\linewidth :placement [H]
+    [[./figure/2019-11-06_attmega16BitTimer_invertingMode.png]]
+        
 *** Clamping
     One common problem is providing a servo with a PWM value outside
     the valid range of the servo. For example, our servo has a maximum
@@ -346,7 +446,8 @@ int16_t clampedValue = clamp.clamp(5); // Returns 10 since the lower bound is 10
     being centered between those lanes, the greater the error that is
     input into our steering PID. We've encapsulated the algorithm for
     a PID in a class.
-
+    
+    #+attr_latex: :options bgcolor=code
     #+BEGIN_SRC C++
 #ifndef PID_HPP
 #define PID_HPP
@@ -403,6 +504,7 @@ public:
     =makeFromGain=.
 
     The definition of the =updateError= function is
+    #+attr_latex: :options bgcolor=code
     #+BEGIN_SRC C++
 int16_t Pid::updateError(int16_t newError) {
     error.integral += newError;
@@ -419,6 +521,7 @@ int16_t Pid::updateError(int16_t newError) {
     above. Furthermore, we've provided a unit test that demonstrates
     how to use this class.
 
+    #+attr_latex: :options bgcolor=code
     #+BEGIN_SRC C++
 #include <cxxtest/TestSuite.h>
 #include "Pid.hpp"
@@ -453,7 +556,362 @@ public:
 };    
     #+END_SRC
 
-    Ideally, the user would call =updateError= iteratively
-*** Makefile to Facilitate Building, Running, and Testing
-    A makefile keeps builds up to date. It can also be as a general
-    purpose script for shell commands, as we will see.
+    Ideally, the user would call =updateError= iteratively though.
+*** Terminal-Emulator Results
+    The =main.cpp= code in the code appendix section
+    [[#sec:appendixCode_steeringPid_main]] depcits the general flow of the
+    program. Ultimately, the Arduino asks for an initial position for
+    the servo (in microseconds), and then the servo will go to that
+    position. After a short delay, the PID will begin updating its
+    control variable output in a for loop. That control variable
+    output is directly used to position the servo. For debugging
+    purposes, the Arduino also sends the PID control variable output
+    over USART, so we can see the values the PID is giving. 
+
+    The figure below illustrates an example where I send the servo to
+    \(800\si{\mu s}\), and then the PID corrects the servo's position
+    to \(1500\si{\mu s}\).
+
+    #+name: fig:steeringPid_usartLog
+    #+caption: Note that this PID is not tuned at all, and that the error we are using is not based on a real feedback error from a sensor. This demo is purely to show that the system is prepared for real feedback error from the OpenCV system.
+    #+attr_latex: :width 0.8\linewidth :placement [H]
+    [[./figure/2019-11-06_steeringPid_usartLog.png]]
+* Future
+** I2C Arbitration
+   It is expected that modules communicating on the wired bus will
+   need to communicate with each-other. In this case, there would be
+   multiple masters on a single i2c bus. To implement this,
+   arbitration would be necessary so that masters on the bus do not
+   interrupt each other.
+    
+    
+** COMMENT Resources
+   - http://www.mbeddedc.com/2017/09/i2c-bus-arbitration.html
+   - https://www.geeksforgeeks.org/bus-arbitration-in-computer-organization/
+
+* Appendix: Code
+** Steering PID
+*** main.cpp   
+    :PROPERTIES:
+    :CUSTOM_ID: sec:appendixCode_steeringPid_main
+    :END:
+    #+attr_latex: :options bgcolor=code
+    #+BEGIN_SRC C++
+#include <avr/io.h>
+#include <util/delay.h>
+#include <stdlib.h>
+#include "Pid.hpp"
+#include "Clamp.hpp"
+#include "String.hpp"
+#include "usart.hpp"
+
+constexpr uint8_t prescaler = 8;
+constexpr uint32_t clockFrequency = F_CPU;
+constexpr uint8_t pwmFrequency = 50;
+constexpr uint32_t baud = 9600;
+
+static constexpr uint32_t microsToCycles(uint16_t micros) {
+    constexpr uint32_t unitConversion = 1E6;
+    return (clockFrequency/unitConversion/prescaler) * micros;
+}
+
+static constexpr uint32_t hertzToCycles(uint16_t hertz) {
+    return clockFrequency/prescaler/hertz;
+}
+
+static void setupServoPwm() {
+    DDRB |= 1 << PINB1; //Set pin 9 on arduino to output
+
+    TCCR1A |=
+        1 << WGM11 | //PWM Mode 14 (1/3)
+        1 << COM1A0 | //Inverting Mode (1/2)
+        1 << COM1A1; //Inverting Mode (2/2)
+    
+    TCCR1B |=
+        1 << WGM12 | //PWM Mode 14 (2/3)
+        1 << WGM13 | //PWM Mode 14 (3/3)
+        1 << CS11; //Prescaler: 8
+
+    //50Hz PWM to cycles for servo
+    ICR1 = hertzToCycles(pwmFrequency)-1;
+}
+
+int main() {
+    usart::setup(clockFrequency, baud);
+    setupServoPwm();
+    
+    Clamp steeringClamp = Clamp::makeFromBounds({
+            .lower = 800,
+            .upper = 2200 });
+    Pid steeringPid = Pid::makeFromScaledGain(10, {
+            .proportional = 10,
+            .integral = 0,
+            .derivative = 2 });
+    
+    String<10> message;
+    char currentChar;
+    int16_t idealServoMicros = 1500;
+    while(1) {
+        currentChar = usart::getChar();
+        
+        if (currentChar != '\n') message.append(currentChar);
+        else {
+            usart::print("GOT: ");
+            usart::print(message);
+            usart::print('\n');
+            
+            int16_t initialServoMicros = atoi(message);
+            int16_t servoMicros = steeringClamp.clamp(initialServoMicros);
+            OCR1A = ICR1 - microsToCycles(initialServoMicros);
+            _delay_ms(1000);            
+            
+            int16_t error = idealServoMicros - servoMicros;
+            for (uint32_t i = 0; i < 15; ++i) {
+                servoMicros = steeringPid.updateError(error) + servoMicros;
+
+                String<10> buffer;
+                itoa(servoMicros, buffer, 10); 
+                usart::print(buffer); usart::print('\n');
+
+                servoMicros = steeringClamp.clamp(servoMicros);
+                OCR1A = ICR1 - microsToCycles(servoMicros);
+                _delay_ms(100);
+
+                //TODO replace with actual feedback error
+                error = idealServoMicros - servoMicros;
+            }
+            
+            message.clear();
+            usart::print(">> ");
+        } 
+    }
+}    
+    #+END_SRC
+*** usart.hpp
+    #+attr_latex: :options bgcolor=code    
+    #+BEGIN_SRC C++
+#ifndef USART_HPP
+#define USART_HPP
+
+#include <avr/io.h>
+#include <stdint.h>
+
+namespace usart {
+    void setup(uint32_t clockFrequency, uint16_t baud) {
+        uint8_t ubrr = clockFrequency/16/baud - 1;
+        UBRR0H = ubrr >> 8;
+        UBRR0L = ubrr;
+
+        //Enable Transmitter & Receiver
+        UCSR0B = 1 << RXEN0 | 1 << TXEN0;
+        //Frame Format: 8 data, 2 stop
+        UCSR0C = 1 << USBS0 | 3 << UCSZ00;
+
+    }
+
+    void print(char c) {
+        while (!(UCSR0A & 1<<UDRE0));
+        UDR0 = c;    
+    }
+        
+    void print(char* string) {
+        while (*string) print(*string++);
+    }
+    
+    char getChar() {
+        while (!(UCSR0A & 1<<RXC0));
+        return UDR0;    
+    }
+}
+
+#endif    
+    #+END_SRC
+*** Pid.hpp
+    #+attr_latex: :options bgcolor=code    
+    #+BEGIN_SRC C++
+#ifndef PID_HPP
+#define PID_HPP
+
+#include <stdint.h>
+
+struct Pid {
+    struct Component {
+        int16_t proportional;
+        int16_t integral;
+        int16_t derivative;
+    };
+
+private:    
+    Component gain;
+    Component error;
+    int16_t scale;
+    
+public:
+    int16_t updateError(int16_t error);
+    
+    constexpr static Pid makeFromGain(Component gain) {
+        return Pid(gain);
+    }
+    
+    constexpr explicit Pid(Component gain):
+        gain{gain}, error{}, scale{1} {}
+
+    
+    constexpr static Pid makeFromScaledGain(int16_t scale, Component gain) {
+        return Pid(scale, gain);
+    }
+    
+    constexpr Pid(int16_t scale, Component gain):
+        gain{gain}, error{}, scale{scale} {}
+
+    Pid() {}
+};
+
+#endif    
+    #+END_SRC
+
+*** Pid.cpp
+    #+attr_latex: :options bgcolor=code    
+    #+BEGIN_SRC C++
+#include "Pid.hpp"
+
+int16_t Pid::updateError(int16_t newError) {
+    error.integral += newError;
+    error.derivative = newError - error.proportional;
+    error.proportional = newError;
+
+    return (gain.proportional*error.proportional +
+            gain.integral*error.integral +
+            gain.derivative*error.derivative) / scale ;    
+}    
+    #+END_SRC
+
+*** Clamp.hpp
+    #+attr_latex: :options bgcolor=code    
+    #+BEGIN_SRC C++
+#ifndef CLAMP_HPP
+#define CLAMP_HPP
+
+#include <stdint.h>
+
+struct Bounds {
+    int16_t lower;
+    int16_t upper;
+};
+
+class Clamp {
+    Bounds bounds;
+
+public:
+    constexpr static Clamp makeFromBounds(Bounds bounds) {
+        return Clamp(bounds);
+    }
+
+    constexpr Clamp(Bounds bounds): bounds{bounds} {}
+
+    int16_t clamp(int16_t value) {
+        return (value < bounds.lower) ? bounds.lower :
+            (value > bounds.upper) ? bounds.upper:
+            value;
+    }
+
+    Clamp() {}
+};
+
+#endif    
+    #+END_SRC
+
+*** String.hpp
+    #+attr_latex: :options bgcolor=code    
+    #+BEGIN_SRC C++
+#ifndef STRING_HPP
+#define STRING_HPP
+
+#include <stdint.h>
+
+template<int16_t capacity>
+class String {
+    int16_t size;
+    char string[capacity];
+    
+public:
+    void append(char c) {
+        if (size < capacity) string[size++] = c;
+    }
+    
+    String(): size{0}, string{0} {}
+
+    void clear() {
+        while (size != 0) string[--size] = 0;
+    }
+
+    operator char*() { return string; }
+    operator const char*() { return string; }
+};  
+
+#endif
+    #+END_SRC
+
+*** Makefile
+    #+attr_latex: :options bgcolor=code    
+    #+BEGIN_SRC makefile
+BIN=sweep
+
+CPP = $(BIN).cpp $(wildcard *.cpp)
+OBJ = $(CPP:%.cpp=%.o)
+DEP = $(OBJ:%.o=%.d)
+
+CROSS_COMPILE=avr-
+CXX=$(CROSS_COMPILE)g++
+OBJCOPY=$(CROSS_COMPILE)objcopy
+CXXFLAGS=-Os -Wall -DF_CPU=$(F_CPU) -mmcu=atmega328p -std=gnu++17
+
+F_CPU=16000000UL
+PORT=/dev/ttyACM0
+DEVICE=ATMEGA328P
+PROGRAMMER=arduino
+FLASH_BAUD=115200
+COM_BAUD=9600
+
+TESTS = TestPid.hpp TestClamp.hpp
+TEST_SOURCES= Pid.cpp
+TEST_RUNNER = runner
+
+
+
+$(BIN).hex: $(BIN).elf
+    ${OBJCOPY} -O ihex -R .eeprom $< $@
+
+$(BIN).elf: $(OBJ)
+    $(CXX) $(CXXFLAGS) -o $@ $^
+
+-include $(DEP)
+
+%.o: %.cpp
+     $(CXX) $(CXXFLAGS) -MMD -c $< -o $@ 
+
+flash: $(BIN).hex
+    avrdude -c $(PROGRAMMER) -P $(PORT) -p $(DEVICE) -b $(FLASH_BAUD) -U flash:w:$<
+
+test: $(TESTS)
+    cxxtestgen --error-printer -o $(TEST_RUNNER).cpp $(TESTS)
+    g++ -o $(TEST_RUNNER) -I$CXXTEST $(TEST_RUNNER).cpp $(TEST_SOURCES)
+    ./$(TEST_RUNNER)
+
+com:
+    picocom -b $(COM_BAUD) $(PORT) -p 2
+
+
+clean:
+    rm -f ${BIN}.elf ${BIN}.hex $(OBJ) $(TEST_RUNNER)* $(DEP)
+
+.PHONY: clean
+    #+END_SRC
+
+* Resources                                                        :noexport:
+** Images
+   - Raspi 2 B+:
+     https://images-na.ssl-images-amazon.com/images/I/810xXvVWWwL._SX679_.jpg
+   - Attmega328p:     https://robu.in/wp-content/uploads/2018/11/ATmega328P-PU-PDIP-28-Microcontroller-1.jpg
+   - 
+
