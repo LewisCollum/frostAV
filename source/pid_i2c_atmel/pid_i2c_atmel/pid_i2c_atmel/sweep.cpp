@@ -5,7 +5,7 @@
 #include "Pid.hpp"
 #include "Clamp.hpp"
 #include "String.hpp"
-//#include "usart.hpp"
+#include "usart.hpp"
 #include "I2C_slave.hpp"
 
 constexpr uint8_t prescaler = 8;
@@ -13,6 +13,8 @@ constexpr uint32_t clockFrequency = F_CPU;
 constexpr uint8_t pwmFrequency = 50;
 constexpr uint32_t baud = 9600;
 constexpr uint8_t addr = 0x12;
+
+
 
 static constexpr uint32_t microsToCycles(uint16_t micros) {
     constexpr uint32_t unitConversion = 1E6;
@@ -41,7 +43,7 @@ static void setupServoPwm() {
 }
 
 int main() {
-    //usart::setup(clockFrequency, baud);
+    usart::setup(clockFrequency, baud);
     I2C_init(addr);
     setupServoPwm();
     
@@ -56,10 +58,14 @@ int main() {
     String<10> message;
     char currentChar;
     int16_t idealServoMicros = 1500;
+	
+	//interrupt enable
+	sei();
+	
 	while(1) {
         //currentChar = usart::getChar();
         
-        if (currentChar != '\n') message.append(currentChar);
+        if (rxbuffer[0] != '\n') message.append(currentChar);
         else {
             //usart::print("GOT: ");
             //usart::print(message);
