@@ -19,12 +19,15 @@
 #include <avr/io.h>
 #include <util/twi.h>
 #include <avr/interrupt.h>
+#include <compat/twi.h>
 
 volatile uint8_t buffer_address;
 volatile uint8_t txbuffer[0xFF];
 volatile uint8_t rxbuffer[0xFF];
 
 void I2C_init(uint8_t address){
+	cli(); 
+	//clear interrupts
 	// load address into TWI address register
 	TWAR = (address << 1);
 	// set the TWCR to enable address matching and enable TWI, clear TWINT, enable TWI interrupt
