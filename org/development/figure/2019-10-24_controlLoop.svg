@@ -9,28 +9,32 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="48in"
-   height="36in"
-   viewBox="0 0 1219.2 914.40003"
+   width="11.769685in"
+   height="5.3850098in"
+   viewBox="0 0 298.94999 136.77925"
    version="1.1"
    id="svg7115"
    inkscape:version="0.92.4 5da689c313, 2019-01-14"
-   sodipodi:docname="2019-10-24_controlLoop.svg">
+   sodipodi:docname="2019-10-24_controlLoop.svg"
+   inkscape:export-filename="/home/triton/frostAV/org/development/figure/2019-10-24_controlLoop.png"
+   inkscape:export-xdpi="100"
+   inkscape:export-ydpi="100">
   <defs
      id="defs7109">
     <marker
        inkscape:stockid="TriangleInM"
        orient="auto"
-       refY="0.0"
-       refX="0.0"
+       refY="0"
+       refX="0"
        id="TriangleInM"
        style="overflow:visible"
        inkscape:isstock="true">
       <path
          id="path4062"
-         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
-         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
-         transform="scale(-0.4)" />
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="scale(-0.4)"
+         inkscape:connector-curvature="0" />
     </marker>
     <marker
        inkscape:stockid="TriangleOutM"
@@ -282,32 +286,40 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="821.3552"
-     inkscape:cy="3159.7425"
+     inkscape:zoom="0.50000001"
+     inkscape:cx="493.87829"
+     inkscape:cy="407.73394"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1916"
+     inkscape:window-width="956"
      inkscape:window-height="1076"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
-     units="in">
+     units="in"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0">
     <inkscape:grid
        type="xygrid"
        id="grid7679"
        units="in"
        spacingx="6.35"
        spacingy="6.35"
-       empspacing="4" />
+       empspacing="4"
+       originx="-38.099998"
+       originy="-734.11336" />
     <inkscape:grid
        type="xygrid"
        id="grid7681"
        units="in"
        spacingx="1.5875"
        spacingy="1.5875"
-       empspacing="4" />
+       empspacing="4"
+       originx="-38.099998"
+       originy="-734.11336" />
   </sodipodi:namedview>
   <metadata
      id="metadata7112">
@@ -317,7 +329,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -325,7 +337,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,617.40002)">
+     transform="translate(-38.1,573.89263)">
     <rect
        style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
        id="rect13894"
@@ -460,7 +472,7 @@
          id="tspan4393">the world</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.35px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.3499999px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="164.45187"
        y="-438.01254"
        id="text4397"><tspan
@@ -468,7 +480,7 @@
          id="tspan4395"
          x="164.45187"
          y="-438.01254"
-         style="font-size:6.35px;stroke-width:0.26458332;">Cameras, motor encoders, LIDAR, etc.</tspan></text>
+         style="font-size:6.3499999px;stroke-width:0.26458332">Cameras, motor encoders, LIDAR, etc.</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.05555534px;line-height:1;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, ';text-align:end;letter-spacing:0px;word-spacing:0px;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
