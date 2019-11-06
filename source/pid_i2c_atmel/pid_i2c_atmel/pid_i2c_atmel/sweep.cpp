@@ -63,13 +63,13 @@ int main() {
 	sei();
 	
 	while(1) {
-        //currentChar = usart::getChar();
+        currentChar = rxbuffer[0];
         
-        if (rxbuffer[0] != '\n') message.append(currentChar);
+        if (currentChar != '\n') message.append(currentChar);
         else {
-            //usart::print("GOT: ");
-            //usart::print(message);
-            //usart::print('\n');
+            usart::print("GOT: ");
+            usart::print(message);
+            usart::print('\n');
             
             int16_t initialServoMicros = atoi(message);
             int16_t servoMicros = steeringClamp.clamp(initialServoMicros);
@@ -82,7 +82,7 @@ int main() {
 
                 String<10> buffer;
                 itoa(servoMicros, buffer, 10); 
-                //usart::print(buffer); usart::print('\n');
+                usart::print(buffer); usart::print('\n');
 
                 servoMicros = steeringClamp.clamp(servoMicros);
                 OCR1A = ICR1 - microsToCycles(servoMicros);
@@ -93,7 +93,7 @@ int main() {
             }
             
             message.clear();
-            //usart::print(">> ");
+            usart::print(">> ");
         } 
 	}
 }
