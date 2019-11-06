@@ -2,7 +2,7 @@
 # Automatically-generated file. Do not edit or delete the file
 ################################################################################
 
-I2C_slave.c
+I2C_slave.cpp
 
 Pid.cpp
 

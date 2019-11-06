@@ -14,3 +14,9 @@ clean
 
 # CxxTest
 **runner*
+
+# Visual Studio Debug
+**.eep
+**.lss
+**.map
+**.srec
