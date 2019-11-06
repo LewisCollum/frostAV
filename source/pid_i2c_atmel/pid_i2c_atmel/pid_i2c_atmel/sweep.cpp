@@ -8,6 +8,7 @@
 #include "usart.hpp"
 #include "I2C_slave.hpp"
 
+
 constexpr uint8_t prescaler = 8;
 constexpr uint32_t clockFrequency = F_CPU;
 constexpr uint8_t pwmFrequency = 50;
@@ -43,7 +44,7 @@ static void setupServoPwm() {
 }
 
 int main() {
-    usart::setup(clockFrequency, baud);
+	usart::setup(clockFrequency, baud);
     I2C_init(addr);
     setupServoPwm();
     
@@ -64,12 +65,16 @@ int main() {
 	
 	while(1) {
         currentChar = rxbuffer[0];
-        
-        if (currentChar != '\n') message.append(currentChar);
+        if (currentChar != 0x0) 
+		{
+			message.clear();
+			message.append(currentChar);
+			rxbuffer[0] = 0;
+		}
         else {
-            usart::print("GOT: ");
-            usart::print(message);
-            usart::print('\n');
+            //usart::print("GOT: ");
+		    //usart::print(message);
+            //usart::print('\cr\n');
             
             int16_t initialServoMicros = atoi(message);
             int16_t servoMicros = steeringClamp.clamp(initialServoMicros);
@@ -78,22 +83,20 @@ int main() {
             
             int16_t error = idealServoMicros - servoMicros;
             for (uint32_t i = 0; i < 15; ++i) {
-                servoMicros = steeringPid.updateError(error) + servoMicros;
+              servoMicros = steeringPid.updateError(error) + servoMicros;
 
-                String<10> buffer;
-                itoa(servoMicros, buffer, 10); 
-                usart::print(buffer); usart::print('\n');
+              String<10> buffer;
+              itoa(servoMicros, buffer, 10); 
+              usart::print(buffer); usart::print('\n');
 
-                servoMicros = steeringClamp.clamp(servoMicros);
-                OCR1A = ICR1 - microsToCycles(servoMicros);
-                _delay_ms(100);
+              servoMicros = steeringClamp.clamp(servoMicros);
+              OCR1A = ICR1 - microsToCycles(servoMicros);
+               _delay_ms(100);
 
                 //TODO replace with actual feedback error
-                error = idealServoMicros - servoMicros;
-            }
+              error = idealServoMicros - servoMicros;
+           }
             
-            message.clear();
-            usart::print(">> ");
         } 
 	}
 }
