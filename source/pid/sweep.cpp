@@ -59,29 +59,33 @@ int main() {
 	int16_t idealServoMicros = 1500;
 
 	String<10> message;
-	char currentChar;
+	int n = 0;
 
 	//interrupt enable
 	sei();
 
 	while(1) {
 		i2cbuffer = (char*)(&rxbuffer);
-        	int16_t initialServoMicros = atoi(message);
-        	int16_t servoMicros = steeringClamp.clamp(initialServoMicros);
-        	OCR1A = ICR1 - microsToCycles(servoMicros);
-        	_delay_ms(1000);
+        	if(i2cbuffer[n] != '\n') message.append(i2cbuffer[n]);
+		else {
+			int16_t initialServoMicros = atoi(message);
+        		int16_t servoMicros = steeringClamp.clamp(initialServoMicros);
+	        	OCR1A = ICR1 - microsToCycles(servoMicros);
+	        	_delay_ms(1000);
 
-        	int16_t error = idealServoMicros - servoMicros;
-        	for (uint32_t i = 0; i < 15; ++i) {
-	        	servoMicros = steeringPid.updateError(error) + servoMicros;
+	        	int16_t error = idealServoMicros - servoMicros;
+	        	for (uint32_t i = 0; i < 15; ++i) {
+		        	servoMicros = steeringPid.updateError(error) + servoMicros;
 
-		        servoMicros = steeringClamp.clamp(servoMicros);
-		        OCR1A = ICR1 - microsToCycles(servoMicros);
-		        _delay_ms(100);
+			        servoMicros = steeringClamp.clamp(servoMicros);
+			        OCR1A = ICR1 - microsToCycles(servoMicros);
+			        _delay_ms(100);
+	
+			        //TODO replace with actual feedback error
+			        error = idealServoMicros - servoMicros;
 
-		        //TODO replace with actual feedback error
-		        error = idealServoMicros - servoMicros;
-
-        	}
+	        	}
+			n = 0;
+		}
 	}
 }
