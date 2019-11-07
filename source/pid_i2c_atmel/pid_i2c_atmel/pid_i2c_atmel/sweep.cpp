@@ -70,14 +70,14 @@ int main() {
             
         int16_t error = idealServoMicros - servoMicros;
         for (uint32_t i = 0; i < 15; ++i) {
-        servoMicros = steeringPid.updateError(error) + servoMicros;
+			servoMicros = steeringPid.updateError(error) + servoMicros;
 
-        servoMicros = steeringClamp.clamp(servoMicros);
-        OCR1A = ICR1 - microsToCycles(servoMicros);
-        _delay_ms(100);
+			servoMicros = steeringClamp.clamp(servoMicros);
+			OCR1A = ICR1 - microsToCycles(servoMicros);
+			_delay_ms(100);
 
-        //TODO replace with actual feedback error
-        error = idealServoMicros - servoMicros; 
+			//TODO replace with actual feedback error
+			error = idealServoMicros - servoMicros; 
 		           
         } 
 	}
