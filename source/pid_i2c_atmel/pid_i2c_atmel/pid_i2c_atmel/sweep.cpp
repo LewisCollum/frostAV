@@ -74,6 +74,7 @@ int main() {
 			for(int n = 0; n <= length; n++)
 			{
 				message.append(rxbuffer[n]);
+				//rxbuffer[n] = 0;
 			}
 			int16_t initialServoMicros = atoi(message);
 			int16_t servoMicros = steeringClamp.clamp(initialServoMicros);
@@ -91,15 +92,6 @@ int main() {
 				//TODO replace with actual feedback error
 			//	error = idealServoMicros - servoMicros;
 			//}
-			for(int i = 0; i <= 255; i++)
-			{
-				if(i2cbuffer[i] == 0x12)
-				{
-					i2cbuffer[i] = 0;
-					break;
-				}
-				i2cbuffer[i] = 0;
-			}
 			message.clear();
 			trigger = false;
 		}
