@@ -36,6 +36,9 @@ $(BIN).elf: $(OBJ)
 flash: $(BIN).hex
 	avrdude -c $(PROGRAMMER) -P $(PORT) -p $(DEVICE) -b $(FLASH_BAUD) -U flash:w:$<
 
+flash_ice: $(BIN).hex
+	avrdude -c atmelice_isp -P usb -p $(DEVICE) -b $(FLASH_BAUD) -U flash:w:$<
+
 test: $(TESTS)
 	cxxtestgen --error-printer -o $(TEST_RUNNER).cpp $(TESTS)
 	g++ -o $(TEST_RUNNER) -I$CXXTEST $(TEST_RUNNER).cpp $(TEST_SOURCES)

@@ -23,7 +23,8 @@
 
 volatile uint8_t buffer_address;
 volatile uint8_t txbuffer[0xFF];
-volatile uint8_t rxbuffer[0xFF];
+volatile char rxbuffer[0xFF];
+volatile bool trigger;
 
 void I2C_init(uint8_t address){
 	cli(); 
@@ -70,6 +71,11 @@ ISR(TWI_vect){
 
 			// increment the buffer address
 			buffer_address++;
+			
+			if(data == 0x12)
+			{
+				trigger = true;
+			}
 
 			// if there is still enough space inside the buffer
 			if(buffer_address < 0xFF){
