@@ -136,6 +136,301 @@
     5v to power the vehicle's systems. Also provides current and
     voltage monitoring.  This module is designed and built as part of
     this project (see section [[#sec:powerSupplyDesign]] for details).
+* Lane Detection using OpenCV
+** OpenCV
+*** Camera Configuration
+//v4l2
+*** OpenCV & Reading Video
+The primary software component responsible for camera perception is OpenCV. 
+OpenCV is an open source software library that implements machine learning algorithms 
+to provide object detection and motion tracking to the user (opencv). We will be 
+using this library as the foundation to create lane detection, object detection, 
+and text recognition for the customer's vehicle. Each of these three components require a 
+specific image filtering technique before they can be utilized in an algorithm. 
+Before we can filter an image however, opencv requires an input. The input in 
+this design is the PS3 camera mounted at the front of the vehicle. Inputing a 
+constant video feed is challenging because it creates a large computational load 
+on the CPU and RAM. To reduce this, we will be sampling our video and using 
+periodic frames for input.
+  
+# #+attr_latex: :options bgcolor=code
+# #+BEGIN_SRC C++
+# #include<iostream>
+# #include <opencv2/opencv.hpp>
+# using namespace cv;
+# int main(int argc, char** argv)
+# {
+#   Mat frame;                               //temp image variable
+#   VideoCapture capture;                    //Array of captured frames
+#   namedWindow("Window", WINDOW_AUTOSIZE);  //create viewable window/executable
+#   capture.open(argv[1]);                   //reads input video
+#   for(;;)
+#     {
+#       capture>>frame;                        //amends new frame over previous
+#       if(frame.empty()) break;               //break if there is no video feed
+#       imshow("Window",frame);                //display frame in window
+#       if(waitKey(30)>=0) break;              //Define framerate sampling
+#     }
+#   return 0;
+# }
+# #+END_SRC
+
+In the figure above, our input video feed will be piped in as an argument argv. 
+The video frames are then sampled and stored in an array of type "VideoCapture", 
+an object type included in the OpenCV library. The "waitKey" function allows the 
+user to select the maximum amount of frames sampled in one second. This is subject 
+to change depending on the camera specifications and hardware utilization. 
+It is important to find a balance between sampling rate and vehicle speed, as 
+these affect accuracy and safety. Since our car will be traveling slow, it is 
+possible to lower our samples to 20 or 10 frames per second without a significant 
+compromise. This will be determined using our software test plan.
+ 
+** Lane Detection
+Lane detection is the primary autonomous feature of the vehicle. Through OpenCV, we can take advantage of various 
+image-manipulation and detection algorithms to accomplish this task. The goal of this feature is to receive a 
+piped video input and then output a horizontal difference in position to the PID controller. In order to provide 
+a clear image to the line detection algorithm, image filtering is used to reduce the noise that naturally comes 
+with each environment. This section will provide a detailed description of how each image process is 
+used to improve accuracy and reliability to the design.
+
+*** Image Masking
+Image masking is perhaps the most effective way to eliminate unwanted noise. Applying
+a mask is a way to single out a particular color in an image while ignoring others.
+Since we are using blue colored masking tape as lanes, we will use a blue mask.
+However, the input image is in RGB format. This does not help reduce noise as effectively
+due to each pixel having at least some amount of blue value. By using OpenCV's image
+processing library, the image can be converted HSV format or Hue, Saturation, Value.                                                                                    In OpenCV, the values are defined as follows.
+
+1) Hue: [0-179]
+2) Saturation: [0-255]
+3) Value: [0-255]
+
+The following figures shows the conversion to HSV format using the convert color function.
+
+# #+attr_latex: :options bgcolor=code
+# #+BEGIN_SRC C++
+#  cv::cvtColor(src, hsvFrame, cv::COLOR_BGR2HSV);
+# #+END_SRC
+
+#+ATTR_LATEX: :placement [H] :width 0.5\linewidth
+#+CAPTION: Source Image vs. HSV Format
+[[./figure/srchsv.jpg]]
+
+"src" is the input frame while "hsvFrame" is the output. Once in HSV format, the mask values for blue can be specified. These values cannot be concrete however, as lighting conditions and noise will affect the HSV value. Instead, there must be a range of values. This range was acquired by reading the HTML color code allow the blue tape using Microsoft 3D Paint. The color codes are 6-bit hexadecimal values (0xFF, 0xFF, 0xFF) that can be converted to HSV. Recall, hue has a maximum value of 179 in OpenCV and must be calculated by multiplying 179 by the percentage value between 0x00 and 0xFF. After acquiring the minimum and maximum HSV values of the lanes from the test image, we are ready to use the mask function called "inRange." The function takes input arguments input image, minimum HSV values, maximum HSV values, and output image. The line below shows the values used for the blue mask.
+
+# #+attr_latex: :options bgcolor=code
+# #+BEGIN_SRC C++
+# cv::inRange(hsvFrame, cv::Scalar(100,100,100), cv::Scalar(110,255,150), newFrame);
+# #+END_SRC
+
+The result can be seen below.
+#+ATTR_LATEX: :placement [H] :width 0.5\linewidth
+#+CAPTION: Mask Frame
+[[./figure/mask.jpg]]
+
+*** Reduced Contrast
+While adjusting the contrast of an image does not significantly improve the detection quality, it
+does help reduce discoloration. This includes effects such as strong reflections that cause artifacts throughout the image. In OpenCV, the function "convertTo()" allows the user to adjust the contrast by changing the 3rd input argument shown below.
+
+# #+attr_latex: :options bgcolor=code
+# #+BEGIN_SRC C++
+# newFrame.converTo(lowCont, -1, 0.5, 0);
+# #+END_SRC
+
+Here, values below 1 reduce contrast while value above 1 increase contrast. By testing multiple values, we found that 0.5 was the darkest result without hiding the lanes. The figure below shows the chosen result.
+#+ATTR_LATEX: :placement [H] :width 0.5\linewidth
+#+CAPTION: Low Contrast Frame
+[[./figure/lowc.jpg]]
+ 
+*** Gaussian Blur
+A gaussian blur is a specific form of smoothing, also known as pixel averaging. It breaks the input image up into small 2D arrays, determined by the kernel size, and then multiplies each element by the gaussian function. Next, the results are summed and stored into a single pixel. Each output pixel is essentially an average of its neighbor pixels, and thus creates a blur affect. The kernel size is chosen by the user and determines the radius and intensity of the blur. In other words, the more neighbor pixels averaged together, the more they will have a similar value.
+
+#+ATTR_LATEX: :placement [H] :width 0.5\linewidth
+#+CAPTION: Gaussian Kernal Example
+[[./figure/kernel.jpg]]
+
+This process is critical to prepare for line detection, as line detection relies on consistent groupings of pixels. The gaussian blur is provided in the OpenCV image processing library and helps eliminate noise and small objects. The for-loop below shows the implemented blur. Here, we chose the blur to be applied 4 times. This is set through "MAX_KERNEL_LENGTH." The kernel size begins at 1 and is incremented by 2 since gaussian matrices must be odd (1,3,5,7...)
+
+# #+attr_latex: :options bgcolor=code
+# #+BEGIN_SRC C++
+# int MAX_KERNEL_LENGTH=7;
+# for (int i=1; i<MAX_KERNEL_LENGTH; i=i+2) {
+#     cv::GaussianBlur(lowCont, blr, cv::Size(i,i), 0, 0);
+# }
+# #+END_SRC
+
+
+#+ATTR_LATEX: :placement [H] :width 0.5\linewidth
+#+CAPTION: Gaussian Blur Frame
+[[./figure/blr.jpg]]
+ 
+*** Area of Interest
+Creating a region of interest is the last step before edge detection is applied.
+By cropping the image, much of the background noise is removed and the lane region 
+is maintained. The best area to remove is the top half of the image, as this is where 
+much of the enviorment noise is. However, the sides of the image should not be removed becasue
+the lanes might enter this lateral region during turns.
+
+# #+BEGIN_SRC C++
+# cv::Mat croppedFrame = blr(cv::Rect(0, blr.rows/2, blr.cols, blr.rows/2));
+# #+END_SRC
+
+The code above shows a simple method to resize an image. The previous blurred frame
+invokes an OpenCV function called "rect()." The image is simply halved by dividing the 
+horizontal rows by 2. The output of the image can be seen below.
+
+#+ATTR_LATEX: :placement [H] :width 0.5\linewidth
+#+CAPTION: Area of Interest (Bottom Half)
+[[./figure/aoi.png]]
+ 
+*** Canny Edge Detection
+Canny edge detection is a specific type of line detection in OpenCV. Canny requires the image to be in two colors, since an edge is detected only near contrasting pixels. In other words, the calculation will be done where the dark pixels meet the light pixels. At each of these areas the gradient is calculated using the first derivative of the x and y coordinates. The following figure shows the equation used to calculate the gradient and angle.
+#+ATTR_LATEX: :placement [H] :width 0.5\linewidth
+#+CAPTION: Gradient & Angle Calculation
+[[./figure/grad.png]] 
+The gradient is used to calculate an angle, which allows us to store the gradient direction. Gradient direction must be perpendicular to the edge. To simply the calculation, the direction is rounded to one of four possible directions: left, right, diagonal left and diagonal right. At each pixel along the edge, the local maximum of the gradient is calculated and compared to the surrounding pixels in the same direction. Essentially, if the gradient direction is not the same as the two pixels next to it, then it receives a value of 0 and will not be counted as part of the edge.
+
+The next component of the canny function is hysteresis thresholding. This allows the user to define a range for the gradient intensity and determines whether the pixel meets the criteria of the edge. The figure below is an example from opencv.org
+#+ATTR_LATEX: :placement [H] :width 0.5\linewidth
+#+CAPTION: Min & Max Threshold (opencv.org)
+[[./figure/graph.jpg]]
+Even if a certain gradient intensity for a pixel is above the maximum threshold,  such as point A, it is still considered to be part of the line because it matches the gradient direction of its neighbors. Although point B falls within the min and max region, it is disconnected with its neighbors. In short, a gradient intensity must match the direction of its neighbors and cannot exceed to threshold for more than one value at a time. In other words, if there are two consecutive values outside the range then it is not counted. 
+# #+attr_latex: :options bgcolor=code
+# #+begin_src C++ 
+# cv::Canny(blr, edges, 50, 200, 3);
+# cv::cvtColor(edges, cdst, cv::COLOR_GRAY2BGR);
+# #+END_SRC
+The code above shows the Canny function with input, output, minimum hysteresis threshold value, maximum hysteresis threshold value and kernel size. Similar to the gaussian kernel size, the canny kernel size is used to define the size of an array for calculating the gradient intensity with respect to its surrounding pixels. The default size is 3. The rendered edges are stored in a new frame . The output of the edge detector is shown below.
+#+ATTR_LATEX: :placement [H] :width 0.5\linewidth
+#+CAPTION: Detected Edges
+[[./figure/edges.jpg]]
+
+*** Hough Transformation 
+The final step in lane detection is responsible for inputting the frame containing the edges, 
+recognizing the lines, storing the values, and then redrawing them over the image. There are two methods of hough transformations, standard and probabilistic. 
+The standard model generates a polar coordinate of each line, while the probabilistic model 
+generates the endpoints of a line in a vector. Another important difference 
+is the standard model projects the line past its endpoint because it is following the calculated angle. This can cause issues if there are significant curves and turns within the lane. Because of this, we will be using the probabilistic model. Since the output of the transformation is the endpoints of a line, then the first step is to create a vector of length 4. This will hold the starting and finishing endpoints (X0, Y0, X1, Y1). OpenCV has a vector  already included in their library. Next, the hough transformation function must be called.   
+
+# #+attr_latex: :options bgcolor=code
+# #+BEGIN_SRC C++
+# std::vector<cv::Vec4i> linesP; 
+# cv::HoughLinesP(edges, linesP, 1, CV_PI/180, 50, 50, 10 ); 
+# for( size_t i = 0; i < linesP.size(); i++ ){
+#     cv::Vec4i l = linesP[i];
+#     cv::line( cdstP, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]), cv::Scalar(0,0,255), 3, cv::LINE_AA);
+# }
+# #+END_SRC
+
+Looking at the code above,  function takes arguments input edges, output array of vectors, rho, theta, threshold, minimum line length, and minimum line   are specifying that the polar input from the edge detection have a radius resolution of 1 pixel and angle resolution of 1 degree. The hough transformation records the number of pixels intersecting the predicted line; this is known as . When the threshold meets or exceeds the user-defined threshold value, it confirms that those pixels are part of the line and stores their position as a vector  The threshold value is highly dependent on the resolution of the image, so a high threshold value would not be suitable for a low resolution image. minimum line  minimum line  are both very important. The minimum line length specifies the number of point considered to be a line while the minimum line gap joins other close separate lines. This is critical in removing insignificant lines caused from noise. Once the output vectors are populated, the for-loop is responsible for redrawing the red lines using the built-in  The result is as follows.
+line().function gapand lengthLastly, linesP.in thresholdthe thetaand Rhogap. HoughLinesP()the Vec4itype 
+#+ATTR_LATEX: :placement [H] :width 0.5\linewidth
+#+CAPTION: Probabilistic Hough Transformation
+[[./figure/cdstp.jpg]]
+
+*** Output
+Although visually we have achieved a successful output, the PID controller 
+needs to receive a positional offset. To calculate an offset, we need to know 
+the center vertiacal axis of the camera as well as the combined slopes of the left and right lanes. 
+The goal is to find the angle projected over the center line of the camera.  
+ We can accomplish this by averaging the left and right slopes to create an artificial center slope.
+ However, the width of the lane lines creates a problem because it generates two lines per lane,
+ for a total of four lines. Looking at the current vector output below, it is a mixture of left 
+and right lane lines endpoints. There are also stray lines that did not merge with nearby lanes. 
+
+#+ATTR_LATEX: :placement [H] :width 0.5\linewidth
+#+CAPTION: Hough Vector Outputs <X0, Y0, X1, Y1>
+[[./figure/vector.png]]
+
+The endpoint vectors will allow us to calculate the left and right slopes. To determine which
+vectors belong to which side, we will take half the horizontal x position of our image and assign 
+the vectors with x positions less than the center as positive slopes and the others negatives slopes.
+In the code below, integers averageN and averageP hold the averaged slopes of the right and left lanes.
+This for loop occurs directed after the hough lines are generated, and its main pupose is to reconstruct
+the hough lines over the image. The slope calculations are included in this loop for ease becasue each
+individual vector is being cycled already. This avoids multiple for loops and reduces time. 
+
+# #+attr_latex: :options bgcolor=code
+# #+begin_src c++
+#  for ( size_t i = 0; i < linesP.size(); i++ )
+#      {
+#        cv::Vec4i l = linesP[i];
+#        cv::line( cdstP, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]), cv::Scalar(0,0,255), 3, cv::LINE_AA);
+#        if (linesP[i][2] <= 640) {
+#        int slope = (linesP[i][3]-linesP[i][1])/(linesP[i][2]-linesP[i][0]);
+#        averageN=averageN + slope;
+#        }
+#        else {
+#        int slope = (linesP[i][3]-linesP[i][1])/(linesP[i][2]-linesP[i][0]);
+#        averageP = averageP + slope;
+#        }
+#      }
+# #+end_src 
+
+Once the right and left slopes are averaged, we now calculate the midpoint slope.
+
+1. If the positive slope is greater than the absolute value of the negative slope,
+   then the midpoint slope must be negative because the negative slope has a wider angle.
+
+2. Otherwise, the midpoint slope is positive 
+    
+# #+attr_latex: :options bgcolor=code
+# #+begin_src c++
+# int midslope=0;
+# double angle=0;
+#   if (averageP > abs(averageN)) {
+#       midslope = averageN - averageP;
+#   }
+#   else {
+#       midslope = averageP - averageN;
+#    }
+#   if (midslope < 0) {
+#       angle = -((CV_PI/2) - atan(abs(midslope)));
+#   }
+#   else if (midslope > 0) {
+#       angle = (CV_PI/2) - atan(midslope);
+#   }
+#   else {
+#       angle = 0;
+#   }
+#   std::cout<<angle*180/CV_PI*100<<std::endl;
+# #+end_src   
+
+Next, based off the midpoint slope being positive, negative, or perfectly zero, we
+can calculate the angle from the y-axis using trigonometry. This can be seen in the code above.
+Lastly the angle is converted to degrees and then scaled by 100 to be understood as an integer.
+This is becasue the rasberry pi struggles with dynamic memory and thus doubles and floats should be avoided.
+The output is piped to the PID controller and then scaled back down for accuracy.
+
+** Test Plan
++--------------+-------------------------------------+-----------+
+|Test          |Description                          |Result Type|
+|              |                                     |           |
++--------------+-------------------------------------+-----------+
+|Lane          |What is the average time between when|Numeric    |
+|Pre-Processing|the frame is captured to when the    |           |
+|Latency       |hough transformation results are     |           |
+|              |complete?                            |           |
+|              |                                     |           |
++--------------+-------------------------------------+-----------+
+|              |Is this reult less than 33ms?        |Pass / Fail|
++--------------+-------------------------------------+-----------+
+|Frame Rate    |Increment vehicle speed by 1 mph     |Plot       |
+|Sampling      |(1-5) and increment framerate by 10  |           |
+|vs. Vehicle   |fps (10-60) Record quality of result.|           |
+|Speed         |                                     |           |
+|              |Which combination of speed and       |           |
+|              |framerate gave the most consistent   |           |
+|              |results?                             |           |
+|              |                                     |           |
++--------------+-------------------------------------+-----------+
+|Threshold     |Increment the threshold value by 50  |Numeric    |
+|Value         |starting from 0.  At what value can  |           |
+|              |the hough transformation no longer   |           |
+|              |generate a line?                     |           |
+|              |                                     |           |
++--------------+-------------------------------------+-----------+
+
 * Controlling the Steering Servo with a PID
 ** Concept
    :PROPERTIES:
@@ -695,6 +990,129 @@ The bench power supply will be adjusted until it is outputting exactly 10v, and 
 actual voltage will be found to get a calibration factor. Next, the power supply will be loaded until the input current is
 exactly 1.0A. Then the difference between the measured and actual current will be found to find a calibration factor.
 The calibration factors will then be written into the calibration registers on the INA226.
+
+* Vehicle Design
+** Parts List
+   The vehicle used in our design is a 1/10 scale rc car. The design was created in 2013 by Daniel Noree, who published the car as open source on thingaverse.com.
+We are fortunate to use this design, as it provides many features of a real car. However, we will not document any design of the car other than what we have added.
+The car is equipped with all-wheel drive, front and rear open differentials, and a suspension system. The chart below shows 3D printed parts only. Besides the part 
+name and quantity, we have provided some of the print settings that we have chosen with respect to durability. The percent infill represents the ratio of material 
+to air in each part. The layer height represents the z-axis increment of each layer. Higher infil and smaller layer height increase the strength substantially.
+It is important to use these settings on smaller parts such as gears and high stress components. Likewise, larger parts such as the frame do not require such settings.
+Note, all parts were printed in PLA material except gearing, which was printed in ABS. PLA gears would strip before ABS gears because of the lower melting point.  
+
+| Part                          | Quantity | % Infil | Layer Height (mm) |
+|-------------------------------+----------+---------+------------------|
+| Axle Shaft                    |        4 |     100 |             0.15 |
+| Axle Shaft Cover              |        4 |     100 |             0.15 |
+| Battery Holder                |        1 |      40 |              0.3 |
+| Bevel Drive Gear              |        2 |     100 |             0.15 |
+| Bumper                        |        1 |      40 |              0.3 |
+| Central Diff Case 3           |        1 |      60 |              0.3 |
+| Central Diff Case 5           |        1 |      60 |              0.3 |
+| Central Drive Shaft           |        2 |     100 |             0.15 |
+| Central Drive Shaft Joint     |        4 |     100 |             0.15 |
+| Chassie Plate Front           |        1 |      40 |              0.3 |
+| Chassie Plate Rear            |        1 |      40 |              0.3 |
+| C-Hub                         |        2 |      80 |              0.2 |
+| Diff Case Shape               |        1 |      40 |              0.2 |
+| Diff Housing Lower (modified) |        2 |      40 |              0.2 |
+| Diff Housing Upper (modified) |        2 |      40 |              0.2 |
+| Drive Gear                    |        1 |     100 |             0.15 |
+| Left Shield Assembly          |        1 |      40 |              0.3 |
+| Pivot Shaft                   |        2 |     100 |              0.2 |
+| Rear C-Hub                    |        2 |      60 |              0.2 |
+| Right Shield Assembly         |        1 |      40 |              0.3 |
+| Servo Arm                     |        1 |      40 |              0.2 |
+| Servo Holder                  |        1 |      40 |              0.3 |
+| Shock Tower                   |        2 |      50 |              0.2 |
+| Simple Body Holder            |        1 |      40 |              0.3 |
+| Spur Gear                     |        1 |     100 |             0.15 |
+| Steering Stabilizer           |        1 |      80 |              0.2 |
+| Steering Block                |        2 |      60 |              0.2 |
+| Steering Part 1               |        1 |      40 |             0.15 |
+| Steering Part 2               |        1 |      40 |             0.15 |
+| Steering Part 3               |        1 |      40 |             0.15 |
+| Steering Pin                  |        2 |     100 |             0.15 |
+| Steering Plate                |        1 |      60 |              0.2 |
+| Top Deck Front                |        1 |      40 |              0.3 |
+| Top Deck Rear                 |        1 |      40 |              0.3 |
+| Turnbuckle (modified)         |        4 |      60 |             0.15 |
+| Turnbucle Spacer              |        4 |      60 |             0.15 |
+| Wheel Hub Hex 12mm            |        4 |     100 |             0.15 |
+| Wishbone Front (modified)     |        2 |      50 |              0.2 |
+| Wishbone Rear (modified)      |        2 |      50 |              0.2 |
+| Camera Mount                  |        1 |      40 |              0.2 |
+
+
+Apart from the printed parts, we also purchased various prebuilt components for the vehicle.
+The table below shows the sourced parts.
+
+| Part                      | Quantity | Material | Source        |
+|---------------------------+----------+----------+---------------|
+| Ball Joint                |        5 | Zinc     | Redcat Racing |
+| 5x10x4 mm Bearing         |        8 | Steel    | Fast Eddy     |
+| 6x12x4 mm Bearing         |        4 | Steel    | Fast Eddy     |
+| 10x15x4 mm Bearing        |       10 | Steel    | Fast Eddy     |
+| CS M3x5 mm Screw          |        5 | Zinc     | Bolt Depot    |
+| CS M3x8 mm Screw          |       54 | Zinc     | Bolt Depot    |
+| CS M3x10 mm Screw         |        6 | Zinc     | Bolt Depot    |
+| CS M3x14 mm Screw         |        4 | Zinc     | Bolt Depot    |
+| CS M3x16 mm Screw         |        6 | Zinc     | Bolt Depot    |
+| HSC M3x8 mm Bolt          |        3 | Zinc     | Bolt Depot    |
+| HSC M3x10 mm Bolt         |       14 | Zinc     | Bolt Depot    |
+| HSC M3x14 mm Bolt         |        8 | Zinc     | Bolt Depot    |
+| HSC M3x16 mm Bolt         |       14 | Zinc     | Bolt Depot    |
+| M3 Nut                    |       26 | Zinc     | Bolt Depot    |
+| M4 Nut                    |        4 | Zinc     | Bolt Depot    |
+| 2x150 mm Rod              |       10 | SS       | Sutemribor    |
+| 3x120 mm Rod              |        5 | SS       | Uxcell        |
+| 188004 Shocks             |        4 | N/A      | Hobby-Park-US |
+| 188015 Drive Shaft        |        4 | SS       | Redcat Racing |
+| ZD 7170 Open Differential |        2 | N/A      | jsbay88       |
+| 83mm Drive Axle Dogbone   |        2 | SS       | RC-Express    |
+
+** Vehicle Assembly
+
+#+ATTR_LATEX: :placement [H] :width 1\linewidth :options angle=90 
+#+CAPTION: Overall Assembly                                 
+[[./figure/overall.jpg]]
+
+#+ATTR_LATEX: :placement [H] :width 1\linewidth :options angle=90
+#+CAPTION: Front Assembly                                 
+[[./figure/frontAssembly.jpg]]
+
+#+ATTR_LATEX: :placement [H] :width 1\linewidth :options angle=90
+#+CAPTION: Rear Assembly                                 
+[[./figure/rearAssembly.jpg]]
+
+#+ATTR_LATEX: :placement [H] :width 1\linewidth :options angle=90
+#+CAPTION: Differential Housing                                 
+[[./figure/diffHousing.jpg]]
+
+#+ATTR_LATEX: :placement [H] :width 1\linewidth :options angle=90
+#+CAPTION: Differential Assembly                                 
+[[./figure/diffAssembly.jpg]]
+
+#+ATTR_LATEX: :placement [H] :width 1\linewidth :options angle=90
+#+CAPTION: Central Differential Housing                                 
+[[./figure/diffCenterHousing.jpg]]
+
+#+ATTR_LATEX: :placement [H] :width 1\linewidth :options angle=90
+#+CAPTION: Central Gearbox                                 
+[[./figure/diffCenter.jpg]]
+
+#+ATTR_LATEX: :placement [H] :width 1\linewidth :options angle=90
+#+CAPTION: Steering Assembly                                 
+[[./figure/steering.jpg]]
+
+#+ATTR_LATEX: :placement [H] :width 1\linewidth :options angle=90
+#+CAPTION: Front C-Hub Assembly                                 
+[[./figure/chubf.jpg]]
+
+#+ATTR_LATEX: :placement [H] :width 1\linewidth :options angle=90
+#+CAPTION: Battery Holder                                 
+[[./figure/holder.jpg]]
 
 * Appendix: Code
 ** Steering PID
