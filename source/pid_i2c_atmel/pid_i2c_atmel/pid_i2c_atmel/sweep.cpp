@@ -68,12 +68,13 @@ int main() {
 	
 	while(1) {
 		i2cbuffer = rxbuffer;
-		if(i2cbuffer[n] != 0x12)
+		if(i2cbuffer[n] =! 0x12)
 		{
 			 message.append(i2cbuffer[n]);
 			 n++;
 		}
-		else {
+		else if (i2cbuffer[4] == 0x12)
+		{
 			int16_t initialServoMicros = atoi(message);
 			int16_t servoMicros = steeringClamp.clamp(initialServoMicros);
 			OCR1A = ICR1 - microsToCycles(servoMicros);
