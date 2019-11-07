@@ -21,9 +21,9 @@
 #include <stdint.h>
 #include <avr/interrupt.h>
 
-//volatile uint8_t buffer_address;
-//volatile uint8_t txbuffer[0xFF];
-//volatile uint8_t rxbuffer[0xFF];
+extern volatile uint8_t buffer_address;
+extern volatile uint8_t txbuffer[0xFF];
+extern volatile uint8_t rxbuffer[0xFF];
 
 void I2C_init(uint8_t address);
 void I2C_stop(void);
