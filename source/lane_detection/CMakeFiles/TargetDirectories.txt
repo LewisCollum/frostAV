@@ -1,6 +1,0 @@
-/home/justin/lane_detection/CMakeFiles/vid.dir
-/home/justin/lane_detection/CMakeFiles/rebuild_cache.dir
-/home/justin/lane_detection/CMakeFiles/lane_detection.dir
-/home/justin/lane_detection/CMakeFiles/canny.dir
-/home/justin/lane_detection/CMakeFiles/ver2.dir
-/home/justin/lane_detection/CMakeFiles/edit_cache.dir
