@@ -1,12 +1,8 @@
-#+LATEX_HEADER: \usepackage[letterpaper, margin = 1in]{geometry}
 #+options: toc:t num:t
-#+export_exclude_tags: noexport
-#+latex_header: \usepackage{xcolor}
-#+latex_header: \definecolor{code}{rgb}{0.95,0.95,0.95}
-#+latex_header: \setlength\parindent{0pt}
-#+latex_header: \usepackage{parskip}
+#+latex_header: \usepackage{development}
 
 #+title: FrostAV Development
+#+author: *Team Frost:* Lewis Collum, Ian Shelly, Justin Marcy 
 #+date: Updated \today
 
 * System Requirements
@@ -444,6 +440,7 @@ clamp = Clamp::makeFromBounds({
     that a =Clamp= object requires a =Bounds=.
 
     Again, after instantiating the =Clamp= class, you can use it as,
+    #+attr_latex: :options bgcolor=code
     #+BEGIN_SRC C++
 int16_t clampedValue = clamp.clamp(5); // Returns 10 since the lower bound is 10.
     #+END_SRC
@@ -513,6 +510,7 @@ public:
     =makeFromGain=.
 
     The definition of the =updateError= function is
+    #+attr_latex: :options bgcolor=code
     #+BEGIN_SRC C++
 int16_t Pid::updateError(int16_t newError) {
     error.integral += newError;
