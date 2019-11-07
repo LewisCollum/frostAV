@@ -61,32 +61,32 @@ static void setupTimerInterrupt(){
 	
 	TCCR0B |= 1 << CS02; //Prescaler: 256 (from 16 mhz)
 		 
-	OCR0B = (0x14152);	//Trigger every 100 ms (count b)
+	OCR0B = (0x30324);	//Trigger every 200 ms (count b)
 	
 	TIMSK0 = (1 << OCIE0B); //Interrupt on count B
 }
 
 ISR(TIMER0_COMPB_vect)
 { 
-	if(pidcounter < 100)
-	{
+	//if(pidcounter < 100)
+	//{
 	servoMicros = steeringPid.updateError(error) + servoMicros;
 	servoMicros = steeringClamp.clamp(servoMicros);
 	OCR1A = ICR1 - microsToCycles(servoMicros);
 	
-    String<10> buffer;
-	itoa(servoMicros, buffer, 10); 
-    usart::print(buffer); 
-	buffer.clear();
-	usart::print(", ");
-    itoa(error, buffer, 10); 
-    usart::print(buffer); 
-	usart::print("\r\n");
+    //String<10> buffer;
+	//itoa(servoMicros, buffer, 10); 
+    //usart::print(buffer); 
+	//buffer.clear();
+	//usart::print(", ");
+    //itoa(error, buffer, 10); 
+    //usart::print(buffer); 
+	//usart::print("\r\n");
 	
-	error =	50-pidcounter;	//idealServoMicros - servoMicros;
+	//error =	50-pidcounter;	//idealServoMicros - servoMicros;
 	
-	pidcounter++;
-	}
+	//pidcounter++;
+	//}
 	TCNT0 = 0x0; //Reset timer count
 }
 
@@ -113,15 +113,16 @@ int main() {
 				message.append(rxbuffer[n]);
 				//rxbuffer[n] = 0;
 			}
-			initialServoMicros = atoi(message);
-			servoMicros = steeringClamp.clamp(initialServoMicros);
-			OCR1A = ICR1 - microsToCycles(servoMicros);
+			//initialServoMicros = atoi(message);
+			//servoMicros = steeringClamp.clamp(initialServoMicros);
+			//OCR1A = ICR1 - microsToCycles(servoMicros);
 			//error = idealServoMicros - servoMicros;
+			error = atoi(message);
 			usart::print("GOT: ");
             usart::print(message);
             usart::print("\r\n");
 			
-			_delay_ms(1000); //remove this, just for testing
+			//_delay_ms(1000); //remove this, just for testing
 
 			pidcounter = 0;
 			
