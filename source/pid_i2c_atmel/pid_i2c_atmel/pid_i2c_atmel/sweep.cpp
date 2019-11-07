@@ -14,7 +14,7 @@ constexpr uint32_t clockFrequency = F_CPU;
 constexpr uint8_t pwmFrequency = 50;
 constexpr uint32_t baud = 9600;
 constexpr uint8_t addr = 0x12;
-
+char* message;
 
 
 static constexpr uint32_t microsToCycles(uint16_t micros) {
@@ -55,48 +55,30 @@ int main() {
             .proportional = 10,
             .integral = 0,
             .derivative = 0 });
-    
-    String<10> message;
-    char currentChar;
+
     int16_t idealServoMicros = 1500;
 	
 	//interrupt enable
 	sei();
 	
 	while(1) {
-        currentChar = rxbuffer[0];
-        if (currentChar != 0x0) 
-		{
-			message.clear();
-			message.append(currentChar);
-			rxbuffer[0] = 0;
-		}
-        else {
-            //usart::print("GOT: ");
-		    //usart::print(message);
-            //usart::print('\cr\n');
+		message	= (char*)(&rxbuffer);
+        int16_t initialServoMicros = atoi(message);
+        int16_t servoMicros = steeringClamp.clamp(initialServoMicros);
+        OCR1A = ICR1 - microsToCycles(servoMicros);
+        _delay_ms(1000);            
             
-            int16_t initialServoMicros = atoi(message);
-            int16_t servoMicros = steeringClamp.clamp(initialServoMicros);
-            OCR1A = ICR1 - microsToCycles(servoMicros);
-            _delay_ms(1000);            
-            
-            int16_t error = idealServoMicros - servoMicros;
-            for (uint32_t i = 0; i < 15; ++i) {
-              servoMicros = steeringPid.updateError(error) + servoMicros;
+        int16_t error = idealServoMicros - servoMicros;
+        for (uint32_t i = 0; i < 15; ++i) {
+        servoMicros = steeringPid.updateError(error) + servoMicros;
 
-              String<10> buffer;
-              itoa(servoMicros, buffer, 10); 
-              usart::print(buffer); usart::print('\n');
+        servoMicros = steeringClamp.clamp(servoMicros);
+        OCR1A = ICR1 - microsToCycles(servoMicros);
+        _delay_ms(100);
 
-              servoMicros = steeringClamp.clamp(servoMicros);
-              OCR1A = ICR1 - microsToCycles(servoMicros);
-               _delay_ms(100);
-
-                //TODO replace with actual feedback error
-              error = idealServoMicros - servoMicros;
-           }
-            
+        //TODO replace with actual feedback error
+        error = idealServoMicros - servoMicros; 
+		           
         } 
 	}
 }
