@@ -7,6 +7,7 @@
 #include "String.hpp"
 #include "usart.hpp"
 #include "I2C_slave.hpp"
+#include <string.h>
 
 
 constexpr uint8_t prescaler = 8;
@@ -14,7 +15,7 @@ constexpr uint32_t clockFrequency = F_CPU;
 constexpr uint8_t pwmFrequency = 50;
 constexpr uint32_t baud = 9600;
 constexpr uint8_t addr = 0x12;
-char* message;
+volatile char* i2cbuffer;
 
 
 static constexpr uint32_t microsToCycles(uint16_t micros) {
@@ -58,27 +59,47 @@ int main() {
 
     int16_t idealServoMicros = 1500;
 	
+	String<10> message;
+	int n = 0;
+
+	
 	//interrupt enable
 	sei();
 	
 	while(1) {
-		message	= (char*)(&rxbuffer);
-        int16_t initialServoMicros = atoi(message);
-        int16_t servoMicros = steeringClamp.clamp(initialServoMicros);
-        OCR1A = ICR1 - microsToCycles(servoMicros);
-        _delay_ms(1000);            
-            
-        int16_t error = idealServoMicros - servoMicros;
-        for (uint32_t i = 0; i < 15; ++i) {
-			servoMicros = steeringPid.updateError(error) + servoMicros;
-
-			servoMicros = steeringClamp.clamp(servoMicros);
+		i2cbuffer = rxbuffer;
+		if(i2cbuffer[n] != 0x12)
+		{
+			 message.append(i2cbuffer[n]);
+			 n++;
+		}
+		else {
+			int16_t initialServoMicros = atoi(message);
+			int16_t servoMicros = steeringClamp.clamp(initialServoMicros);
 			OCR1A = ICR1 - microsToCycles(servoMicros);
-			_delay_ms(100);
+			_delay_ms(1000);
 
-			//TODO replace with actual feedback error
-			error = idealServoMicros - servoMicros; 
-		           
-        } 
+			int16_t error = idealServoMicros - servoMicros;
+			for (uint32_t i = 0; i < 15; ++i) {
+				servoMicros = steeringPid.updateError(error) + servoMicros;
+
+				servoMicros = steeringClamp.clamp(servoMicros);
+				OCR1A = ICR1 - microsToCycles(servoMicros);
+				_delay_ms(100);
+				
+				//TODO replace with actual feedback error
+				error = idealServoMicros - servoMicros;
+			}
+			for(int i = 0; i <= 255; i++)
+			{
+				if(i2cbuffer[i] == 0x12)
+				{
+					i2cbuffer[i] = 0;
+					break;
+				}
+				i2cbuffer[i] = 0;
+			}
+			n = 0;
+		}
 	}
 }

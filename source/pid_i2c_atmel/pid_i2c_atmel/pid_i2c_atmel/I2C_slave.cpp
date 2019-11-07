@@ -23,7 +23,7 @@
 
 volatile uint8_t buffer_address;
 volatile uint8_t txbuffer[0xFF];
-volatile uint8_t rxbuffer[0xFF];
+volatile char rxbuffer[0xFF];
 
 void I2C_init(uint8_t address){
 	cli(); 
