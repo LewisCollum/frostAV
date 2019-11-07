@@ -9,3 +9,5 @@ clean
 **.jpg
 **.avi
 **CMakeFiles
+**CMakeCache.txt
+**cmake_install.cmake
