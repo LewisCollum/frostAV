@@ -9,6 +9,11 @@
 #+title: FrostAV Development
 #+date: Updated \today
 
+* System Requirements
+  #+INCLUDE: "./requirements/README.org::#sec:problemOverview"
+  #+INCLUDE: "./requirements/README.org::#system-requirements" :only-contents t
+  #+INCLUDE: "./requirements/README.org::#system-constraints" :only-contents t
+
 * System Abstraction
 ** Abstract System Operation Description
    The Frost Autonomous Vehicle consists of a vehicle and a system for
@@ -126,9 +131,15 @@
 *** Electronic Speed Controller (DYNS2211)
     Takes in a PWM signal and outputs an amplified and directional PWM
     wave to the vehicle's motor.
+
+    #+attr_latex: :width 0.4\linewidth :placement [H]
+    [[./figure/2019-11-06_dyns2211_photo.png]]
+
 *** Power Supply
-    Takes the 12v input from the battery and steps the voltage down to 5v
-    to power the vehicle's systems. Also provides current and voltage monitoring.
+    Takes the 12v input from the battery and steps the voltage down to
+    5v to power the vehicle's systems. Also provides current and
+    voltage monitoring.  This module is designed and built as part of
+    this project (see section [[#sec:powerSupplyDesign]] for details).
 * Controlling the Steering Servo with a PID
 ** Concept
    :PROPERTIES:
@@ -574,6 +585,9 @@ public:
     #+attr_latex: :width 0.8\linewidth :placement [H]
     [[./figure/2019-11-06_steeringPid_usartLog.png]]    
 * Power Supply Design
+  :PROPERTIES:
+  :CUSTOM_ID: sec:powerSupplyDesign
+  :END:
 
 #+caption: 3D Render of Power Supply
 #+attr_latex: :width 0.8\linewidth :placement [H]
@@ -683,9 +697,6 @@ The bench power supply will be adjusted until it is outputting exactly 10v, and 
 actual voltage will be found to get a calibration factor. Next, the power supply will be loaded until the input current is
 exactly 1.0A. Then the difference between the measured and actual current will be found to find a calibration factor.
 The calibration factors will then be written into the calibration registers on the INA226.
-
-    #+attr_latex: :width 0.4\linewidth :placement [H]
-    [[./figure/2019-11-06_dyns2211_photo.png]]
 
 * Appendix: Code
 ** Steering PID

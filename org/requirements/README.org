@@ -34,6 +34,9 @@
    Clarkson University's Computer Engineering department. 
 
 ** Problem Overview
+   :PROPERTIES:
+   :CUSTOM_ID: sec:problemOverview
+   :END:
   The system to be specified requires the design and construction of
   an autonomous car that has the ability to navigate within a
   _lane_. The system should satisfy the tasks specified in section
