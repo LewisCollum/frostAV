@@ -138,8 +138,6 @@
     this project (see section [[#sec:powerSupplyDesign]] for details).
 * Lane Detection using OpenCV
 ** OpenCV
-*** Camera Configuration
-//v4l2
 *** OpenCV & Reading Video
 The primary software component responsible for camera perception is OpenCV. 
 OpenCV is an open source software library that implements machine learning algorithms 
@@ -153,27 +151,27 @@ constant video feed is challenging because it creates a large computational load
 on the CPU and RAM. To reduce this, we will be sampling our video and using 
 periodic frames for input.
   
-# #+attr_latex: :options bgcolor=code
-# #+BEGIN_SRC C++
-# #include<iostream>
-# #include <opencv2/opencv.hpp>
-# using namespace cv;
-# int main(int argc, char** argv)
-# {
-#   Mat frame;                               //temp image variable
-#   VideoCapture capture;                    //Array of captured frames
-#   namedWindow("Window", WINDOW_AUTOSIZE);  //create viewable window/executable
-#   capture.open(argv[1]);                   //reads input video
-#   for(;;)
-#     {
-#       capture>>frame;                        //amends new frame over previous
-#       if(frame.empty()) break;               //break if there is no video feed
-#       imshow("Window",frame);                //display frame in window
-#       if(waitKey(30)>=0) break;              //Define framerate sampling
-#     }
-#   return 0;
-# }
-# #+END_SRC
+#+attr_latex: :options bgcolor=code
+#+BEGIN_SRC C++
+#include<iostream>
+#include <opencv2/opencv.hpp>
+using namespace cv;
+int main(int argc, char** argv)
+{
+  Mat frame;                               //temp image variable
+  VideoCapture capture;                    //Array of captured frames
+  namedWindow("Window", WINDOW_AUTOSIZE);  //create viewable window/executable
+  capture.open(argv[1]);                   //reads input video
+  for(;;)
+    {
+      capture>>frame;                        //amends new frame over previous
+      if(frame.empty()) break;               //break if there is no video feed
+      imshow("Window",frame);                //display frame in window
+      if(waitKey(30)>=0) break;              //Define framerate sampling
+    }
+  return 0;
+}
+#+END_SRC
 
 In the figure above, our input video feed will be piped in as an argument argv. 
 The video frames are then sampled and stored in an array of type "VideoCapture", 
@@ -207,10 +205,10 @@ processing library, the image can be converted HSV format or Hue, Saturation, Va
 
 The following figures shows the conversion to HSV format using the convert color function.
 
-# #+attr_latex: :options bgcolor=code
-# #+BEGIN_SRC C++
-#  cv::cvtColor(src, hsvFrame, cv::COLOR_BGR2HSV);
-# #+END_SRC
+#+attr_latex: :options bgcolor=code
+#+BEGIN_SRC C++
+cv::cvtColor(src, hsvFrame, cv::COLOR_BGR2HSV);
+#+END_SRC
 
 #+ATTR_LATEX: :placement [H] :width 0.5\linewidth
 #+CAPTION: Source Image vs. HSV Format
@@ -218,10 +216,10 @@ The following figures shows the conversion to HSV format using the convert color
 
 "src" is the input frame while "hsvFrame" is the output. Once in HSV format, the mask values for blue can be specified. These values cannot be concrete however, as lighting conditions and noise will affect the HSV value. Instead, there must be a range of values. This range was acquired by reading the HTML color code allow the blue tape using Microsoft 3D Paint. The color codes are 6-bit hexadecimal values (0xFF, 0xFF, 0xFF) that can be converted to HSV. Recall, hue has a maximum value of 179 in OpenCV and must be calculated by multiplying 179 by the percentage value between 0x00 and 0xFF. After acquiring the minimum and maximum HSV values of the lanes from the test image, we are ready to use the mask function called "inRange." The function takes input arguments input image, minimum HSV values, maximum HSV values, and output image. The line below shows the values used for the blue mask.
 
-# #+attr_latex: :options bgcolor=code
-# #+BEGIN_SRC C++
-# cv::inRange(hsvFrame, cv::Scalar(100,100,100), cv::Scalar(110,255,150), newFrame);
-# #+END_SRC
+#+attr_latex: :options bgcolor=code
+#+BEGIN_SRC C++
+cv::inRange(hsvFrame, cv::Scalar(100,100,100), cv::Scalar(110,255,150), newFrame);
+#+END_SRC
 
 The result can be seen below.
 #+ATTR_LATEX: :placement [H] :width 0.5\linewidth
@@ -232,10 +230,10 @@ The result can be seen below.
 While adjusting the contrast of an image does not significantly improve the detection quality, it
 does help reduce discoloration. This includes effects such as strong reflections that cause artifacts throughout the image. In OpenCV, the function "convertTo()" allows the user to adjust the contrast by changing the 3rd input argument shown below.
 
-# #+attr_latex: :options bgcolor=code
-# #+BEGIN_SRC C++
-# newFrame.converTo(lowCont, -1, 0.5, 0);
-# #+END_SRC
+#+attr_latex: :options bgcolor=code
+#+BEGIN_SRC C++
+newFrame.converTo(lowCont, -1, 0.5, 0);
+#+END_SRC
 
 Here, values below 1 reduce contrast while value above 1 increase contrast. By testing multiple values, we found that 0.5 was the darkest result without hiding the lanes. The figure below shows the chosen result.
 #+ATTR_LATEX: :placement [H] :width 0.5\linewidth
@@ -251,13 +249,13 @@ A gaussian blur is a specific form of smoothing, also known as pixel averaging. 
 
 This process is critical to prepare for line detection, as line detection relies on consistent groupings of pixels. The gaussian blur is provided in the OpenCV image processing library and helps eliminate noise and small objects. The for-loop below shows the implemented blur. Here, we chose the blur to be applied 4 times. This is set through "MAX_KERNEL_LENGTH." The kernel size begins at 1 and is incremented by 2 since gaussian matrices must be odd (1,3,5,7...)
 
-# #+attr_latex: :options bgcolor=code
-# #+BEGIN_SRC C++
-# int MAX_KERNEL_LENGTH=7;
-# for (int i=1; i<MAX_KERNEL_LENGTH; i=i+2) {
-#     cv::GaussianBlur(lowCont, blr, cv::Size(i,i), 0, 0);
-# }
-# #+END_SRC
+#+attr_latex: :options bgcolor=code
+#+BEGIN_SRC C++
+int MAX_KERNEL_LENGTH=7;
+for (int i=1; i<MAX_KERNEL_LENGTH; i=i+2) {
+    cv::GaussianBlur(lowCont, blr, cv::Size(i,i), 0, 0);
+}
+#+END_SRC
 
 
 #+ATTR_LATEX: :placement [H] :width 0.5\linewidth
@@ -271,9 +269,10 @@ is maintained. The best area to remove is the top half of the image, as this is 
 much of the enviorment noise is. However, the sides of the image should not be removed becasue
 the lanes might enter this lateral region during turns.
 
-# #+BEGIN_SRC C++
-# cv::Mat croppedFrame = blr(cv::Rect(0, blr.rows/2, blr.cols, blr.rows/2));
-# #+END_SRC
+#+attr_latex: :options bgcolor=code
+#+BEGIN_SRC C++
+cv::Mat croppedFrame = blr(cv::Rect(0, blr.rows/2, blr.cols, blr.rows/2));
+#+END_SRC
 
 The code above shows a simple method to resize an image. The previous blurred frame
 invokes an OpenCV function called "rect()." The image is simply halved by dividing the 
@@ -295,11 +294,11 @@ The next component of the canny function is hysteresis thresholding. This allows
 #+CAPTION: Min & Max Threshold (opencv.org)
 [[./figure/graph.jpg]]
 Even if a certain gradient intensity for a pixel is above the maximum threshold,  such as point A, it is still considered to be part of the line because it matches the gradient direction of its neighbors. Although point B falls within the min and max region, it is disconnected with its neighbors. In short, a gradient intensity must match the direction of its neighbors and cannot exceed to threshold for more than one value at a time. In other words, if there are two consecutive values outside the range then it is not counted. 
-# #+attr_latex: :options bgcolor=code
-# #+begin_src C++ 
-# cv::Canny(blr, edges, 50, 200, 3);
-# cv::cvtColor(edges, cdst, cv::COLOR_GRAY2BGR);
-# #+END_SRC
+#+attr_latex: :options bgcolor=code
+#+begin_src C++ 
+cv::Canny(blr, edges, 50, 200, 3);
+cv::cvtColor(edges, cdst, cv::COLOR_GRAY2BGR);
+#+END_SRC
 The code above shows the Canny function with input, output, minimum hysteresis threshold value, maximum hysteresis threshold value and kernel size. Similar to the gaussian kernel size, the canny kernel size is used to define the size of an array for calculating the gradient intensity with respect to its surrounding pixels. The default size is 3. The rendered edges are stored in a new frame . The output of the edge detector is shown below.
 #+ATTR_LATEX: :placement [H] :width 0.5\linewidth
 #+CAPTION: Detected Edges
@@ -312,15 +311,15 @@ The standard model generates a polar coordinate of each line, while the probabil
 generates the endpoints of a line in a vector. Another important difference 
 is the standard model projects the line past its endpoint because it is following the calculated angle. This can cause issues if there are significant curves and turns within the lane. Because of this, we will be using the probabilistic model. Since the output of the transformation is the endpoints of a line, then the first step is to create a vector of length 4. This will hold the starting and finishing endpoints (X0, Y0, X1, Y1). OpenCV has a vector  already included in their library. Next, the hough transformation function must be called.   
 
-# #+attr_latex: :options bgcolor=code
-# #+BEGIN_SRC C++
-# std::vector<cv::Vec4i> linesP; 
-# cv::HoughLinesP(edges, linesP, 1, CV_PI/180, 50, 50, 10 ); 
-# for( size_t i = 0; i < linesP.size(); i++ ){
-#     cv::Vec4i l = linesP[i];
-#     cv::line( cdstP, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]), cv::Scalar(0,0,255), 3, cv::LINE_AA);
-# }
-# #+END_SRC
+#+attr_latex: :options bgcolor=code
+#+BEGIN_SRC C++
+std::vector<cv::Vec4i> linesP; 
+cv::HoughLinesP(edges, linesP, 1, CV_PI/180, 50, 50, 10 ); 
+for( size_t i = 0; i < linesP.size(); i++ ){
+    cv::Vec4i l = linesP[i];
+    cv::line( cdstP, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]), cv::Scalar(0,0,255), 3, cv::LINE_AA);
+}
+#+END_SRC
 
 Looking at the code above,  function takes arguments input edges, output array of vectors, rho, theta, threshold, minimum line length, and minimum line   are specifying that the polar input from the edge detection have a radius resolution of 1 pixel and angle resolution of 1 degree. The hough transformation records the number of pixels intersecting the predicted line; this is known as . When the threshold meets or exceeds the user-defined threshold value, it confirms that those pixels are part of the line and stores their position as a vector  The threshold value is highly dependent on the resolution of the image, so a high threshold value would not be suitable for a low resolution image. minimum line  minimum line  are both very important. The minimum line length specifies the number of point considered to be a line while the minimum line gap joins other close separate lines. This is critical in removing insignificant lines caused from noise. Once the output vectors are populated, the for-loop is responsible for redrawing the red lines using the built-in  The result is as follows.
 line().function gapand lengthLastly, linesP.in thresholdthe thetaand Rhogap. HoughLinesP()the Vec4itype 
@@ -350,22 +349,22 @@ This for loop occurs directed after the hough lines are generated, and its main 
 the hough lines over the image. The slope calculations are included in this loop for ease becasue each
 individual vector is being cycled already. This avoids multiple for loops and reduces time. 
 
-# #+attr_latex: :options bgcolor=code
-# #+begin_src c++
-#  for ( size_t i = 0; i < linesP.size(); i++ )
-#      {
-#        cv::Vec4i l = linesP[i];
-#        cv::line( cdstP, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]), cv::Scalar(0,0,255), 3, cv::LINE_AA);
-#        if (linesP[i][2] <= 640) {
-#        int slope = (linesP[i][3]-linesP[i][1])/(linesP[i][2]-linesP[i][0]);
-#        averageN=averageN + slope;
-#        }
-#        else {
-#        int slope = (linesP[i][3]-linesP[i][1])/(linesP[i][2]-linesP[i][0]);
-#        averageP = averageP + slope;
-#        }
-#      }
-# #+end_src 
+#+attr_latex: :options bgcolor=code
+#+begin_src c++
+for ( size_t i = 0; i < linesP.size(); i++ )
+    {
+        cv::Vec4i l = linesP[i];
+        cv::line( cdstP, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]), cv::Scalar(0,0,255), 3, cv::LINE_AA);
+        if (linesP[i][2] <= 640) {
+            int slope = (linesP[i][3]-linesP[i][1])/(linesP[i][2]-linesP[i][0]);
+            averageN=averageN + slope;
+        }
+        else {
+            int slope = (linesP[i][3]-linesP[i][1])/(linesP[i][2]-linesP[i][0]);
+            averageP = averageP + slope;
+        }
+    }
+#+end_src 
 
 Once the right and left slopes are averaged, we now calculate the midpoint slope.
 
@@ -374,27 +373,27 @@ Once the right and left slopes are averaged, we now calculate the midpoint slope
 
 2. Otherwise, the midpoint slope is positive 
     
-# #+attr_latex: :options bgcolor=code
-# #+begin_src c++
-# int midslope=0;
-# double angle=0;
-#   if (averageP > abs(averageN)) {
-#       midslope = averageN - averageP;
-#   }
-#   else {
-#       midslope = averageP - averageN;
-#    }
-#   if (midslope < 0) {
-#       angle = -((CV_PI/2) - atan(abs(midslope)));
-#   }
-#   else if (midslope > 0) {
-#       angle = (CV_PI/2) - atan(midslope);
-#   }
-#   else {
-#       angle = 0;
-#   }
-#   std::cout<<angle*180/CV_PI*100<<std::endl;
-# #+end_src   
+#+attr_latex: :options bgcolor=code
+#+begin_src c++
+int midslope=0;
+double angle=0;
+if (averageP > abs(averageN)) {
+    midslope = averageN - averageP;
+}
+else {
+    midslope = averageP - averageN;
+}
+if (midslope < 0) {
+    angle = -((CV_PI/2) - atan(abs(midslope)));
+}
+else if (midslope > 0) {
+    angle = (CV_PI/2) - atan(midslope);
+}
+else {
+    angle = 0;
+}
+std::cout<<angle*180/CV_PI*100<<std::endl;
+#+end_src   
 
 Next, based off the midpoint slope being positive, negative, or perfectly zero, we
 can calculate the angle from the y-axis using trigonometry. This can be seen in the code above.
