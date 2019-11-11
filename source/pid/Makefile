@@ -45,8 +45,7 @@ test: $(TESTS)
 	./$(TEST_RUNNER)
 
 com:
-	picocom -b $(COM_BAUD) $(PORT) -p 2
-
+	picocom -b $(COM_BAUD) $(PORT) -p 2 --echo --omap crlf --imap crlf
 
 clean:
 	rm -f ${BIN}.elf ${BIN}.hex $(OBJ) $(TEST_RUNNER)* $(DEP)
