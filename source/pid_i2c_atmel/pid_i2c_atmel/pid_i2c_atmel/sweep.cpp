@@ -5,7 +5,6 @@
 #include "Pid.hpp"
 #include "Clamp.hpp"
 #include "String.hpp"
-#include "usart.hpp"
 #include "I2C_slave.hpp"
 #include <string.h>
 
@@ -13,12 +12,12 @@
 constexpr uint8_t prescaler = 8;
 constexpr uint32_t clockFrequency = F_CPU;
 constexpr uint8_t pwmFrequency = 50;
-constexpr uint32_t baud = 9600;
 constexpr uint8_t addr = 0x12;
-volatile char* i2cbuffer;
 int pidcounter = 15;
+
 int16_t initialServoMicros;
 int16_t servoMicros;
+
 Clamp steeringClamp = Clamp::makeFromBounds({
 	.lower = 800,
 	.upper = 2200 });
@@ -26,6 +25,7 @@ Pid steeringPid = Pid::makeFromScaledGain(10, {
 	.proportional = 10,
 	.integral = 0,
 	.derivative = 0 });
+	
 int16_t idealServoMicros = 1500;
 int16_t error;
 
@@ -68,30 +68,14 @@ static void setupTimerInterrupt(){
 
 ISR(TIMER0_COMPB_vect)
 { 
-	//if(pidcounter < 100)
-	//{
 	servoMicros = steeringPid.updateError(error) + servoMicros;
 	servoMicros = steeringClamp.clamp(servoMicros);
 	OCR1A = ICR1 - microsToCycles(servoMicros);
 	
-    //String<10> buffer;
-	//itoa(servoMicros, buffer, 10); 
-    //usart::print(buffer); 
-	//buffer.clear();
-	//usart::print(", ");
-    //itoa(error, buffer, 10); 
-    //usart::print(buffer); 
-	//usart::print("\r\n");
-	
-	//error =	50-pidcounter;	//idealServoMicros - servoMicros;
-	
-	//pidcounter++;
-	//}
 	TCNT0 = 0x0; //Reset timer count
 }
 
 int main() {
-	usart::setup(clockFrequency, baud);
     I2C_init(addr);
 	setupTimerInterrupt();
     setupServoPwm();
@@ -99,31 +83,20 @@ int main() {
 	String<10> message;
 	int length;
 
-	
 	//interrupt enable
 	sei();
 	
 	while(1) {
-		i2cbuffer = rxbuffer;
 		length = (int)buffer_address;
 		if (trigger == true)
 		{
 			for(int n = 0; n <= length; n++)
 			{
 				message.append(rxbuffer[n]);
-				//rxbuffer[n] = 0;
 			}
-			//initialServoMicros = atoi(message);
-			//servoMicros = steeringClamp.clamp(initialServoMicros);
-			//OCR1A = ICR1 - microsToCycles(servoMicros);
-			//error = idealServoMicros - servoMicros;
-			error = atoi(message);
-			usart::print("GOT: ");
-            usart::print(message);
-            usart::print("\r\n");
-			
-			//_delay_ms(1000); //remove this, just for testing
 
+			error = atoi(message);
+			
 			pidcounter = 0;
 			
 			message.clear();
