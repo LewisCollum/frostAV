@@ -13,7 +13,7 @@ namespace usart {
         //Enable Transmitter & Receiver
         UCSR0B = 1 << RXEN0 | 1 << TXEN0;
         //Frame Format: 8 data, 2 stop
-        UCSR0C = 1 << USBS0 | 3 << UCSZ00;
+        UCSR0C = 3 << UCSZ00;	//1 << USBS0 | 3 << UCSZ00;
 
     }
 
