@@ -5,6 +5,7 @@
 *.tex
 *scrap*
 clean
+!source/powersupply/html/*
 
 # C/C++
 **.o
