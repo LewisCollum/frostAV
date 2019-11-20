@@ -1,0 +1,13 @@
+* Tasks                                                            :noexport:
+  - [0/5] *Makefile Organization* 11/19/2019
+    1. [ ] Build Makefile.conf including contents of current top-level Makefile. 
+    2. [ ] Redo current top-level Makefile to call all subdirectory makefiles 
+    3. [ ] Build Makefile for 'sweep' application code
+    4. [ ] Figure out best way to include common library among application code.
+    5. [ ] Test that the top-level Makefile calls 'sweep' Makefile
+  - [0/3] *AVR C++ Code for Speed Controller Sweeping* 11/19/2019
+    1. [ ] Setup motor test with Pololu Speed Controller
+       - Use RC car speed controller if this one does not work.
+    2. [ ] Test with Arduino that Servo library works with the speed controller.
+    3. [ ] Write AVR C++ register-level code for speed controller.
+    4. [ ] Generalize Servo and Speed Controller register-level code.
