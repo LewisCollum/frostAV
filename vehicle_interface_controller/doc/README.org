@@ -12,3 +12,5 @@
     2. [X] Test with Arduino that Servo library works with the speed controller.
     3. [X] Write AVR C++ register-level code for speed controller.
     4. [ ] Generalize Servo and Speed Controller register-level code.
+  - [ ] *Multiple PWM Devices (servo, ESC) Using Same Timer* 11/20/2019
+
