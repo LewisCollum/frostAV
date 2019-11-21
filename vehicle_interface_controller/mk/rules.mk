@@ -14,12 +14,11 @@ $(BUILD_DIR)/%.o: %.cpp
 flash: $(BUILD_DIR)/$(TARGET).hex
 	avrdude -c $(PROGRAMMER) -P $(PORT) -p $(DEVICE) -b $(FLASH_BAUD) -U flash:w:$<
 
-
-# test: $(TESTS)
-# 	cxxtestgen --error-printer -o test_runner.cpp $(TESTS)
-# 	g++ -o test_runner -I$(CXXTEST) test_runner.cpp $(TEST_SOURCES)
-# 	./test_runner
-# 	rm test_runner
+test: $(TESTS)
+	cxxtestgen --error-printer -o test_runner.cpp $(TESTS)
+	g++ -o test_runner -I$(CXXTEST) test_runner.cpp $(TEST_SOURCES)
+	./test_runner
+	rm test_runner test_runner.cpp
 
 com:
 	picocom -b $(COM_BAUD) $(PORT) -p 2 --echo --omap crlf --imap crlf

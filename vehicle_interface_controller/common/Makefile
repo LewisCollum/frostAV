@@ -1,5 +1,3 @@
-# .DEFAULT_GOAL = $(OBJS)
-
 BASE = ..
 
 include $(BASE)/mk/toolchain.mk
@@ -9,6 +7,6 @@ all: $(OBJS)
 
 include $(BASE)/mk/rules.mk
 
-# #Unit Testing
-# TESTS = TestPid.hpp TestClamp.hpp
-# TEST_SOURCES = Pid.cpp
+#Unit Testing
+TESTS = TestPid.hpp TestClamp.hpp
+TEST_SOURCES = Pid.cpp
