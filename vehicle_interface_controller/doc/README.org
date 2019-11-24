@@ -1,4 +1,4 @@
-* Tasks                                                            :noexport:
+* [1/2] Tasks
   - [5/5] *Makefile Organization* 11/19/2019
     1. [X] Build Makefile.conf including contents of current top-level Makefile.
        + Edit: split configurations into 'mk' directory .mk files (e.g. rules.mk, toolchain.mk)
@@ -12,5 +12,6 @@
     2. [X] Test with Arduino that Servo library works with the speed controller.
     3. [X] Write AVR C++ register-level code for speed controller.
     4. [ ] Generalize Servo and Speed Controller register-level code.
-  - [ ] *Multiple PWM Devices (servo, ESC) Using Same Timer* 11/20/2019
+  - [X] *Multiple PWM Devices (servo, ESC) Using Same Timer* 11/20/2019
+  - [ ] *Use Makefile Defined FCPU Instead of Passing Clock Frequency to usart* 11/22/2019
 
