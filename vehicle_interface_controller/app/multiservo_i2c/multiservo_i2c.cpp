@@ -7,14 +7,10 @@
 #include "String.hpp"
 #include "I2C_slave.hpp"
 #include <string.h>
+#include "Cycles.hpp"
 
 
-constexpr uint8_t prescaler = 8;
-constexpr uint32_t clockFrequency = F_CPU;
-constexpr uint8_t pwmFrequency = 50;
-constexpr uint8_t addr = 0x12;
 int pidcounter = 15;
-
 int16_t initialServoMicros;
 int16_t servoMicros;
 
@@ -28,16 +24,6 @@ Pid steeringPid = Pid::makeFromScaledGain(10, {
 	
 int16_t idealServoMicros = 1500;
 int16_t error;
-
-
-static constexpr uint32_t microsToCycles(uint16_t micros) {
-    constexpr uint32_t unitConversion = 1E6;
-    return (clockFrequency/unitConversion/prescaler) * micros;
-}
-
-static constexpr uint32_t hertzToCycles(uint16_t hertz) {
-    return clockFrequency/prescaler/hertz;
-}
 
 static void setupServoPwm() {
 	DDRB |= 1 << PINB1; //Set pin 9 on arduino to output
@@ -53,16 +39,13 @@ static void setupServoPwm() {
         1 << CS11; //Prescaler: 8
 
     //50Hz PWM to cycles for servo
-	ICR1 = hertzToCycles(pwmFrequency)-1;
+	ICR1 = Cycles::fromHertz(50)-1;
 }
 
 static void setupTimerInterrupt(){
-	TCCR0A = 0x00;
-	
+	TCCR0A = 0x00;	
 	TCCR0B |= 1 << CS02; //Prescaler: 256 (from 16 mhz)
-		 
 	OCR0B = (0x30324);	//Trigger every 200 ms (count b)
-	
 	TIMSK0 = (1 << OCIE0B); //Interrupt on count B
 }
 
@@ -70,13 +53,13 @@ ISR(TIMER0_COMPB_vect)
 { 
 	servoMicros = steeringPid.updateError(error) + servoMicros;
 	servoMicros = steeringClamp.clamp(servoMicros);
-	OCR1A = ICR1 - microsToCycles(servoMicros);
+	OCR1A = ICR1 - Cycles::fromMicros(servoMicros);
 	
 	TCNT0 = 0x0; //Reset timer count
 }
 
 int main() {
-    I2C_init(addr);
+    I2C_init(0x01);
 	setupTimerInterrupt();
     setupServoPwm();
 	
@@ -88,17 +71,13 @@ int main() {
 	
 	while(1) {
 		length = (int)buffer_address;
-		if (trigger == true)
-		{
-			for(int n = 0; n <= length; n++)
-			{
+		if (trigger == true) {
+			for(int n = 0; n <= length; n++) {
 				message.append(rxbuffer[n]);
 			}
 
 			error = atoi(message);
-			
 			pidcounter = 0;
-			
 			message.clear();
 			trigger = false;
 		}

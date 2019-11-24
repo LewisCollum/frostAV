@@ -5,7 +5,9 @@
 #include <stdint.h>
 
 namespace usart {
-    void setup(uint32_t clockFrequency, uint16_t baud) {
+    constexpr uint32_t clockFrequency = F_CPU;
+
+    void beginAtBaud(uint16_t baud) {
         uint8_t ubrr = clockFrequency/16/baud - 1;
         UBRR0H = ubrr >> 8;
         UBRR0L = ubrr;

@@ -5,20 +5,7 @@
 #include "Clamp.hpp"
 #include "String.hpp"
 #include "usart.hpp"
-
-constexpr uint8_t prescaler = 8;
-constexpr uint32_t clockFrequency = F_CPU;
-constexpr uint8_t pwmFrequency = 50;
-constexpr uint32_t baud = 9600;
-
-static constexpr uint32_t microsToCycles(uint16_t micros) {
-    constexpr uint32_t unitConversion = 1E6;
-    return (clockFrequency/unitConversion/prescaler) * micros;
-}
-
-static constexpr uint32_t hertzToCycles(uint16_t hertz) {
-    return clockFrequency/prescaler/hertz;
-}
+#include "Cycles.hpp"
 
 static void setupServoPwm() {
 	DDRB |= 1 << PINB1; //Set pin 9 on arduino to output
@@ -33,12 +20,12 @@ static void setupServoPwm() {
         1 << WGM13 | //PWM Mode 14 (3/3)
         1 << CS11; //Prescaler: 8
 
-    //50Hz PWM to cycles for servo
-	ICR1 = hertzToCycles(pwmFrequency)-1;
+	ICR1 = Cycles::fromHertz(50)-1;
 }
 
 int main() {
-    usart::setup(clockFrequency, baud);
+    Cycles::prescaler = 8;
+    usart::beginAtBaud(9600);
     setupServoPwm();
     
     Clamp steeringClamp = Clamp::makeFromBounds({
@@ -63,7 +50,7 @@ int main() {
             
             int16_t initialServoMicros = atoi(message);
             int16_t servoMicros = steeringClamp.clamp(initialServoMicros);
-            OCR1A = ICR1 - microsToCycles(servoMicros);
+            OCR1A = ICR1 - Cycles::fromMicros(servoMicros);
             _delay_ms(1000);            
             
             int16_t error = idealServoMicros - servoMicros;
@@ -75,7 +62,7 @@ int main() {
                 usart::print(buffer); usart::print('\n');
 
                 servoMicros = steeringClamp.clamp(servoMicros);
-                OCR1A = ICR1 - microsToCycles(servoMicros);
+                OCR1A = ICR1 - Cycles::fromMicros(servoMicros);
                 _delay_ms(100);
 
                 //TODO replace with actual feedback error
