@@ -16,7 +16,7 @@ public:
         return Clamp(bounds);
     }
 
-    constexpr Clamp(Bounds bounds): bounds{bounds} {}
+    constexpr explicit Clamp(Bounds bounds): bounds{bounds} {}
 
     int16_t clamp(int16_t value) {
         return (value < bounds.lower) ? bounds.lower :
