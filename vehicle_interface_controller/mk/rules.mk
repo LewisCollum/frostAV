@@ -1,5 +1,3 @@
-.SECONDARY: $(OBJS)
-
 $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
 

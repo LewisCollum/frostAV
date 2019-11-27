@@ -11,6 +11,6 @@ COM_BAUD = 9600
 
 BUILD_DIR = build
 COMMON = $(ROOT)/common
-CXXFLAGS = -Os -Wall -DF_CPU=$(F_CPU) -mmcu=atmega328p -std=gnu++17
+CXXFLAGS = -Os -Wall -DF_CPU=$(F_CPU) -mmcu=atmega328p -std=gnu++17 -I$(COMMON)
 
 CXXTEST = cxxtest
