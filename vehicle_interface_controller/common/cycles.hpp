@@ -1,7 +1,7 @@
 #ifndef CYCLES_HPP
 #define CYCLES_HPP
 
-namespace Cycles {
+namespace cycles {
     constexpr uint32_t clockFrequency = F_CPU;
     static uint8_t prescaler;
 
