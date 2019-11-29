@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+appName="$1"
+
+function error() {
+    echo "ERROR: $1"
+    exit 1
+}
+
+[ -d $appName ] && error "app already exists."
+
+mkdir $appName
+
+touch $appName/$appName.cpp
+
+touch $appName/Makefile
+printf "TARGET = $appName\nROOT = ../..\ninclude \$(ROOT)/mk/all.mk\n" >> $appName/Makefile
