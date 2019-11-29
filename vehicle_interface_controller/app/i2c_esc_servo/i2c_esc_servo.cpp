@@ -9,22 +9,12 @@
 #include <string.h>
 #include "Cycles.hpp"
 
-
-int pidcounter = 15;
-int16_t initialServoMicros;
 int16_t servoMicros;
 
 Clamp steeringClamp = Clamp::makeFromBounds({
 	.lower = 800,
 	.upper = 2200 });
-Pid steeringPid = Pid::makeFromScaledGain(10, {
-	.proportional = 10,
-	.integral = 0,
-	.derivative = 0 });
 	
-int16_t idealServoMicros = 1500;
-int16_t error;
-
 static void setupServoPwm() {
 	DDRB |= 1 << PINB1; //Set pin 9 on arduino to output
 
@@ -51,7 +41,6 @@ static void setupTimerInterrupt(){
 
 ISR(TIMER0_COMPB_vect)
 { 
-	servoMicros = steeringPid.updateError(error) + servoMicros;
 	servoMicros = steeringClamp.clamp(servoMicros);
 	OCR1A = ICR1 - Cycles::fromMicros(servoMicros);
 	
