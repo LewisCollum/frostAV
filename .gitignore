@@ -17,3 +17,6 @@ clean
 
 # Latex Minted Artifacts
 **_minted-*
+
+# Cache
+*cache*
