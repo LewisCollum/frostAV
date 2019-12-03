@@ -1,5 +1,5 @@
 #+startup: hideblocks
-#+property: header-args :noweb yes :results silent :dir ../source 
+#+property: header-args :noweb yes :async
 
 * Common
 #+name: detect_edges
@@ -9,9 +9,7 @@ def detect_edges(frame):
     lower_blue = numpy.array([60, 40, 40])
     upper_blue = numpy.array([150, 255, 255])
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
-
     edges = cv2.Canny(mask, 200, 400)
-
     return edges
 #+END_SRC
 
@@ -73,6 +71,8 @@ def detect_line_segments(cropped_edges):
 
 #+name: average_slope_intercept
 #+BEGIN_SRC python
+<<make_points>>
+
 def average_slope_intercept(frame, line_segments):
     """
     This function combines line segments into one or two lane lines
@@ -140,16 +140,13 @@ def display_heading_line(frame, steering_angle, line_color=(0, 0, 255), line_wid
     # heading line (x1,y1) is always center bottom of the screen
     # (x2, y2) requires a bit of trigonometry
 
-    # Note: the steering angle of:
-    # 0-89 degree: turn left
-    # 90 degree: going straight
-    # 91-180 degree: turn right 
     steering_angle_radian = steering_angle / 180.0 * math.pi
     x1 = int(width / 2)
     y1 = height
     x2 = int(x1 - height / 2 / math.tan(steering_angle_radian))
     y2 = int(height / 2)
-
+    
+    cv2.putText(frame, f"{steering_angle} deg", (int(width/2) - 40, y2-10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1, cv2.LINE_AA)
     cv2.line(heading_image, (x1, y1), (x2, y2), line_color, line_width)
     heading_image = cv2.addWeighted(frame, 0.8, heading_image, 1, 1)
 
@@ -169,7 +166,6 @@ import sys
 <<region_of_interest>>
 <<detect_line_segments>>
 <<average_slope_intercept>>
-<<make_points>>
 <<detect_lane>>
 <<display_heading_line>>
 #+END_SRC
@@ -221,25 +217,21 @@ while capture.isOpened():
         mid = int(width / 2)
         x_offset = (left_x2 + right_x2) / 2 - mid
         y_offset = int(height / 2)
-    elif len(lane_lines) == 1:
-        x1, _, x2, _ = lane_lines[0][0]
-        x_offset = x2 - x1
-        y_offset = int(height / 2)
-    else:
-        break
+        # elif len(lane_lines) == 1:
+        #     x1, _, x2, _ = lane_lines[0][0]
+        #     x_offset = x2 - x1
+        #     y_offset = int(height / 2)
+        # else:
+        #     break
 
 
-    # angle (in radian) to center vertical line
-    angle_to_mid_radian = math.atan(x_offset / y_offset)
-    # angle (in degrees) to center vertical line
-    angle_to_mid_deg = int(angle_to_mid_radian * 180.0 / math.pi)
-    # this is the steering angle needed by picar front wheel
-    steering_angle = angle_to_mid_deg + 90  
+        angle_to_mid_radian = math.atan(x_offset / y_offset)
+        angle_to_mid_deg = int(angle_to_mid_radian * 180.0 / math.pi)
+        steering_angle = angle_to_mid_deg + 90  
 
     lane_lines_image = display_lines(frame, lane_lines)
     cv2.imshow("lane lines", lane_lines_image)
     cv2.imshow("", display_heading_line(frame, steering_angle))
-    #cv2.imshow('Frame',frame)
 
     print(steering_angle)
 
@@ -250,3 +242,93 @@ capture.release()
 cv2.destroyAllWindows()
 cv2.waitKey(0)
 #+END_SRC
+
+#+RESULTS:
+
+** Demo (Video)
+   #+BEGIN_SRC python :dir ../demo/handControllingCamera :async 
+<<include>>
+
+def getMp4Colorless(name: str, fps: int) -> cv2.VideoWriter:
+    return cv2.VideoWriter(
+        filename = f"{name}_{fps}fps.mp4",
+        fourcc = cv2.VideoWriter_fourcc(*'X264'),
+        fps = fps,
+        frameSize = (640,480), 
+        isColor = False)
+
+def getMp4Color(name: str, fps: int) -> cv2.VideoWriter:
+    return cv2.VideoWriter(
+        filename = f"{name}_{fps}fps.mp4",
+        fourcc = cv2.VideoWriter_fourcc(*'X264'),
+        fps = fps,
+        frameSize = (640,480), 
+        isColor = True)
+
+
+
+edgesOutput = getMp4Colorless('edges', fps = 30)
+hsvOutput = getMp4Color('hsv', fps = 30)
+croppedEdgesOutput = getMp4Colorless('croppedEdges', fps = 30)
+lineSegmentOutput = getMp4Color('lineSegments', fps = 30)
+averageLanesOutput = getMp4Color('averageLanes', fps = 30)
+laneLineOutput = getMp4Color('laneLine', fps = 30)
+
+capture = cv2.VideoCapture('myTapeLanes_handMotion_gain17.mp4')
+while capture.isOpened():
+    ret, frame = capture.read()
+    if ret==True:
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        lower_blue = numpy.array([60, 40, 40])
+        upper_blue = numpy.array([150, 255, 255])
+        mask = cv2.inRange(hsv, lower_blue, upper_blue)
+        edges = cv2.Canny(mask, 200, 400)
+
+        cropped_edges = region_of_interest(edges)
+        lineSegments = detect_line_segments(cropped_edges)
+        lane_lines = average_slope_intercept(frame, lineSegments)
+
+        height, width, _ = frame.shape
+        
+        #2 lane detected
+        if len(lane_lines) == 2:
+            _, _, left_x2, _ = lane_lines[0][0]
+            _, _, right_x2, _ = lane_lines[1][0]
+            mid = int(width / 2)
+            x_offset = (left_x2 + right_x2) / 2 - mid
+            y_offset = int(height / 2)
+
+        angle_to_mid_radian = math.atan(x_offset / y_offset)
+        angle_to_mid_deg = int(angle_to_mid_radian * 180.0 / math.pi)
+        steering_angle = angle_to_mid_deg + 90  
+
+        edgesOutput.write(edges)
+        hsvOutput.write(hsv)
+        croppedEdgesOutput.write(cropped_edges)
+        lineSegmentOutput.write(display_lines(frame, lineSegments))
+        averageLanesOutput.write(display_lines(frame, lane_lines))
+        laneLineOutput.write(display_heading_line(frame, steering_angle))        
+        
+    else:
+        break
+
+capture.release()
+edgesOutput.release()
+hsvOutput.release()
+croppedEdgesOutput.release()
+lineSegmentOutput.release()
+averageLanesOutput.release()
+laneLineOutput.release()
+cv2.destroyAllWindows()
+cv2.waitKey(0)
+   #+END_SRC
+
+   #+RESULTS:
+   : None
+   
+#+BEGIN_SRC bash :async
+sleep 3s && echo 'Done!'
+#+END_SRC
+
+#+RESULTS:
+: Done!

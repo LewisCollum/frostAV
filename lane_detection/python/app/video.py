@@ -8,9 +8,7 @@ def detect_edges(frame):
     lower_blue = numpy.array([60, 40, 40])
     upper_blue = numpy.array([150, 255, 255])
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
-
     edges = cv2.Canny(mask, 200, 400)
-
     return edges
 def display_lines(frame, lines, line_color=(0, 255, 0), line_width=2):
     line_image = numpy.zeros_like(frame)
@@ -44,6 +42,17 @@ def detect_line_segments(cropped_edges):
                                     numpy.array([]), minLineLength=8, maxLineGap=4)
 
     return line_segments
+def make_points(frame, line):
+    height, width, _ = frame.shape
+    slope, intercept = line
+    y1 = height  # bottom of the frame
+    y2 = int(y1 * 1 / 2)  # make points from middle of the frame down
+
+    # bound the coordinates within the frame
+    x1 = max(-width, min(2 * width, int((y1 - intercept) / slope)))
+    x2 = max(-width, min(2 * width, int((y2 - intercept) / slope)))
+    return [[x1, y1, x2, y2]]
+
 def average_slope_intercept(frame, line_segments):
     """
     This function combines line segments into one or two lane lines
@@ -85,16 +94,6 @@ def average_slope_intercept(frame, line_segments):
         lane_lines.append(make_points(frame, right_fit_average))
 
     return lane_lines
-def make_points(frame, line):
-    height, width, _ = frame.shape
-    slope, intercept = line
-    y1 = height  # bottom of the frame
-    y2 = int(y1 * 1 / 2)  # make points from middle of the frame down
-
-    # bound the coordinates within the frame
-    x1 = max(-width, min(2 * width, int((y1 - intercept) / slope)))
-    x2 = max(-width, min(2 * width, int((y2 - intercept) / slope)))
-    return [[x1, y1, x2, y2]]
 def detect_lane(frame):
 
     edges = detect_edges(frame)
@@ -111,16 +110,13 @@ def display_heading_line(frame, steering_angle, line_color=(0, 0, 255), line_wid
     # heading line (x1,y1) is always center bottom of the screen
     # (x2, y2) requires a bit of trigonometry
 
-    # Note: the steering angle of:
-    # 0-89 degree: turn left
-    # 90 degree: going straight
-    # 91-180 degree: turn right 
     steering_angle_radian = steering_angle / 180.0 * math.pi
     x1 = int(width / 2)
     y1 = height
     x2 = int(x1 - height / 2 / math.tan(steering_angle_radian))
     y2 = int(height / 2)
-
+    
+    cv2.putText(frame, f"{steering_angle} deg", (int(width/2) - 40, y2-10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1, cv2.LINE_AA)
     cv2.line(heading_image, (x1, y1), (x2, y2), line_color, line_width)
     heading_image = cv2.addWeighted(frame, 0.8, heading_image, 1, 1)
 
@@ -139,25 +135,21 @@ while capture.isOpened():
         mid = int(width / 2)
         x_offset = (left_x2 + right_x2) / 2 - mid
         y_offset = int(height / 2)
-    elif len(lane_lines) == 1:
-        x1, _, x2, _ = lane_lines[0][0]
-        x_offset = x2 - x1
-        y_offset = int(height / 2)
-    else:
-        break
+        # elif len(lane_lines) == 1:
+        #     x1, _, x2, _ = lane_lines[0][0]
+        #     x_offset = x2 - x1
+        #     y_offset = int(height / 2)
+        # else:
+        #     break
 
 
-    # angle (in radian) to center vertical line
-    angle_to_mid_radian = math.atan(x_offset / y_offset)
-    # angle (in degrees) to center vertical line
-    angle_to_mid_deg = int(angle_to_mid_radian * 180.0 / math.pi)
-    # this is the steering angle needed by picar front wheel
-    steering_angle = angle_to_mid_deg + 90  
+        angle_to_mid_radian = math.atan(x_offset / y_offset)
+        angle_to_mid_deg = int(angle_to_mid_radian * 180.0 / math.pi)
+        steering_angle = angle_to_mid_deg + 90  
 
     lane_lines_image = display_lines(frame, lane_lines)
     cv2.imshow("lane lines", lane_lines_image)
     cv2.imshow("", display_heading_line(frame, steering_angle))
-    #cv2.imshow('Frame',frame)
 
     print(steering_angle)
 
