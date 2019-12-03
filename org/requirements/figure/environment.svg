@@ -10,8 +10,8 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="4.909636in"
-   height="5.0423837in"
-   viewBox="0 0 124.70475 128.07655"
+   height="4.4168053in"
+   viewBox="0 0 124.70475 112.18686"
    version="1.1"
    id="svg7115"
    inkscape:version="0.92.4 5da689c313, 2019-01-14"
@@ -239,14 +239,14 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.5885946"
-     inkscape:cx="156.61244"
-     inkscape:cy="352.28655"
+     inkscape:zoom="0.95162219"
+     inkscape:cx="-60.952744"
+     inkscape:cy="161.03817"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="2560"
-     inkscape:window-height="1080"
+     inkscape:window-width="1276"
+     inkscape:window-height="1076"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
@@ -262,8 +262,8 @@
        spacingx="6.35"
        spacingy="6.35"
        empspacing="4"
-       originx="-36.674826"
-       originy="-768.38516" />
+       originx="-36.674824"
+       originy="-768.38521" />
     <inkscape:grid
        type="xygrid"
        id="grid7681"
@@ -271,8 +271,8 @@
        spacingx="1.5875"
        spacingy="1.5875"
        empspacing="4"
-       originx="-36.674826"
-       originy="-768.38516" />
+       originx="-36.674824"
+       originy="-768.38521" />
   </sodipodi:namedview>
   <metadata
      id="metadata7112">
@@ -290,7 +290,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-36.674834,599.46154)">
+     transform="translate(-36.674834,583.57185)">
     <path
        style="fill:none;stroke:#000000;stroke-width:2.63075447;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 88.79361,-541.20625 H 70.232158 v 18.56141 l 18.561452,18.56144 h 13.92108 c 51.04396,0 9.2807,-37.12285 -13.92108,-37.12285"
@@ -430,15 +430,16 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.94971609px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, ';text-align:end;text-anchor:end;fill:#ff0000;fill-opacity:1;stroke-width:0.92807174">SIGN</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:17.32400513px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, ';text-align:end;letter-spacing:0px;word-spacing:0px;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.92807174"
-       x="129.06987"
-       y="-586.97607"
-       id="text4639-2-2-3-3"><tspan
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.9322834px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, ';text-align:end;letter-spacing:0px;word-spacing:0px;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.69280094"
+       x="-159.66115"
+       y="-494.84644"
+       id="text4639-2-2-3-3"
+       transform="rotate(30)"><tspan
          sodipodi:role="line"
          id="tspan4637-7-8-6-6"
-         x="129.06987"
-         y="-586.97607"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:17.32400513px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, ';text-align:end;text-anchor:end;fill:#000000;fill-opacity:1;stroke-width:0.92807174">CIRCUIT</tspan></text>
+         x="-159.66115"
+         y="-494.84644"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.9322834px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, ';text-align:end;text-anchor:end;fill:#000000;fill-opacity:1;stroke-width:0.69280094">CIRCUIT</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.4245739px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, ';text-align:end;letter-spacing:0px;word-spacing:0px;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.92807174"
@@ -484,5 +485,11 @@
        d="m 114.17993,-535.04169 13.31281,-19.66317"
        id="path46998"
        inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.75;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker5618-6-9)"
+       d="m 102.75982,-507.43203 c 5.25663,0.35505 14.71138,-0.8836 18.21615,-4.03227"
+       id="path10303"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
   </g>
 </svg>
