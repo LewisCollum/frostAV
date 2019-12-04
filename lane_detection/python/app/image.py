@@ -8,9 +8,7 @@ def detect_edges(frame):
     lower_blue = numpy.array([60, 40, 40])
     upper_blue = numpy.array([150, 255, 255])
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
-
     edges = cv2.Canny(mask, 200, 400)
-
     return edges
 def display_lines(frame, lines, line_color=(0, 255, 0), line_width=2):
     line_image = numpy.zeros_like(frame)
@@ -44,6 +42,17 @@ def detect_line_segments(cropped_edges):
                                     numpy.array([]), minLineLength=8, maxLineGap=4)
 
     return line_segments
+def make_points(frame, line):
+    height, width, _ = frame.shape
+    slope, intercept = line
+    y1 = height  # bottom of the frame
+    y2 = int(y1 * 1 / 2)  # make points from middle of the frame down
+
+    # bound the coordinates within the frame
+    x1 = max(-width, min(2 * width, int((y1 - intercept) / slope)))
+    x2 = max(-width, min(2 * width, int((y2 - intercept) / slope)))
+    return [[x1, y1, x2, y2]]
+
 def average_slope_intercept(frame, line_segments):
     """
     This function combines line segments into one or two lane lines
@@ -85,16 +94,6 @@ def average_slope_intercept(frame, line_segments):
         lane_lines.append(make_points(frame, right_fit_average))
 
     return lane_lines
-def make_points(frame, line):
-    height, width, _ = frame.shape
-    slope, intercept = line
-    y1 = height  # bottom of the frame
-    y2 = int(y1 * 1 / 2)  # make points from middle of the frame down
-
-    # bound the coordinates within the frame
-    x1 = max(-width, min(2 * width, int((y1 - intercept) / slope)))
-    x2 = max(-width, min(2 * width, int((y2 - intercept) / slope)))
-    return [[x1, y1, x2, y2]]
 def detect_lane(frame):
 
     edges = detect_edges(frame)
@@ -111,20 +110,34 @@ def display_heading_line(frame, steering_angle, line_color=(0, 0, 255), line_wid
     # heading line (x1,y1) is always center bottom of the screen
     # (x2, y2) requires a bit of trigonometry
 
-    # Note: the steering angle of:
-    # 0-89 degree: turn left
-    # 90 degree: going straight
-    # 91-180 degree: turn right 
     steering_angle_radian = steering_angle / 180.0 * math.pi
     x1 = int(width / 2)
     y1 = height
     x2 = int(x1 - height / 2 / math.tan(steering_angle_radian))
     y2 = int(height / 2)
-
+    
+    cv2.putText(frame, f"{steering_angle} deg", (int(width/2) - 40, y2-10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1, cv2.LINE_AA)
     cv2.line(heading_image, (x1, y1), (x2, y2), line_color, line_width)
     heading_image = cv2.addWeighted(frame, 0.8, heading_image, 1, 1)
 
     return heading_image
+
+def getMp4Colorless(name: str, fps: int) -> cv2.VideoWriter:
+    return cv2.VideoWriter(
+        filename = f"{name}_{fps}fps.mp4",
+        fourcc = cv2.VideoWriter_fourcc(*'X264'),
+        fps = fps,
+        frameSize = (640,480), 
+        isColor = False)
+
+def getMp4Color(name: str, fps: int) -> cv2.VideoWriter:
+    return cv2.VideoWriter(
+        filename = f"{name}_{fps}fps.mp4",
+        fourcc = cv2.VideoWriter_fourcc(*'X264'),
+        fps = fps,
+        frameSize = (640,480), 
+        isColor = True)
+
 
 frame = cv2.imread(sys.argv[1])
 lane_lines = detect_lane(frame)

@@ -168,6 +168,23 @@ import sys
 <<average_slope_intercept>>
 <<detect_lane>>
 <<display_heading_line>>
+
+def getMp4Colorless(name: str, fps: int) -> cv2.VideoWriter:
+    return cv2.VideoWriter(
+        filename = f"{name}_{fps}fps.mp4",
+        fourcc = cv2.VideoWriter_fourcc(*'X264'),
+        fps = fps,
+        frameSize = (640,480), 
+        isColor = False)
+
+def getMp4Color(name: str, fps: int) -> cv2.VideoWriter:
+    return cv2.VideoWriter(
+        filename = f"{name}_{fps}fps.mp4",
+        fourcc = cv2.VideoWriter_fourcc(*'X264'),
+        fps = fps,
+        frameSize = (640,480), 
+        isColor = True)
+
 #+END_SRC
 
 ** Image
@@ -243,29 +260,9 @@ cv2.destroyAllWindows()
 cv2.waitKey(0)
 #+END_SRC
 
-#+RESULTS:
-
 ** Demo (Video)
    #+BEGIN_SRC python :dir ../demo/handControllingCamera :async 
 <<include>>
-
-def getMp4Colorless(name: str, fps: int) -> cv2.VideoWriter:
-    return cv2.VideoWriter(
-        filename = f"{name}_{fps}fps.mp4",
-        fourcc = cv2.VideoWriter_fourcc(*'X264'),
-        fps = fps,
-        frameSize = (640,480), 
-        isColor = False)
-
-def getMp4Color(name: str, fps: int) -> cv2.VideoWriter:
-    return cv2.VideoWriter(
-        filename = f"{name}_{fps}fps.mp4",
-        fourcc = cv2.VideoWriter_fourcc(*'X264'),
-        fps = fps,
-        frameSize = (640,480), 
-        isColor = True)
-
-
 
 edgesOutput = getMp4Colorless('edges', fps = 30)
 hsvOutput = getMp4Color('hsv', fps = 30)
@@ -323,12 +320,49 @@ cv2.destroyAllWindows()
 cv2.waitKey(0)
    #+END_SRC
 
+
+** Demo 2
+   #+BEGIN_SRC python
+<<include>>
+capture = cv2.VideoCapture('../../raw/myTapeLanes_handMotion_gain17.mp4')
+while capture.isOpened():
+    ret, frame = capture.read()
+    lane_lines = detect_lane(frame)
+    height, width, _ = frame.shape
+    
+    #2 lane detected
+    if len(lane_lines) == 2:
+        _, _, left_x2, _ = lane_lines[0][0]
+        _, _, right_x2, _ = lane_lines[1][0]
+        mid = int(width / 2)
+        x_offset = (left_x2 + right_x2) / 2 - mid
+        y_offset = int(height / 2)
+        # elif len(lane_lines) == 1:
+        #     x1, _, x2, _ = lane_lines[0][0]
+        #     x_offset = x2 - x1
+        #     y_offset = int(height / 2)
+        # else:
+        #     break
+        cv2.line(line_image, (x1, y1), (x2, y2), line_color, line_width)
+        line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
+
+        angle_to_mid_radian = math.atan(x_offset / y_offset)
+        angle_to_mid_deg = int(angle_to_mid_radian * 180.0 / math.pi)
+        steering_angle = angle_to_mid_deg + 90  
+
+    lane_lines_image = display_lines(frame, lane_lines)
+    cv2.imshow("lane lines", lane_lines_image)
+    cv2.imshow("", display_heading_line(frame, steering_angle))
+
+    print(steering_angle)
+
+    if cv2.waitKey(30) == ord('q'):
+        break
+
+capture.release()
+cv2.destroyAllWindows()
+cv2.waitKey(0)
+   #+END_SRC
+
    #+RESULTS:
    : None
-   
-#+BEGIN_SRC bash :async
-sleep 3s && echo 'Done!'
-#+END_SRC
-
-#+RESULTS:
-: Done!

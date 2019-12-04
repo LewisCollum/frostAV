@@ -122,6 +122,23 @@ def display_heading_line(frame, steering_angle, line_color=(0, 0, 255), line_wid
 
     return heading_image
 
+def getMp4Colorless(name: str, fps: int) -> cv2.VideoWriter:
+    return cv2.VideoWriter(
+        filename = f"{name}_{fps}fps.mp4",
+        fourcc = cv2.VideoWriter_fourcc(*'X264'),
+        fps = fps,
+        frameSize = (640,480), 
+        isColor = False)
+
+def getMp4Color(name: str, fps: int) -> cv2.VideoWriter:
+    return cv2.VideoWriter(
+        filename = f"{name}_{fps}fps.mp4",
+        fourcc = cv2.VideoWriter_fourcc(*'X264'),
+        fps = fps,
+        frameSize = (640,480), 
+        isColor = True)
+
+
 capture = cv2.VideoCapture(sys.argv[1])
 while capture.isOpened():
     ret, frame = capture.read()
