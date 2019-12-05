@@ -20,3 +20,6 @@ clean
 
 # Cache
 *cache*
+
+# FreeCad
+**.FCStd1
