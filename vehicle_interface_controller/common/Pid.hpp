@@ -20,8 +20,10 @@ public:
         error.integral += newError;
         error.derivative = newError - error.proportional;
         error.proportional = newError;
-        int16_t temp = (gain.proportional*error.proportional + gain.integral*error.integral + gain.derivative*error.derivative) / scale;
-        return (temp);
+        
+        return (gain.proportional*error.proportional +
+                gain.integral*error.integral +
+                gain.derivative*error.derivative) / scale;
     }
     
     constexpr static Pid makeFromGain(Component gain) {
