@@ -7,7 +7,7 @@
 #include "String.hpp"
 #include "I2C_slave.hpp"
 #include <string.h>
-#include "Cycles.hpp"
+#include "cycles.hpp"
 
 
 int pidcounter = 15;
@@ -39,7 +39,7 @@ static void setupServoPwm() {
         1 << CS11; //Prescaler: 8
 
     //50Hz PWM to cycles for servo
-	ICR1 = Cycles::fromHertz(50)-1;
+	ICR1 = cycles::fromHertz(50)-1;
 }
 
 static void setupTimerInterrupt(){
@@ -53,7 +53,7 @@ ISR(TIMER0_COMPB_vect)
 { 
 	servoMicros = steeringPid.updateError(error) + servoMicros;
 	servoMicros = steeringClamp.clamp(servoMicros);
-	OCR1A = ICR1 - Cycles::fromMicros(servoMicros);
+	OCR1A = ICR1 - cycles::fromMicros(servoMicros);
 	
 	TCNT0 = 0x0; //Reset timer count
 }
