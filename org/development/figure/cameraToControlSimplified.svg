@@ -9,16 +9,16 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="5.790894in"
-   height="2.2438049in"
-   viewBox="0 0 147.08871 56.992646"
+   width="6.9473424in"
+   height="2.3321848in"
+   viewBox="0 0 176.4625 59.237494"
    version="1.1"
    id="svg7115"
    inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:docname="cameraToControlSimplified.svg"
-   inkscape:export-filename="/home/charon/frostAV/org/development/figure/2019-10-24_controlLoop.png"
-   inkscape:export-xdpi="200.10652"
-   inkscape:export-ydpi="200.10652">
+   inkscape:export-filename="/home/charon/frostAV/org/development/figure/cameraToControlSimplified.png"
+   inkscape:export-xdpi="200.11"
+   inkscape:export-ydpi="200.11">
   <defs
      id="defs7109">
     <marker
@@ -435,9 +435,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="449.4125"
-     inkscape:cy="67.72028"
+     inkscape:zoom="1"
+     inkscape:cx="363.53358"
+     inkscape:cy="16.606715"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -458,8 +458,8 @@
        spacingx="6.35"
        spacingy="6.35"
        empspacing="4"
-       originx="-24.861299"
-       originy="-811.34809" />
+       originx="-34.675"
+       originy="-812.3" />
     <inkscape:grid
        type="xygrid"
        id="grid7681"
@@ -467,8 +467,8 @@
        spacingx="1.5875"
        spacingy="1.5875"
        empspacing="4"
-       originx="-24.861299"
-       originy="-811.34809" />
+       originx="-34.675"
+       originy="-812.3" />
   </sodipodi:namedview>
   <metadata
      id="metadata7112">
@@ -478,7 +478,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -486,7 +486,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-24.861301,571.34075)">
+     transform="translate(-34.675002,574.53751)">
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.70416665px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
@@ -800,7 +800,7 @@
        sodipodi:nodetypes="cc" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.70416667px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;text-align:end;letter-spacing:0px;word-spacing:0px;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.70416665px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;text-align:end;letter-spacing:0px;word-spacing:0px;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="203.88797"
        y="-537.20715"
        id="text40854"><tspan
@@ -808,7 +808,7 @@
          id="tspan40852"
          x="203.88797"
          y="-537.20715"
-         style="font-size:3.70416667px;text-align:end;text-anchor:end;stroke-width:0.26458332;">ATMega328</tspan></text>
+         style="font-size:3.70416665px;text-align:end;text-anchor:end;stroke-width:0.26458332">ATMega328</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker40866)"
        d="m 204.7875,-539.61251 v 3.175"
@@ -816,7 +816,7 @@
        inkscape:connector-curvature="0" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.50000001, 0.50000001;stroke-dashoffset:0;stroke-opacity:1"
-       d="m 96.837502,-553.90001 0,-20.6375"
+       d="m 96.837502,-553.90001 v -20.6375"
        id="path40850-6"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
