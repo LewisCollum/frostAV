@@ -1,4 +1,4 @@
-* [1/2] Tasks
+* [2/2] Tasks
   - [5/5] *Makefile Organization* 11/19/2019
     1. [X] Build Makefile.conf including contents of current top-level Makefile.
        + Edit: split configurations into 'mk' directory .mk files (e.g. rules.mk, toolchain.mk)
@@ -6,12 +6,20 @@
     3. [X] Build Makefile for 'sweep' application code
     4. [X] Figure out way to include common library among application code.
     5. [X] Test that the top-level Makefile calls 'sweep' Makefile
-  - [3/4] *AVR C++ Code for Speed Controller Sweeping* 11/19/2019
+  - [4/4] *AVR C++ Code for Speed Controller Sweeping* 11/19/2019
     1. [X] Setup motor test with Pololu Speed Controller
        - Use RC car speed controller if this one does not work.
     2. [X] Test with Arduino that Servo library works with the speed controller.
     3. [X] Write AVR C++ register-level code for speed controller.
-    4. [ ] Generalize Servo and Speed Controller register-level code.
+    4. [X] Generalize Servo and Speed Controller register-level code.
   - [X] *Multiple PWM Devices (servo, ESC) Using Same Timer* 11/20/2019
-  - [ ] *Use Makefile Defined FCPU Instead of Passing Clock Frequency to usart* 11/22/2019
-
+  - [X] *Use Makefile Defined FCPU Instead of Passing Clock Frequency to usart* 11/22/2019
+  - [0/0] *Improve 'car' namespace with more streamline functions* 12/06/2019
+    - [ ] servo should track its current micros
+    - [ ] esc should track its current micros
+    - [ ] esc and servo should be initialized separately
+    - [ ] manual test code for servo
+    - [ ] manual test code for esc
+    - [ ] 'brake' function for esc
+    - [ ] extract class from 'car' for Bounds that track a 'current'
+      variable. Include helper functions such as isAtMax().
