@@ -73,6 +73,12 @@ namespace car::esc {
         _delay_ms(1500);
     }
 
+    void brake() {
+        dual_servo::setMicrosA(currentMicros = lowerBoundMicros);
+        _delay_ms(1000);
+        dual_servo::setMicrosA(currentMicros = centerMicros);
+    }
+
     void increment(int16_t increment) {
         currentMicros += increment;
         setMicrosForward(currentMicros);
@@ -88,6 +94,11 @@ namespace car {
         dual_servo::start();
         car::servo::center();
         car::esc::arm();
+    }
+
+    void stop() {
+        car::servo::center();
+        car::esc::brake();
     }
 }
 

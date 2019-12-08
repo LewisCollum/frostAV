@@ -31,7 +31,14 @@ public:
     int16_t getSize() const { return size; }
     operator char*() { return string; }
     operator const char*() { return string; }
-    operator const void*() { return string; }    
+    operator const void*() { return string; }
+    bool operator==(const char* other) const {
+        const char* stringCopy = string;
+        for (const char* iter = other; *iter; ++iter) {
+            if (*iter != *stringCopy++) return false;
+        }
+        return true;
+    }
 };  
 
 #endif

@@ -1,4 +1,4 @@
-* [2/2] Tasks
+* Tasks
   - [5/5] *Makefile Organization* 11/19/2019
     1. [X] Build Makefile.conf including contents of current top-level Makefile.
        + Edit: split configurations into 'mk' directory .mk files (e.g. rules.mk, toolchain.mk)
@@ -14,12 +14,18 @@
     4. [X] Generalize Servo and Speed Controller register-level code.
   - [X] *Multiple PWM Devices (servo, ESC) Using Same Timer* 11/20/2019
   - [X] *Use Makefile Defined FCPU Instead of Passing Clock Frequency to usart* 11/22/2019
-  - [0/0] *Improve 'car' namespace with more streamline functions* 12/06/2019
+  - [2/6] *Improve 'car' namespace with more streamline functions* 12/06/2019
     - [ ] servo should track its current micros
     - [ ] esc should track its current micros
-    - [ ] esc and servo should be initialized separately
-    - [ ] manual test code for servo
-    - [ ] manual test code for esc
+    - [X] manual test code for servo
+    - [X] manual test code for esc
     - [ ] 'brake' function for esc
     - [ ] extract class from 'car' for Bounds that track a 'current'
       variable. Include helper functions such as isAtMax().
+  - [0/2] *I2C State Machine* 12/08/2019
+    - [ ] check for state change which happens when the first
+      character is '+' of the I2C receive buffer.
+    - [ ] States
+      - [ ] Brake
+      - [ ] Reset
+      - [ ] Start

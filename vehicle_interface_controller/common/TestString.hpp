@@ -27,4 +27,11 @@ public:
 
         TS_ASSERT_EQUALS(actual, expected);
     }
+
+    void test_stringComparedToCharPointer_areEqual() {
+        String<8> A = "message";
+        const char* B = "message";
+
+        TS_ASSERT_EQUALS(A, B);
+    }
 };
