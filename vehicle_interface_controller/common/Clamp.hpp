@@ -3,22 +3,24 @@
 
 #include <stdint.h>
 
+template<typename T>
 struct Bounds {
-    int16_t lower;
-    int16_t upper;
+    T lower;
+    T upper;
 };
 
+template<typename T>
 class Clamp {
-    Bounds bounds;
+    Bounds<T> bounds;
 
 public:
-    constexpr static Clamp makeFromBounds(Bounds bounds) {
+    constexpr static Clamp<T> makeFromBounds(Bounds<T> bounds) {
         return Clamp(bounds);
     }
 
-    constexpr explicit Clamp(Bounds bounds): bounds{bounds} {}
+    constexpr explicit Clamp(Bounds<T> bounds): bounds{bounds} {}
 
-    int16_t clamp(int16_t value) {
+    int16_t clamp(T value) {
         return (value < bounds.lower) ? bounds.lower :
             (value > bounds.upper) ? bounds.upper:
             value;

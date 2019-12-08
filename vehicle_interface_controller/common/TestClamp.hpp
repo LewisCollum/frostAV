@@ -2,8 +2,8 @@
 #include "Clamp.hpp"
 
 class TestClamp: public CxxTest::TestSuite {
-    Clamp clamp;
-    Bounds bounds;
+    Clamp<uint16_t> clamp;
+    Bounds<uint16_t> bounds;
     
 public:
     void setUp() {
@@ -12,7 +12,7 @@ public:
             .upper = 20
         };
         
-        clamp = Clamp::makeFromBounds(bounds);
+        clamp = Clamp<uint16_t>::makeFromBounds(bounds);
     }
     
     void test_inputAboveUpper_clampsToUpper() {
