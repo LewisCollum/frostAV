@@ -121,6 +121,31 @@ def display_heading_line(frame, steering_angle, line_color=(0, 0, 255), line_wid
     heading_image = cv2.addWeighted(frame, 0.8, heading_image, 1, 1)
 
     return heading_image
+def stabilize_steering_angle(
+          curr_steering_angle, 
+          new_steering_angle, 
+          num_of_lane_lines, 
+          max_angle_deviation_two_lines=5, 
+          max_angle_deviation_one_lane=1):
+    """
+    Using last steering angle to stabilize the steering angle
+    if new angle is too different from current angle, 
+    only turn by max_angle_deviation degrees
+    """
+    if num_of_lane_lines == 2 :
+        # if both lane lines detected, then we can deviate more
+        max_angle_deviation = max_angle_deviation_two_lines
+    else :
+        # if only one lane detected, don't deviate too much
+        max_angle_deviation = max_angle_deviation_one_lane
+    
+    angle_deviation = new_steering_angle - curr_steering_angle
+    if abs(angle_deviation) > max_angle_deviation:
+        stabilized_steering_angle = int(curr_steering_angle
+            + max_angle_deviation * angle_deviation / abs(angle_deviation))
+    else:
+        stabilized_steering_angle = new_steering_angle
+    return stabilized_steering_angle
 
 def getMp4Colorless(name: str, fps: int) -> cv2.VideoWriter:
     return cv2.VideoWriter(

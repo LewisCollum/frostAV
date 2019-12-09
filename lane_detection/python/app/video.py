@@ -121,6 +121,31 @@ def display_heading_line(frame, steering_angle, line_color=(0, 0, 255), line_wid
     heading_image = cv2.addWeighted(frame, 0.8, heading_image, 1, 1)
 
     return heading_image
+def stabilize_steering_angle(
+          curr_steering_angle, 
+          new_steering_angle, 
+          num_of_lane_lines, 
+          max_angle_deviation_two_lines=5, 
+          max_angle_deviation_one_lane=1):
+    """
+    Using last steering angle to stabilize the steering angle
+    if new angle is too different from current angle, 
+    only turn by max_angle_deviation degrees
+    """
+    if num_of_lane_lines == 2 :
+        # if both lane lines detected, then we can deviate more
+        max_angle_deviation = max_angle_deviation_two_lines
+    else :
+        # if only one lane detected, don't deviate too much
+        max_angle_deviation = max_angle_deviation_one_lane
+    
+    angle_deviation = new_steering_angle - curr_steering_angle
+    if abs(angle_deviation) > max_angle_deviation:
+        stabilized_steering_angle = int(curr_steering_angle
+            + max_angle_deviation * angle_deviation / abs(angle_deviation))
+    else:
+        stabilized_steering_angle = new_steering_angle
+    return stabilized_steering_angle
 
 def getMp4Colorless(name: str, fps: int) -> cv2.VideoWriter:
     return cv2.VideoWriter(
@@ -140,37 +165,73 @@ def getMp4Color(name: str, fps: int) -> cv2.VideoWriter:
 
 
 capture = cv2.VideoCapture(sys.argv[1])
+steering_angle_previous = 90
+steering_angle = 90
+certainty = 0
+certaintyThreshold = 50
+state = "+stop"
+statePrevious = None
+
 while capture.isOpened():
     ret, frame = capture.read()
     lane_lines = detect_lane(frame)
     height, width, _ = frame.shape
     
+    # #print(lane_lines)
+    # for line in lane_lines:
+    #     slope = (line[0][3]-line[0][1])/(line[0][2]-line[0][0])
+    #     print(slope)
+    #     if (abs(slope) > 4 or abs(slope) < 1):
+        
     #2 lane detected
     if len(lane_lines) == 2:
-        _, _, left_x2, _ = lane_lines[0][0]
-        _, _, right_x2, _ = lane_lines[1][0]
-        mid = int(width / 2)
-        x_offset = (left_x2 + right_x2) / 2 - mid
-        y_offset = int(height / 2)
-        # elif len(lane_lines) == 1:
-        #     x1, _, x2, _ = lane_lines[0][0]
-        #     x_offset = x2 - x1
-        #     y_offset = int(height / 2)
-        # else:
-        #     break
+        for line in lane_lines:
+            slope = (line[0][3]-line[0][1])/(line[0][2]-line[0][0])
+            #print(slope)
+            if (abs(slope) > 7 or abs(slope) < 1):
+                if (certainty > 0): certainty -= 1
 
+        if certainty == certaintyThreshold:
+            _, _, left_x2, _ = lane_lines[0][0]
+            _, _, right_x2, _ = lane_lines[1][0]
+            mid = int(width / 2)
+            x_offset = (left_x2 + right_x2) / 2 - mid
+            y_offset = int(height / 2)
 
-        angle_to_mid_radian = math.atan(x_offset / y_offset)
-        angle_to_mid_deg = int(angle_to_mid_radian * 180.0 / math.pi)
-        steering_angle = angle_to_mid_deg + 90  
+            angle_to_mid_radian = math.atan(x_offset / y_offset)
+            angle_to_mid_deg = int(angle_to_mid_radian * 180.0 / math.pi)
+            steering_angle = angle_to_mid_deg + 90 
+            # elif len(lane_lines) == 1:
+            #     x1, _, x2, _ = lane_lines[0][0]
+            #     x_offset = x2 - x1
+            #     y_offset = int(height / 2)
+            # else:
+            #     break
+            steering_angle = stabilize_steering_angle(steering_angle_previous, steering_angle, 2)
 
+            if (state == "+stop"):
+                state = "+start"
+            else:
+                state = steering_angle
+        else:
+            certainty += 1
+    else:
+        if (certainty >= certaintyThreshold):
+            steering_angle = 90
+            state = "+stop"
+        certainty = 0
+
+    if (state != statePrevious):
+        print(state)
+            
+        
     lane_lines_image = display_lines(frame, lane_lines)
     cv2.imshow("lane lines", lane_lines_image)
     cv2.imshow("", display_heading_line(frame, steering_angle))
 
-    print(steering_angle)
-
-    if cv2.waitKey(30) == ord('q'):
+    steering_angle_previous = steering_angle
+    statePrevious = state
+    if cv2.waitKey(1) == ord('q'):
         break
 
 capture.release()
