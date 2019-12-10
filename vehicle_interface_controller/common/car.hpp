@@ -25,11 +25,23 @@ namespace car::servo {
         dual_servo::setMicrosB(currentMicros = clamper.clamp(micros));
     }
 
+    void setPositionFromBounds(uint16_t position, Bounds<uint16_t> bounds) {
+        Clamp positionClamper = Clamp<uint16_t>::makeFromBounds(bounds);
+        uint16_t micros = positionClamper.mapValueToBounds(position, microsBounds);
+        setMicros(micros);
+    }
+
+    void setMirroredPositionFromBounds(uint16_t position, Bounds<uint16_t> bounds) {
+        Clamp positionClamper = Clamp<uint16_t>::makeFromBounds(bounds);
+        uint16_t micros = positionClamper.mirrorMapValueToBounds(position, microsBounds);
+        setMicros(micros);
+    }
+    
     void center() {
         dual_servo::setMicrosB(currentMicros = centerMicros);
     }
 
-    void increment(int16_t increment) {
+    void increment(uint16_t increment) {
         setMicros(currentMicros += increment);
     }
 
@@ -70,7 +82,7 @@ namespace car::esc {
 
     void arm() {
         setMicrosToArm();
-        _delay_ms(1500);
+        _delay_ms(2000);
     }
 
     void brake() {
@@ -79,7 +91,7 @@ namespace car::esc {
         dual_servo::setMicrosA(currentMicros = centerMicros);
     }
 
-    void increment(int16_t increment) {
+    void increment(uint16_t increment) {
         currentMicros += increment;
         setMicrosForward(currentMicros);
     }

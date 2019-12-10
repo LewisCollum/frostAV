@@ -9,19 +9,19 @@ int main() {
     car::start();
 
     uint16_t servoPosition = 1500;
-    uint16_t motorPosition = 1500;
+    uint16_t motorPosition = 1501;
     int8_t servoIncrement = 50;
     int8_t motorIncrement = 5;
 
 	while(1) {
-        if (motorPosition >= 1580 || motorPosition <= 1420) motorIncrement = -motorIncrement;
+        if (motorPosition >= 1580 || motorPosition <= 1500) motorIncrement = -motorIncrement;
         if (servoPosition >= 1900 || servoPosition <= 1100) servoIncrement = -servoIncrement;
 
         servoPosition += servoIncrement;
         car::servo::setMicros(servoPosition);
         
         motorPosition += motorIncrement;
-        car::esc::setMicros(motorPosition);
+        car::esc::setMicrosForward(motorPosition);
 
         _delay_ms(50);
     }
