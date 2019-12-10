@@ -58,8 +58,7 @@ ISR(TWI_vect){
 			// increment the buffer address
 			buffer_address++;
 			
-			if(data == 0x12)
-			{
+			if(data == '\n') {
 				trigger = true;
 			}
 
