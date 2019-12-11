@@ -15,10 +15,12 @@ The main problem-domain requirements for this project are:
       further from the car, or it is removed from _circuit boundaries_.
    4. Given a _sign_, the car must respond to the event provided by it.
    5. Given a _circuit_, the car must complete a full loop.
+
    #+caption: An example _circuit_ which the car must navigate through.
    #+attr_html: :width 300px
    #+attr_latex: :width \linewidth/2
    [[./figure/environment.png]]
+
 The completed project is fully capable of meeting requirement 1, partially capable of 2 and 5 and unable to meet 3 and 4. The car can successfully navigate a straight path and recover from small excursions outside of the lane boundaries. The car will also safely come to a stop if it is too far outside of the lanes to recover. The car is also capable of navigating corners with some difficulty and can complete a circuit after a few tries. Obstacle detection and sign detection was never implemented due to a lack of time.
 *** Control System and Control Module Requirements
 For the control system and control modules, the following requirements apply:
