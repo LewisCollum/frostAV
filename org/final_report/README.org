@@ -87,7 +87,10 @@ During the development of the vehicle, a few additional capabilities and feature
    #+attr_latex: :width \linewidth/2
    [[./figure/oled.jpg]]
 
-A SSD1306 OLED display module was added to the design towards the end of Milestone 4, which allows easier monitoring of the Raspberry Pi and battery parameters. The display shows the current IP address of the Pi, the CPU load and temperature, memory usage, and the voltage, current draw and power use from the logic battery. This display has been useful in the development of the system because it allows important parameters to be monitored easily. The IP address is also very useful because the Clarkson University Wifi uses DHCP addresses so the Pi’s IP changes periodically. Since the IP is needed for accessing SSH and the Pi’s webserver this is a very useful parameter to have. The voltage monitoring serves as a low battery indication for the logic battery.
+A SSD1306 OLED display module was added to the design towards the end of Milestone 4, which allows easier monitoring of the Raspberry Pi and battery parameters. The display shows the current IP address of the Pi, the CPU load and temperature, memory usage, and the voltage, current draw and power use from the logic battery. 
+
+This display has been useful in the development of the system because it allows important parameters to be monitored easily. Since the Clarkson University Wifi uses DHCP addresses, the Pi’s IP changes periodically. Since the IP is needed for accessing SSH and the Pi’s webserver this is a very useful parameter to have. The voltage monitoring serves as a low battery indication for the logic battery.
+
 *** HTTP Status Monitoring
 
    #+caption: An example _circuit_ which the car must navigate through.
@@ -95,7 +98,10 @@ A SSD1306 OLED display module was added to the design towards the end of Milesto
    #+attr_latex: :width \linewidth/2
    [[./figure/web_screenshot.png]]
 
-Similar to the OLED display, a web server was implemented on the Pi to monitor various parameters. The 
+Similar to the OLED display, a web server was implemented on the Pi to monitor various parameters. The parameters monitored are the Pi’s CPU load, memory use, CPU and GPU temperature, and power, voltage and current from the logic battery. These parameters are graphed using JavaScript and the values are retrieved with PHP. The graphs update every 10 seconds and display the last 20 values. The webpage is accessed at the Pi’s IP address.
+
+This feature allows various parameters to be measured and allows the easy identification of trends in these values. The function of this webpage is like the OLED display, in that it’s useful for the development of the system. This allowed for the identification of thermal throttling on the PI during testing.
+
 ** Unique Innovations
 ** Problems
 * Test Results
