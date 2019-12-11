@@ -79,6 +79,16 @@ Requirements 6 and 7 are met by the ATMEGA328, the motor, ESC and steering servo
 
 All of these requirements for the wireless system are met in the final design, using the Raspberry Pi 4’s integrated WiFi. The Wifi connection allows for SSH tunneling as well as providing a HTTP server. The system is also capable of connecting to a server, using SSH tunneling. The Wifi is also fully capable of bi-directional communication.
 ** Additional Capabilities
+During the development of the vehicle, a few additional capabilities and features were able to be implemented.
+*** Status OLED Display
+A SSD1306 OLED display module was added to the design towards the end of Milestone 4, which allows easier monitoring of the Raspberry Pi and battery parameters. The display shows the current IP address of the Pi, the CPU load and temperature, memory usage, and the voltage, current draw and power use from the logic battery. This display has been useful in the development of the system because it allows important parameters to be monitored easily. The IP address is also very useful because the Clarkson University Wifi uses DHCP addresses so the Pi’s IP changes periodically. Since the IP is needed for accessing SSH and the Pi’s webserver this is a very useful parameter to have. The voltage monitoring serves as a low battery indication for the logic battery.
+*** HTTP Status Monitoring
+
+   #+caption: An example _circuit_ which the car must navigate through.
+   #+attr_html: :width 300px
+   #+attr_latex: :width \linewidth/2
+   [[./figure/web_screenshot.png]]
+
 ** Unique Innovations
 ** Problems
 * Test Results
