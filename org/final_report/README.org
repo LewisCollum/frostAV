@@ -1,7 +1,20 @@
 #+title: FrostAV Final Report
 * Evaluation and Analysis
 ** Requirements Evaluation
-The main requirements of this project are 
+The main problem-domain requirements for this project are:
+   1. Given a _lane_, the car must travel approximately parallel to it,
+      such that the car stays within its _boundaries_ consistently,
+      and, if the car is to accidentally leave it, it promptly
+      returns.
+   2. Given a _corner_, the car must turn, continuing from the car’s
+      current _lane_ to the next, such that the car stays within its
+      _boundaries_ consistently, and, if the car is to accidentally
+      leave it, it promptly returns.
+   3. Given an _obstacle_, the car must stop until it is moved
+      further from the car, or it is removed from _circuit boundaries_.
+   4. Given a _sign_, the car must respond to the event provided by it.
+   5. Given a _circuit_, the car must complete a full loop.
+The completed project is capable of meeting
 ** Additional Capabilities
 ** Unique Innovations
 ** Problems
