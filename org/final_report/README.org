@@ -66,6 +66,12 @@ Requirement 5 is met by ensuring that the maximum power draw won’t exceed the 
 Requirements 6 and 7 are met by the ATMEGA328, the motor, ESC and steering servo. The ATMEGA328 controls the servo and ESC, and the ESC regulates the motor’s speed. These components allow the vehicle to be steered and moved by the autonomy system. Each peripheral also has an electronic interface. The ATMEGA328 communicates with the autonomy system, which is running on a Raspberry Pi, using the main I2C bus. The voltage and current draw of the logic battery are measured using the INA226 power monitoring chip built into the power supply and also communicated to the autonomy system over I2C.
 
 *** Wireless Interface Requirements
+    The Wireless Interface shall:
+    1. Allow for wireless tunneling (e.g. via SSH)
+    2. Be able to access a server.
+    3. Provide bi-directional communication.
+
+All of these requirements for the wireless system are met in the final design, using the Raspberry Pi 4’s integrated WiFi. The Wifi connection allows for SSH tunneling as well as providing a HTTP server. The system is also capable of connecting to a server, using SSH tunneling. The Wifi is also fully capable of bi-directional communication.
 ** Additional Capabilities
 ** Unique Innovations
 ** Problems
