@@ -1,0 +1,39 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP ESC
+D Servo Motor (Futaba, HiTec, JR connector)
+K Servo Motor
+F http://forums.parallax.com/uploads/attachments/46831/74481.png
+$ENDCMP
+#
+$CMP Motor_Servo_Futaba_J
+D Servo Motor (Futuba J-connector)
+K Servo Motor
+F http://forums.parallax.com/uploads/attachments/46831/74481.png
+$ENDCMP
+#
+$CMP Motor_Servo_Grapner_JR
+D Servo Motor (Graupner JR connector)
+K Servo Motor
+F http://forums.parallax.com/uploads/attachments/46831/74481.png
+$ENDCMP
+#
+$CMP Motor_Servo_Hitec
+D Servo Motor (HiTec connector)
+K Servo Motor
+F http://forums.parallax.com/uploads/attachments/46831/74481.png
+$ENDCMP
+#
+$CMP Motor_Servo_JR
+D Servo Motor (JR connector)
+K Servo Motor
+F http://forums.parallax.com/uploads/attachments/46831/74481.png
+$ENDCMP
+#
+$CMP Motor_Servo_Robbe
+D Servo Motor (Robbe connector)
+K Servo Motor
+F http://forums.parallax.com/uploads/attachments/46831/74481.png
+$ENDCMP
+#
+#End Doc Library

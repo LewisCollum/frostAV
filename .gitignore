@@ -18,8 +18,9 @@ clean
 # Latex Minted Artifacts
 **_minted-*
 
-# Cache
-*cache*
+# Don't exclude kicad cache files, it breaks custom parts
+## Cache
+#*cache*
 
 # FreeCad
 **.FCStd1
