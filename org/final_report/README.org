@@ -164,7 +164,7 @@ Once the driver is set up the voltage, power and current measurements can be acc
 };
 #+END_SRC
 
-** Raspberry Pi Boot Configuration
+** Raspberry Pi Boot Configuration (~/boot/config.txt~)
 
 #+BEGIN_SRC emacs-lisp
 # See /boot/overlays/README for all available options
