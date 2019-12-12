@@ -136,7 +136,9 @@ To measure the battery voltage and power consumption, a TI INA226 power monitori
 #+END_SRC
 
 
-To add support for the INA226 a device tree overlay needed to be created to insert it into the system’s device tree. The contents of this file are shown above. The bus that the INA226 is attached to is defined with ~target = <&i2c1>;~, the driver is set with ~compatible = "ti,ina226";~ and the address with ~ reg = <0x40>;~.  
+To add support for the INA226 a device tree overlay needed to be created to insert it into the system’s device tree. The contents of this file are shown above. The bus that the INA226 is attached to is defined with ~target = <&i2c1>~, the driver is set with ~compatible = "ti,ina226"~ and the address with ~reg = <0x40>~. The shunt resistor value is set with ~shunt-resistor = <2000>~, with the resistance value in micro-ohms. The shunt resistor value is the resistance of the current shunt connected to the INA226, which is used for current and power calculations. In this case the current shunt’s resistance is 0.02Ω.
+
+Once the driver is set up the voltage, power and current measurements can be accessed by any Linux program. The ~sensors~ utility can be used to display these values.
 
 ** Problems
 * Test Results
