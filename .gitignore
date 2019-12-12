@@ -24,3 +24,6 @@ clean
 
 # FreeCad
 **.FCStd1
+
+# Windows Hidden Files
+**~*
