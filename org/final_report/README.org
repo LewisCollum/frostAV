@@ -104,11 +104,10 @@ This feature allows various parameters to be measured and allows the easy identi
 
 *** Remote Motor/Servo Shutoff
 
-#+BEGIN_center
-#+ATTR_LaTeX: :height 0.2\textwidth :center
-[[./figure/failsafe_remote_1.jpg]]
-#+END_center
-
+   #+caption: Shutoff remote control.
+   #+attr_html: :width 300px
+   #+attr_latex: :width \linewidth/2
+   [[./figure/failsafe_remote_1.JPG]]
 
 A remote shutoff system was implemented using Xbee radio modules and an IRF250 power MOSFET. The MOSFET cuts power to the motor speed controller and servo when the switch on the remote control unit is flipped. This system allows the car to be stopped remotely if it were to go out of control. The system is designed so that any failure will disconnect power to the motor and servo. If the Xbee on the car side loses signal or power, it will stop the motor.
 
