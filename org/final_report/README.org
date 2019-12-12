@@ -102,6 +102,11 @@ Similar to the OLED display, a web server was implemented on the Pi to monitor v
 
 This feature allows various parameters to be measured and allows the easy identification of trends in these values. The function of this webpage is like the OLED display, in that it’s useful for the development of the system. This allowed for the identification of thermal throttling on the PI during testing.
 
+*** Remote Motor/Servo Shutoff
+
+A remote shutoff system was implemented using Xbee radio modules and an IRF250 power MOSFET. This system allows the car to be stopped remotely if it were to go out of control. The system is designed to be failsafe, so that any failure will disconnect power to the motor and servo. If the Xbee on the car side loses signal or power, it will stop the motor.
+
+
 ** Unique Innovations
 ** Problems
 * Test Results
