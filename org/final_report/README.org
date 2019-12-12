@@ -142,7 +142,7 @@ Once the driver is set up the voltage, power and current measurements can be acc
 ** Problems
 * Test Results
 * Design Documentation (Appendix)
-** System Schematic
+** System Hardware Schematic
 [[./figure/full_schematic.png]]
 
 ** INA226 Device Tree Overlay (ina226.dts)
