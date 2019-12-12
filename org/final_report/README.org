@@ -136,7 +136,8 @@ To measure the battery voltage and power consumption, a TI INA226 power monitori
 #+END_SRC
 
 
-To add support for the INA226 a device tree overlay needed to be created. This is a file which inserts additional data into the device tree. It attaches to a target, which is the bus or interface which the new device is attached to. In this case, the overlay is attached to I2C bus 1, and the device is defined as 
+To add support for the INA226 a device tree overlay needed to be created to insert it into the system’s device tree. The contents of this file are shown above. The bus that the INA226 is attached to is defined with ~target = <&i2c1>;~, the driver is set with ~compatible = "ti,ina226";~ and the address with ~ reg = <0x40>;~.  
+
 ** Problems
 * Test Results
 * Design Documentation (Appendix)
