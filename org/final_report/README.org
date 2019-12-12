@@ -106,15 +106,37 @@ This feature allows various parameters to be measured and allows the easy identi
 
 #+BEGIN_center
 #+ATTR_LaTeX: :height 0.2\textwidth :center
-[[./figure/failsafe_remote.png]]
-#+ATTR_LaTeX: :height 0.2\textwidth :center
-[[./figure/failsafe_carside.png]]
+[[./figure/failsafe_remote_1.jpg]]
 #+END_center
 
 
 A remote shutoff system was implemented using Xbee radio modules and an IRF250 power MOSFET. The MOSFET cuts power to the motor speed controller and servo when the switch on the remote control unit is flipped. This system allows the car to be stopped remotely if it were to go out of control. The system is designed so that any failure will disconnect power to the motor and servo. If the Xbee on the car side loses signal or power, it will stop the motor.
 
 ** Unique Innovations
+*** Reading Power Supply Data in Linux
+
+To measure the battery voltage and power consumption, a TI INA226 power monitoring IC was added to the power supply design. Linux includes a driver to read data from this device, and in order to use it on the Raspberry PI configuration changes need to be made. Since the Raspberry Pi doesn’t support hardware autodetection on any interface except USB, a system known as device tree is used to describe the system’s hardware configuration. The device tree provides information on all the system’s hardware, such as the addresses, registers, driver parameters and other information. The device tree is read by the Linux kernel at boot and then loads the required drivers and their parameters.
+
+#+BEGIN_SRC emacs-lisp
+/dts-v1/;
+/plugin/;
+/ {
+	fragment@0 {
+		target = <&i2c1>;
+		__overlay__ {
+			status = "okay";
+			ina226@40 {	
+				compatible = "ti,ina226";
+				reg = <0x40>;
+				shunt-resistor = <2000>;
+			};
+		};
+	};
+};
+#+END_SRC
+
+
+To add support for the INA226 a device tree overlay needed to be created. This is a file which inserts additional data into the device tree. It attaches to a target, which is the bus or interface which the new device is attached to. In this case, the overlay is attached to I2C bus 1, and the device is defined as 
 ** Problems
 * Test Results
 * Design Documentation (Appendix)
