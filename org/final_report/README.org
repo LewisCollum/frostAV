@@ -135,7 +135,7 @@ To measure the battery voltage and power consumption, a TI INA226 power monitori
 #+END_SRC
 
 
-To add support for the INA226 a device tree overlay needed to be created to insert it into the system’s device tree. The contents of this file are shown above. The bus that the INA226 is attached to is defined with ~target = <&i2c1>~, the driver is set with ~compatible = 'ti,ina226'~ and the address with ~reg = <0x40>~. The shunt resistor value is set with ~shunt-resistor = <2000>~, with the resistance value in micro-ohms. The shunt resistor value is the resistance of the current shunt connected to the INA226, which is used for current and power calculations. In this case the current shunt’s resistance is 0.02Ω.
+To add support for the INA226 a device tree overlay needed to be created to insert it into the system’s device tree. The contents of this file are shown above. The bus that the INA226 is attached to is defined with ~target = <&i2c1>~, the driver is set with ~compatible = 'ti,ina226'~ and the address with ~reg = <0x40>~. The shunt resistor value is set with ~shunt-resistor = <2000>~, with the resistance value in micro-ohms. The shunt resistor value is the resistance of the current shunt connected to the INA226, which is used for current and power calculations. In this case the current shunt’s resistance is 0.02Ω. The device tree overlay is enabled in the Raspberry Pi’s ~/boot/config.txt~ file. 
 
 Once the driver is set up the voltage, power and current measurements can be accessed by any Linux program. The ~sensors~ utility can be used to display these values.
 
@@ -144,3 +144,38 @@ Once the driver is set up the voltage, power and current measurements can be acc
 * Design Documentation (Appendix)
 ** System Schematic
 [[./figure/full_schematic.png]]
+
+** INA226 Device Tree Overlay (ina226.dts)
+#+BEGIN_SRC emacs-lisp
+/dts-v1/;
+/plugin/;
+/ {
+	fragment@0 {
+		target = <&i2c1>;
+		__overlay__ {
+			status = "okay";
+			ina226@40 {	
+				compatible = "ti,ina226";
+				reg = <0x40>;
+				shunt-resistor = <2000>;
+			};
+		};
+	};
+};
+#+END_SRC
+
+** Raspberry Pi Boot Configuration
+
+#+BEGIN_SRC emacs-lisp
+# See /boot/overlays/README for all available options
+
+gpu_mem=64
+initramfs initramfs-linux.img followkernel
+dtparam=i2c1=on
+dtparam=i2c_arm=on
+disable_overscan=1
+dtoverlay=ina226
+hdmi_force_hotplug=1 
+dtoverlay=gpio-shutdown,gpio_pin=5
+#+END_SRC
+
