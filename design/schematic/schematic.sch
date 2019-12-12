@@ -403,7 +403,7 @@ F 3 "https://www.arduino.cc/en/Main/arduinoBoardUno" H 8950 6350 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L Custom:SSD1386 U4
+L schematic-rescue:SSD1386-Custom U4
 U 1 1 5DFA12B3
 P 6050 3950
 F 0 "U4" H 5431 3746 50  0000 R CNN
@@ -426,7 +426,7 @@ Connection ~ 6650 4550
 Wire Wire Line
 	6650 4550 6650 4650
 $Comp
-L Custom:Level_Converter U1
+L schematic-rescue:Level_Converter-Custom U1
 U 1 1 5DFAF6AB
 P 6050 2050
 F 0 "U1" H 6050 2015 50  0000 C CNN
@@ -1151,7 +1151,7 @@ Wire Wire Line
 Wire Wire Line
 	13150 3650 13450 3650
 $Comp
-L Custom:ESC M?
+L schematic-rescue:ESC-Custom M?
 U 1 1 5E0DD40B
 P 12600 3800
 F 0 "M?" H 12700 4265 50  0001 C CNN
@@ -1393,14 +1393,14 @@ Wire Wire Line
 	10750 3600 10750 7050
 Wire Wire Line
 	10750 3600 12250 3600
+Text Label 3700 6550 0    59   ~ 0
+SDA
+Text Label 3700 6650 0    59   ~ 0
+SCL
 Wire Bus Line
 	4100 5750 6500 5750
 Wire Bus Line
 	6550 2450 6550 3050
 Wire Bus Line
 	8500 5000 9350 5000
-Text Label 3700 6550 0    59   ~ 0
-SDA
-Text Label 3700 6650 0    59   ~ 0
-SCL
 $EndSCHEMATC

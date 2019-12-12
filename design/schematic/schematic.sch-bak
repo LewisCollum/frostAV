@@ -1399,4 +1399,8 @@ Wire Bus Line
 	6550 2450 6550 3050
 Wire Bus Line
 	8500 5000 9350 5000
+Text Label 3700 6550 0    59   ~ 0
+SDA
+Text Label 3700 6650 0    59   ~ 0
+SCL
 $EndSCHEMATC

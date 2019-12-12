@@ -108,14 +108,15 @@ This feature allows various parameters to be measured and allows the easy identi
 #+ATTR_LaTeX: :height 0.2\textwidth :center
 [[./figure/failsafe_remote.png]]
 #+ATTR_LaTeX: :height 0.2\textwidth :center
-[[./figure/failsafe_remote.png]]
+[[./figure/failsafe_carside.png]]
 #+END_center
 
 
-A remote shutoff system was implemented using Xbee radio modules and an IRF250 power MOSFET. This system allows the car to be stopped remotely if it were to go out of control. The system is designed to be failsafe, so that any failure will disconnect power to the motor and servo. If the Xbee on the car side loses signal or power, it will stop the motor.
-
+A remote shutoff system was implemented using Xbee radio modules and an IRF250 power MOSFET. The MOSFET cuts power to the motor speed controller and servo when the switch on the remote control unit is flipped. This system allows the car to be stopped remotely if it were to go out of control. The system is designed so that any failure will disconnect power to the motor and servo. If the Xbee on the car side loses signal or power, it will stop the motor.
 
 ** Unique Innovations
 ** Problems
 * Test Results
 * Design Documentation (Appendix)
+** System Schematic
+[[./figure/full_schematic.png]]
