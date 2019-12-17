@@ -1,0 +1,3 @@
+#+title: Frost: The Minimalistic Lane Navigating Vehicle
+ 
+[[./org/figure/2019-12-10_Frost.JPG]]
