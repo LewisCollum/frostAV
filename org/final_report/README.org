@@ -97,7 +97,7 @@ During the development of the vehicle, a few additional capabilities and feature
 
 A SSD1306 OLED display module was added to the design towards the end of Milestone 4, which allows easier monitoring of the Raspberry Pi and battery parameters. The display shows the current IP address of the Pi, the CPU load and temperature, memory usage, and the voltage, current draw and power use from the logic battery. 
 
-This display has been useful in the development of the system because it allows important parameters to be monitored easily. Since the Clarkson University Wifi uses DHCP addresses, the Pi’s IP changes periodically. Since the IP is needed for accessing SSH and the Pi’s webserver this is a very useful parameter to have. The voltage monitoring serves as a low battery indication for the logic battery.
+This display has been useful in the development of the system because it allows important parameters to be monitored easily. Since the Clarkson University Wifi uses DHCP addresses, the Pi’s IP changes periodically. The IP is needed for accessing SSH and the Pi’s webserver so this is a very useful parameter to have. The voltage monitoring serves as a low battery indication for the logic battery.
 
 *** HTTP Status Monitoring
 
