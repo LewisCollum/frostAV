@@ -15,8 +15,11 @@ clean
 # CxxTest
 **runner*
 
-# Visual Studio Debug
-**.eep
-**.lss
-**.map
-**.srec
+# Latex Minted Artifacts
+**_minted-*
+
+# Cache
+*cache*
+
+# FreeCad
+**.FCStd1
