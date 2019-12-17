@@ -9,3 +9,21 @@ clean
 **CMakeFiles
 **CMakeCache.txt
 **cmake_install.cmake
+
+# C/C++
+**.o
+**.elf
+**.hex
+**.d
+
+# CxxTest
+**runner*
+
+# Latex Minted Artifacts
+**_minted-*
+
+# Cache
+*cache*
+
+# FreeCad
+**.FCStd1
