@@ -112,6 +112,19 @@ This feature allows various parameters to be measured and allows the easy identi
 A remote shutoff system was implemented using Xbee radio modules and an IRF250 power MOSFET. The MOSFET cuts power to the motor speed controller and servo when the switch on the remote control unit is flipped. This system allows the car to be stopped remotely if it were to go out of control. The system is designed so that any failure will disconnect power to the motor and servo. If the Xbee on the car side loses signal or power, it will stop the motor.
 
 ** Unique Innovations
+*** Custom Power Supply
+
+A custom power supply was designed to convert the 7.2v from the LiPo batteries to 5v for powering the car’s logic systems. The power supply is also capable of measuring battery power, voltage and current. The power supply is implemented using a LM2596-5.0 buck regulator IC, a 22 uH inductor and two electrolytic capacitors. The power supply can supply the Raspberry Pi 4, which requires 5V at 3A as well as the ATMEGA328 board and other accessories. 
+
+   #+caption: Power Supply PCB layout.
+   #+attr_html: :width 300px
+   #+attr_latex: :width \linewidth/2
+   [[./figure/pcb_layout.png]]
+
+Since the buck converter operates at a frequency of about 150kHz and used many surface mounted components, a custom PCB (printed circuit board) was designed using KiCad. The power supply was originally constructed on a protoboard (without the INA226 power measurement IC) and while it was somewhat functional it had stability issues and the output was limited to about 2A at 5V. The custom PCB eliminated all of these issues as well as creating a more mechanically robust design. 
+
+Since high currents and frequencies would be present in the power supply, a ground plane design was used for the PCB. The back side of the board is copper filled and used as the ground connection for all components. Components on the front side of the board are connected to the ground plane using through-hole vias, which are holes drilled and electroplated through the board. The ground plane is also used as a heatsink for the LM2596 buck controller IC. A large number of vias are placed on the heatsink pad of the device to help conduct heat and serve as a ground connection for the device.
+
 *** Reading Power Supply Data in Linux
 
 To measure the battery voltage and power consumption, a TI INA226 power monitoring IC was added to the power supply design. Linux includes a driver to read data from this device, and in order to use it on the Raspberry PI configuration changes need to be made. Since the Raspberry Pi doesn’t support hardware autodetection on any interface except USB, a system known as device tree is used to describe the system’s hardware configuration. The device tree provides information on all the system’s hardware, such as the addresses, registers, driver parameters and other information. The device tree is read by the Linux kernel at boot and then loads the required drivers and their parameters.
