@@ -8,12 +8,10 @@
 #include "I2C_slave.hpp"
 #include <string.h>
 
-
 constexpr uint8_t prescaler = 8;
-constexpr uint32_t clockFrequency = F_CPU;
+//constexpr uint32_t clockFrequency = F_CPU;
 constexpr uint8_t pwmFrequency = 50;
 constexpr uint8_t addr = 0x12;
-int pidcounter = 15;
 
 int16_t initialServoMicros;
 int16_t servoMicros;
@@ -32,11 +30,11 @@ int16_t error;
 
 static constexpr uint32_t microsToCycles(uint16_t micros) {
     constexpr uint32_t unitConversion = 1E6;
-    return (clockFrequency/unitConversion/prescaler) * micros;
+    return (F_CPU/unitConversion/prescaler) * micros;
 }
 
 static constexpr uint32_t hertzToCycles(uint16_t hertz) {
-    return clockFrequency/prescaler/hertz;
+    return F_CPU/prescaler/hertz;
 }
 
 static void setupServoPwm() {
@@ -94,10 +92,8 @@ int main() {
 			{
 				message.append(rxbuffer[n]);
 			}
-
-			error = atoi(message);
 			
-			pidcounter = 0;
+			error = atoi(message);
 			
 			message.clear();
 			trigger = false;
