@@ -21,7 +21,8 @@ The main problem-domain requirements for this project are:
    #+attr_latex: :width \linewidth/2
    [[./figure/environment.png]]
 
-The completed project is fully capable of meeting requirement 1, partially capable of 2 and 5 and unable to meet 3 and 4. The car can successfully navigate a straight path and recover from small excursions outside of the lane boundaries. The car will also safely come to a stop if it is too far outside of the lanes to recover. The car is also capable of navigating corners with some difficulty and can complete a circuit after a few tries. Obstacle detection and sign detection was never implemented due to a lack of time.
+The completed project is fully capable of meeting requirements 1, 2 and 5 and is unable to meet 3 and 4. The car can successfully navigate a straight path and recover from small excursions outside of the lane boundaries. It can also navigate corners and complete a circuit. Obstacle detection and sign detection was never implemented due to a lack of time.
+
 *** Control System and Control Module Requirements
 For the control system and control modules, the following requirements apply:
     The Control System shall:
@@ -41,16 +42,20 @@ For the control system and control modules, the following requirements apply:
    5. Communicate with other controllers and non-controllers via a
       single shared wired bus.
 
-All the control system and control module requirements were met, except for the requirement that each control module must control a single peripheral. In the final design, the ATMEGA328 is used for both servo and throttle control. Otherwise, the control system was able to successfully interface with the vehicle peripherals using control modules, and the control modules share a single I2C bus. All control modules can communicate with the Raspberry Pi, which runs the main control system, and with each other (even though this capability was not utilized for the final design).
+All the control system and control module requirements were met, except for the requirement that each control module must control a single peripheral. In the final design, the ATMEGA328 is used for both servo and throttle control instead of having a separate module for each. Otherwise, the control system was able to successfully interface with the vehicle peripherals using control modules, and the control modules share a single I2C bus. All control modules can communicate with the Raspberry Pi, which runs the main control system, and with each other (even though this capability was not utilized for the final design).
+
 *** Autonomy Requirements
+
 The vehicle’s autonomy system shall:
    1. Not be directly coupled to the Vehicle Interface (section [[#vehicle-interface-requirements]]).
    2. Be able to fit on the vehicle.
    3. Allow the vehicle to navigate, as per section
       [[#problem-domain-requirements]], without user interaction.
    4. Be able to communicate with the Control System (section [[#Control System and Control Module Requirements]]).
-The final design is capable of meeting all of the autonomy requirements. The autonomy system is capable of communicating with all modules that make up the control system, including communicating with multiple modules at the same time. The system is not directly coupled to the vehicle interface, instead performing all vehicle functions using control modules. The system fits on the vehicle and allows the vehicle to navigate autonomously.
+The final design is capable of meeting all the autonomy requirements. The autonomy system can communicate with all modules that make up the control system, including communicating with multiple modules in quick succession. The system is not directly coupled to the vehicle interface, instead performing all vehicle functions using control modules. The system fits on the vehicle and allows the vehicle to navigate autonomously.
+
 *** Vehicle Interface Requirements
+
 The vehicle interface shall:
     1. Include a way for the vehicle to be turned on and off, such
        that, the vehicle receives no power to the _drive system_ or
@@ -65,11 +70,12 @@ The vehicle interface shall:
     6. Provide a peripheral that moves the vehicle.
     7. Provide a peripheral that steers the vehicle.
     8. Provide an electronic interface from each peripheral.
-All vehicle interface requirements were met with the final design. The design meets requirements 1 and 2 with a power switch on the logic battery, and a power switch and remote cutoff on the drive battery. This allows the logic to be powered independently of the drive system. Requirements 3 and 4 are met with the inclusion of the logic and drive batteries as well as the logic power supply. The batteries and power supply allow all of the logic and drive system functions to be powered. 
 
-Requirement 5 is met by ensuring that the maximum power draw won’t exceed the batteries maximum rating. All of the batteries used in this design are rated at 30C or greater, which is a measure of a batteries maximum discharge rate. For the 5200 mAh drive battery, a 30C rating corresponds to a maximum output of 156 A. The ESC used to power the drive motor and servo is rated for a maximum of 60A, so the maximum potential current draw is well within the battery’s capabilities. The logic battery, which has a capacity of 2200 mAh and a discharge rating of 30C can supply a maximum of 66A. Since all logic is powered by the power supply (which has a current limiting function) the maximum current on this battery will never exceed 2A. 
+All vehicle interface requirements were met with the final design. The design meets requirements 1 and 2 with a power switch on the logic battery, and a power switch and remote cutoff on the drive battery. This allows the logic to be powered independently of the drive system. Requirements 3 and 4 are met with the inclusion of the logic and drive batteries as well as the logic power supply. The batteries and power supply allow all the logic and drive system modules to be powered. 
 
-Requirements 6 and 7 are met by the ATMEGA328, the motor, ESC and steering servo. The ATMEGA328 controls the servo and ESC, and the ESC regulates the motor’s speed. These components allow the vehicle to be steered and moved by the autonomy system. Each peripheral also has an electronic interface. The ATMEGA328 communicates with the autonomy system, which is running on a Raspberry Pi, using the main I2C bus. The voltage and current draw of the logic battery are measured using the INA226 power monitoring chip built into the power supply and also communicated to the autonomy system over I2C.
+Requirement 5 is met by ensuring that the maximum power draw won’t exceed the batteries maximum rating. All of the batteries used in this design are rated at 30C or greater, which is a measure of a batteries maximum discharge rate. For the 5200 mAh drive battery, a 30C rating corresponds to a maximum output of 156 A. The ESC used to power the drive motor and servo is rated for a maximum of 60A, so the maximum potential current draw is well within the battery’s capabilities. The logic battery, which has a capacity of 2200 mAh and a discharge rating of 30C can supply a maximum of 66A. Since all logic is powered by the power supply (which has a current limiting function) the maximum current drawn from this battery will never exceed 3A. 
+
+Requirements 6 and 7 are met by the ATMEGA328, the motor, ESC and steering servo. The ATMEGA328 controls the servo and ESC, and the ESC regulates the motor’s speed. These components allow the vehicle to be steered and moved by the autonomy system. Each peripheral also has an electronic interface. The ATMEGA328 communicates with the autonomy system, which is running on a Raspberry Pi using the I2C bus. The voltage and current draw of the logic battery are measured using the INA226 power monitoring chip built into the power supply and communicated to the autonomy system over the I2C bus.
 
 *** Wireless Interface Requirements
     The Wireless Interface shall:
@@ -77,9 +83,12 @@ Requirements 6 and 7 are met by the ATMEGA328, the motor, ESC and steering servo
     2. Be able to access a server.
     3. Provide bi-directional communication.
 
-All of these requirements for the wireless system are met in the final design, using the Raspberry Pi 4’s integrated WiFi. The Wifi connection allows for SSH tunneling as well as providing a HTTP server. The system is also capable of connecting to a server, using SSH tunneling. The Wifi is also fully capable of bi-directional communication.
+All of these requirements for the wireless system are met in the final design, using the Raspberry Pi 4’s integrated WiFi. The Wifi connection allows for SSH tunneling as well as providing a HTTP server. The system is also capable of connecting to a server using SSH tunneling. The Wifi is also fully capable of bi-directional communication.
+
 ** Additional Capabilities
+
 During the development of the vehicle, a few additional capabilities and features were able to be implemented.
+
 *** Status OLED Display
 
    #+caption: OLED display showing parameters.
