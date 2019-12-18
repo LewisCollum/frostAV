@@ -1,5 +1,4 @@
 ﻿#+title: FrostAV Final Report
-* Evaluation and Analysis
 ** Requirements Evaluation
 *** Problem Domain Requirements
 The main problem-domain requirements for this project are:
@@ -21,7 +20,8 @@ The main problem-domain requirements for this project are:
    #+attr_latex: :width \linewidth/2
    [[./figure/environment.png]]
 
-The completed project is fully capable of meeting requirement 1, partially capable of 2 and 5 and unable to meet 3 and 4. The car can successfully navigate a straight path and recover from small excursions outside of the lane boundaries. The car will also safely come to a stop if it is too far outside of the lanes to recover. The car is also capable of navigating corners with some difficulty and can complete a circuit after a few tries. Obstacle detection and sign detection was never implemented due to a lack of time.
+The completed project is fully capable of meeting requirements 1, 2 and 5 and is unable to meet 3 and 4. The car can successfully navigate a straight path and recover from small excursions outside of the lane boundaries. It can also navigate corners and complete a circuit. Obstacle detection and sign detection was never implemented due to a lack of time.
+
 *** Control System and Control Module Requirements
 For the control system and control modules, the following requirements apply:
     The Control System shall:
@@ -41,16 +41,20 @@ For the control system and control modules, the following requirements apply:
    5. Communicate with other controllers and non-controllers via a
       single shared wired bus.
 
-All the control system and control module requirements were met, except for the requirement that each control module must control a single peripheral. In the final design, the ATMEGA328 is used for both servo and throttle control. Otherwise, the control system was able to successfully interface with the vehicle peripherals using control modules, and the control modules share a single I2C bus. All control modules can communicate with the Raspberry Pi, which runs the main control system, and with each other (even though this capability was not utilized for the final design).
+All the control system and control module requirements were met, except for the requirement that each control module must control a single peripheral. In the final design, the ATMEGA328 is used for both servo and throttle control instead of having a separate module for each. Otherwise, the control system was able to successfully interface with the vehicle peripherals using control modules, and the control modules share a single I2C bus. All control modules can communicate with the Raspberry Pi, which runs the main control system, and with each other (even though this capability was not utilized for the final design).
+
 *** Autonomy Requirements
+
 The vehicle’s autonomy system shall:
    1. Not be directly coupled to the Vehicle Interface (section [[#vehicle-interface-requirements]]).
    2. Be able to fit on the vehicle.
    3. Allow the vehicle to navigate, as per section
       [[#problem-domain-requirements]], without user interaction.
    4. Be able to communicate with the Control System (section [[#Control System and Control Module Requirements]]).
-The final design is capable of meeting all of the autonomy requirements. The autonomy system is capable of communicating with all modules that make up the control system, including communicating with multiple modules at the same time. The system is not directly coupled to the vehicle interface, instead performing all vehicle functions using control modules. The system fits on the vehicle and allows the vehicle to navigate autonomously.
+The final design is capable of meeting all the autonomy requirements. The autonomy system can communicate with all modules that make up the control system, including communicating with multiple modules in quick succession. The system is not directly coupled to the vehicle interface, instead performing all vehicle functions using control modules. The system fits on the vehicle and allows the vehicle to navigate autonomously.
+
 *** Vehicle Interface Requirements
+
 The vehicle interface shall:
     1. Include a way for the vehicle to be turned on and off, such
        that, the vehicle receives no power to the _drive system_ or
@@ -65,11 +69,12 @@ The vehicle interface shall:
     6. Provide a peripheral that moves the vehicle.
     7. Provide a peripheral that steers the vehicle.
     8. Provide an electronic interface from each peripheral.
-All vehicle interface requirements were met with the final design. The design meets requirements 1 and 2 with a power switch on the logic battery, and a power switch and remote cutoff on the drive battery. This allows the logic to be powered independently of the drive system. Requirements 3 and 4 are met with the inclusion of the logic and drive batteries as well as the logic power supply. The batteries and power supply allow all of the logic and drive system functions to be powered. 
 
-Requirement 5 is met by ensuring that the maximum power draw won’t exceed the batteries maximum rating. All of the batteries used in this design are rated at 30C or greater, which is a measure of a batteries maximum discharge rate. For the 5200 mAh drive battery, a 30C rating corresponds to a maximum output of 156 A. The ESC used to power the drive motor and servo is rated for a maximum of 60A, so the maximum potential current draw is well within the battery’s capabilities. The logic battery, which has a capacity of 2200 mAh and a discharge rating of 30C can supply a maximum of 66A. Since all logic is powered by the power supply (which has a current limiting function) the maximum current on this battery will never exceed 2A. 
+All vehicle interface requirements were met with the final design. The design meets requirements 1 and 2 with a power switch on the logic battery, and a power switch and remote cutoff on the drive battery. This allows the logic to be powered independently of the drive system. Requirements 3 and 4 are met with the inclusion of the logic and drive batteries as well as the logic power supply. The batteries and power supply allow all the logic and drive system modules to be powered. 
 
-Requirements 6 and 7 are met by the ATMEGA328, the motor, ESC and steering servo. The ATMEGA328 controls the servo and ESC, and the ESC regulates the motor’s speed. These components allow the vehicle to be steered and moved by the autonomy system. Each peripheral also has an electronic interface. The ATMEGA328 communicates with the autonomy system, which is running on a Raspberry Pi, using the main I2C bus. The voltage and current draw of the logic battery are measured using the INA226 power monitoring chip built into the power supply and also communicated to the autonomy system over I2C.
+Requirement 5 is met by ensuring that the maximum power draw won’t exceed the batteries maximum rating. All of the batteries used in this design are rated at 30C or greater, which is a measure of a batteries maximum discharge rate. For the 5200 mAh drive battery, a 30C rating corresponds to a maximum output of 156 A. The ESC used to power the drive motor and servo is rated for a maximum of 60A, so the maximum potential current draw is well within the battery’s capabilities. The logic battery, which has a capacity of 2200 mAh and a discharge rating of 30C can supply a maximum of 66A. Since all logic is powered by the power supply (which has a current limiting function) the maximum current drawn from this battery will never exceed 3A. 
+
+Requirements 6 and 7 are met by the ATMEGA328, the motor, ESC and steering servo. The ATMEGA328 controls the servo and ESC, and the ESC regulates the motor’s speed. These components allow the vehicle to be steered and moved by the autonomy system. Each peripheral also has an electronic interface. The ATMEGA328 communicates with the autonomy system, which is running on a Raspberry Pi using the I2C bus. The voltage and current draw of the logic battery are measured using the INA226 power monitoring chip built into the power supply and communicated to the autonomy system over the I2C bus.
 
 *** Wireless Interface Requirements
     The Wireless Interface shall:
@@ -77,9 +82,12 @@ Requirements 6 and 7 are met by the ATMEGA328, the motor, ESC and steering servo
     2. Be able to access a server.
     3. Provide bi-directional communication.
 
-All of these requirements for the wireless system are met in the final design, using the Raspberry Pi 4’s integrated WiFi. The Wifi connection allows for SSH tunneling as well as providing a HTTP server. The system is also capable of connecting to a server, using SSH tunneling. The Wifi is also fully capable of bi-directional communication.
+All of these requirements for the wireless system are met in the final design, using the Raspberry Pi 4’s integrated WiFi. The Wifi connection allows for SSH tunneling as well as providing a HTTP server. The system is also capable of connecting to a server using SSH tunneling. The Wifi is also fully capable of bi-directional communication.
+
 ** Additional Capabilities
+
 During the development of the vehicle, a few additional capabilities and features were able to be implemented.
+
 *** Status OLED Display
 
    #+caption: OLED display showing parameters.
@@ -89,7 +97,7 @@ During the development of the vehicle, a few additional capabilities and feature
 
 A SSD1306 OLED display module was added to the design towards the end of Milestone 4, which allows easier monitoring of the Raspberry Pi and battery parameters. The display shows the current IP address of the Pi, the CPU load and temperature, memory usage, and the voltage, current draw and power use from the logic battery. 
 
-This display has been useful in the development of the system because it allows important parameters to be monitored easily. Since the Clarkson University Wifi uses DHCP addresses, the Pi’s IP changes periodically. Since the IP is needed for accessing SSH and the Pi’s webserver this is a very useful parameter to have. The voltage monitoring serves as a low battery indication for the logic battery.
+This display has been useful in the development of the system because it allows important parameters to be monitored easily. Since the Clarkson University Wifi uses DHCP addresses, the Pi’s IP changes periodically. The IP is needed for accessing SSH and the Pi’s webserver so this is a very useful parameter to have. The voltage monitoring serves as a low battery indication for the logic battery.
 
 *** HTTP Status Monitoring
 
@@ -112,6 +120,42 @@ This feature allows various parameters to be measured and allows the easy identi
 A remote shutoff system was implemented using Xbee radio modules and an IRF250 power MOSFET. The MOSFET cuts power to the motor speed controller and servo when the switch on the remote control unit is flipped. This system allows the car to be stopped remotely if it were to go out of control. The system is designed so that any failure will disconnect power to the motor and servo. If the Xbee on the car side loses signal or power, it will stop the motor.
 
 ** Unique Innovations
+*** Custom Power Supply
+
+   #+caption: Power Supply complete.
+   #+attr_html: :width 300px
+   #+attr_latex: :width \linewidth/2
+   [[./figure/powersupply.jpg]]
+
+A custom power supply was designed to convert the 7.2v from the LiPo batteries to 5v for powering the car’s logic systems. The power supply is also capable of measuring battery power, voltage and current. The power supply is implemented using a LM2596-5.0 buck regulator IC, and an INA226 power monitoring IC. The power supply can supply the Raspberry Pi 4, which requires 5V at 3A as well as the ATMEGA328 board and other accessories. 
+
+   #+caption: Power Supply schematic.
+   #+attr_html: :width 300px
+   #+attr_latex: :width \linewidth/2
+   [[./figure/powersupply_schematic.png]]
+
+For the design of the power supply, a TI LM2596-5.0 “Simple Switcher” buck converter was chosen because of its efficiency, 3A output and ability to accept an input voltage as low as 7v. Originally a LM7805 based design with a bypass transistor was considered, but it would have been much less efficient. This would have reduced battery runtime and require a large heatsink which would have added weight. The values of L1, C1 and C2 were chosen based on the LM2596’s datasheet. The output current was assumed to be 3A, and the maximum input voltage as 12v (providing the ability to operate using a 3 cell LiPo if needed). 
+
+The inductor L1 is a Bourns SRP1038A-220M which is shielded and has a saturation current of 5A. Since the components are in close proximity a shielded inductor is needed to prevent EMI from affecting the feedback line of the LM2596 (Pin 4) as well as the INA226 and I2C lines. The capacitors C1 and C2 are Nichicon aluminum polymer electrolytics, which have a very low (30 mΩ) ESR (equivalent series resistance). Low ESR is critical in a buck converter design because of the high current transients created by the switching. A low ESR allows the capacitor to charge and discharge faster to react to these transients. Diode D1 is a 50WQ04 Schottky diode which was used because of its fast switching time and low voltage drop.
+
+For the power measurements, a TI INA226 current and power monitor was used because of its Linux driver support. The INA226 communicates with the Raspberry Pi over I2C, with R1 and R2 functioning as pull-up resistors. The INA226 measures current using a shunt resistor and measuring the voltage across it. The resistor’s value is programmed in at startup and from there an accurate current measurement can be taken. The shunt resistor Rshunt is a 0.002Ω 1% resistor as recommended in the INA226 datasheet.
+
+   #+caption: Power Supply PCB layout.
+   #+attr_html: :width 300px
+   #+attr_latex: :width \linewidth/2
+   [[./figure/pcb_layout.png]]
+
+Since the buck converter operates at a frequency of about 150kHz and used many surface mounted components, a custom PCB (printed circuit board) was designed using KiCad. The power supply was originally constructed on a protoboard (without the INA226 power measurement IC) and while it was somewhat functional it had stability issues and the output was limited to about 2A at 5V. The custom PCB eliminated all of these issues as well as creating a more mechanically robust design. 
+
+High currents and frequencies are present in the power supply, so a ground plane design was used for the PCB. The back side of the board (shown in green) is copper filled and used as the ground connection for all components. Components on the front side of the board are connected to the ground plane using through-hole vias, which are holes drilled and electroplated through the board. The ground plane is also used as a heatsink for the LM2596 buck controller IC. Multiple vias were placed on the heatsink pad of the device to help conduct heat and serve as a ground connection. Thicker traces and shorter trace lengths are used for high current paths.
+
+   #+caption: Power Supply PCB Before Assembly.
+   #+attr_html: :width 300px
+   #+attr_latex: :width \linewidth/2
+   [[./figure/powersupply_pcb.jpg]]
+
+The PCB’s were manufactured by OSHPark, and all components were hand soldered. The larger components such as the inductor, diode and buck regulator were hot air soldered and the smaller components were soldered using a fine soldering iron tip. Solder wick was used to remove excess solder and a few solder bridges between INA226 pins.
+
 *** Reading Power Supply Data in Linux
 
 To measure the battery voltage and power consumption, a TI INA226 power monitoring IC was added to the power supply design. Linux includes a driver to read data from this device, and in order to use it on the Raspberry PI configuration changes need to be made. Since the Raspberry Pi doesn’t support hardware autodetection on any interface except USB, a system known as device tree is used to describe the system’s hardware configuration. The device tree provides information on all the system’s hardware, such as the addresses, registers, driver parameters and other information. The device tree is read by the Linux kernel at boot and then loads the required drivers and their parameters.
@@ -140,6 +184,18 @@ To add support for the INA226 a device tree overlay needed to be created to inse
 Once the driver is set up the voltage, power and current measurements can be accessed by any Linux program. The ~sensors~ utility can be used to display these values.
 
 ** Problems
+
+*** Vehicle Issues
+**** Motor and Drivetrain Issues
+
+Originally, the vehicle was intended to use a brushless motor and speed controller. There were issues with the brushless speed controller, so a brushless motor and speed controller were used instead.
+
+*** Power Supply Issues
+
+There were a few issues with the power supply during the development process. The original prototype of the power supply was built on a protoboard using through hole components. The inductor originally used for this design had the wrong value (68 uH vs 22 uH). Since this was a large toroidal inductor, the problem was resolved by taking turns off th inductor core until it measured at 22 uH. This iteration had stability issues where the power supply output voltage would randomly drop, even with no load. This iteration also had a max output current of about 1.5A. These issues were determined to be caused by the long lead lengths and EMI problems from the protoboard construction. 
+
+There was also a few issues with the second version mainly related to PCB layout. The USB port’s power and ground lines were swapped, assuming it was top mounted. The solution to this problem was to desolder the port and install it upside down on the bottom of the board. Another issue was that the negative lead of the input capacitor (C1 on power supply schematic) was not connected to the ground plane, or anything else. The solution to this was to scrape off some solder mask from the ground plane and bridge the connection with solder.
+
 * Test Results
 * Design Documentation (Appendix)
 ** System Hardware Schematic
