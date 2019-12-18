@@ -184,6 +184,18 @@ To add support for the INA226 a device tree overlay needed to be created to inse
 Once the driver is set up the voltage, power and current measurements can be accessed by any Linux program. The ~sensors~ utility can be used to display these values.
 
 ** Problems
+
+*** Vehicle Issues
+**** Motor and Drivetrain Issues
+
+Originally, the vehicle was intended to use a brushless motor and speed controller. There were issues with the brushless speed controller, so a brushless motor and speed controller were used instead.
+
+*** Power Supply Issues
+
+There were a few issues with the power supply during the development process. The original prototype of the power supply was built on a protoboard using through hole components. The inductor originally used for this design had the wrong value (68 uH vs 22 uH). Since this was a large toroidal inductor, the problem was resolved by taking turns off th inductor core until it measured at 22 uH. This iteration had stability issues where the power supply output voltage would randomly drop, even with no load. This iteration also had a max output current of about 1.5A. These issues were determined to be caused by the long lead lengths and EMI problems from the protoboard construction. 
+
+There was also a few issues with the second version mainly related to PCB layout. The USB port’s power and ground lines were swapped, assuming it was top mounted. The solution to this problem was to desolder the port and install it upside down on the bottom of the board. Another issue was that the negative lead of the input capacitor (C1 on power supply schematic) was not connected to the ground plane, or anything else. The solution to this was to scrape off some solder mask from the ground plane and bridge the connection with solder.
+
 * Test Results
 * Design Documentation (Appendix)
 ** System Hardware Schematic
