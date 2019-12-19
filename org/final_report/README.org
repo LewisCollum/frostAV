@@ -188,7 +188,7 @@ Once the driver is set up the voltage, power and current measurements can be acc
 *** Vehicle Issues
 **** Motor and Drivetrain Issues
 
-Originally, the vehicle was intended to use a brushless motor and speed controller. There were issues with the brushless speed controller, so a brushless motor and speed controller were used instead.
+Originally, the vehicle was intended to use a brushless motor and speed controller. There were issues with the brushless speed controller, so a brushless motor and speed controller were used instead. There were also issues getting the motor and center gear to mesh correctly, the motor kept shifting out of position. This was fixed by tightening the motor mounting screws. The 3D printed driveshaft coupling pieces broke a few times and the original center gear was warped. These pieces were reprinted in carbon fiber PLA. 
 
 *** Power Supply Issues
 
