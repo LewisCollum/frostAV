@@ -211,6 +211,27 @@ During this testing, a few issues with the I2C controller were encountered. The 
 
 For the next phase of testing the ATMEGA firmware was modified to print all data received over I2C to the USART. A small C++ program called “i2c-test” was written to send data to the ATMEGA from the Raspberry Pi. When this test was performed, there was a minor issue with the ATMEGA firmware expecting a newline character (0x12) but “i2c-test” sending a null character (0x0) instead. Once this was fixed, the firmware performed as expected with all data sent over I2C being printed to the USART console.
 The final stage of testing was done to ensure that throttle and servo control over I2C were possible. The car was placed onto a stand and the motor speed controller and servo were connected to the ATMEGA board. The “i2c-test” code was used to send values for the throttle and servo angle. When this was tested the motor and servo responded as expected.
+*** Power Supply Testing Results
+
+Once the power supply was assembled, the first test was a load test to ensure that the power supply was capable of providing 3A at 5v with an input voltage of 7.4v (the lowest anticipated battery voltage). The ripple on the output of the power supply was also measured during load testing to ensure that it was less than 200 mV under all load conditions. Then the power monitoring circuit was connected to the Raspberry Pi over I2C and tested for functionality and accuracy.
+
+   #+caption: Results of load testing, showing 3.4A current output at 5v with 7.4v input voltage
+   #+attr_html: :width 300px
+   #+attr_latex: :width \linewidth/2
+   [[./figure/powersupply_load_test.JPG]]
+
+   #+caption: Results of ripple testing with a 3A load and 7.4v input voltage
+   #+attr_html: :width 300px
+   #+attr_latex: :width \linewidth/2
+   [[./figure/powersupply_test_ripple.png]]
+
+For the load test, the power supply was connected to a bench power supply (set to 7.4v) and the output terminals were connected to a load resistor. The voltage and current were measured at both the input and output. An oscilloscope probe, set to AC coupling was also connected to the output to measure ripple. The maximum current delivered by the power supply was 3.4A while maintaining a 5v output. Any higher current would trigger the overcurrent protection mode on the power supply. The ripple with a 3A load was measured to be 201 mV.
+   #+caption: Results of running “sensors” command, showing the voltage, current and power measurements from the power supply
+   #+attr_html: :width 300px
+   #+attr_latex: :width \linewidth/2
+   [[./figure/powersupply_test_i2c.png]]
+
+The next phase of power supply testing was to ensure that the current and power monitoring section was functional. The power supply’s I2C lines were connected to the Raspberry Pi through a level converter, and the Linux driver for the power monitoring chip was loaded. The Linux utility “sensors” was used to display the measurements. The measurements were verified with a multimeter and were within 0.01 of the multimeter reading for both current and voltage measurements.
 
 
 * Design Documentation (Appendix)
