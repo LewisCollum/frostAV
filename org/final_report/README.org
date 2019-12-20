@@ -1,4 +1,9 @@
 ﻿#+title: FrostAV Final Report
+#+options: toc:t num:t
+#+latex_header: \usepackage{development}
+#+bind: org-latex-minted-options (("bgcolor" "code"))
+#+bind: org-latex-image-default-width "\\linewidth"
+
 ** Requirements Evaluation
 *** Problem Domain Requirements
 The main problem-domain requirements for this project are:
@@ -46,11 +51,10 @@ All the control system and control module requirements were met, except for the 
 *** Autonomy Requirements
 
 The vehicle’s autonomy system shall:
-   1. Not be directly coupled to the Vehicle Interface (section [[#vehicle-interface-requirements]]).
+   1. Not be directly coupled to the Vehicle Interface
    2. Be able to fit on the vehicle.
-   3. Allow the vehicle to navigate, as per section
-      [[#problem-domain-requirements]], without user interaction.
-   4. Be able to communicate with the Control System (section [[#Control System and Control Module Requirements]]).
+   3. Allow the vehicle to navigate without user interaction.
+   4. Be able to communicate with the Control System.
 The final design is capable of meeting all the autonomy requirements. The autonomy system can communicate with all modules that make up the control system, including communicating with multiple modules in quick succession. The system is not directly coupled to the vehicle interface, instead performing all vehicle functions using control modules. The system fits on the vehicle and allows the vehicle to navigate autonomously.
 
 *** Vehicle Interface Requirements
