@@ -202,6 +202,10 @@ There were a few issues with the power supply during the development process. Th
 
 There was also a few issues with the second version mainly related to PCB layout. The USB port’s power and ground lines were swapped, assuming it was top mounted. The solution to this problem was to desolder the port and install it upside down on the bottom of the board. Another issue was that the negative lead of the input capacitor (C1 on power supply schematic) was not connected to the ground plane, or anything else. The solution to this was to scrape off some solder mask from the ground plane and bridge the connection with solder.
 
+*** Remote Shutoff Issues
+
+A few problems were encountered with the remote shutoff system. With the original circuit, a JFET was used to drive the power MOSFET's gate. Sudden throttle changes and using the braking feature would cause the Xbee to reset, thus cutting power to the ESC. A decoupling capacitor was added to the Xbee power terminals, but this didn't solve the issue. The JFET was replaced with an optocoupler which electrically isolated the Xbee and power circuits. This solved the resetting issue, but the Xbee would still shut off ESC power after 60 seconds. This turned out to be a tim eout issue because the remote Xbee would only transmit when the switch's position was changed and the receiving ESC would time out after not receiving any transmission. After changing the Xbee programming to transmit every 10 ms this issue was solved.
+
 * Test Results
 *** Autonomous Driving Tests
    #+caption: Vehicle navigating the wide section of test track.
