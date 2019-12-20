@@ -197,8 +197,20 @@ There were a few issues with the power supply during the development process. Th
 There was also a few issues with the second version mainly related to PCB layout. The USB port’s power and ground lines were swapped, assuming it was top mounted. The solution to this problem was to desolder the port and install it upside down on the bottom of the board. Another issue was that the negative lead of the input capacitor (C1 on power supply schematic) was not connected to the ground plane, or anything else. The solution to this was to scrape off some solder mask from the ground plane and bridge the connection with solder.
 
 * Test Results
-** Stage 1
-** Stage 2
+*** Autonomous Driving Tests
+   #+caption: Vehicle navigating the wide section of test track.
+   #+attr_html: :width 300px
+   #+attr_latex: :width \linewidth/2
+   [[./figure/test_track.png]]
+
+In order to test the car’s autonomous driving capabilities, a test track was constructed. The lines for the testing track were marked with two parallel strips of blue masking tape. Two different widths were used for the track, 12 and 24 inches apart (based on the 12”x12” floor tiles). 
+   #+caption: Vehicle navigating the narrow section of test track.
+   #+attr_html: :width 300px
+   #+attr_latex: :width \linewidth/2
+   [[./figure/test_track_narrow.png]]
+
+The vehicle was able to successfully navigate the test track multiple times. It did leave the track a couple of times during testing, and with more time these issues could be resolved. The vehicle could handle corners and varying track widths, as well as merging from the wide track to the narrow one. 
+  
 *** OpenCV Lane Detection Testing Results
 *** ATMEGA328 Firmware Testing Results
 
