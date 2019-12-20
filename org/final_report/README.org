@@ -290,7 +290,7 @@ dtoverlay=gpio-shutdown,gpio_pin=5
 #+END_SRC
 
 ** OpenCV Lane Detection (Raspberry Pi)
-*** image.py
+*** video.py
 #+BEGIN_SRC emacs-lisp
 import numpy
 import cv2
