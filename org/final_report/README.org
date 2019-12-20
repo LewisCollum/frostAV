@@ -495,3 +495,411 @@ cv2.waitKey(0)
 
 #+END_SRC
 
+** Web Status Page
+*** index.html
+#+BEGIN_SRC emacs-lisp
+<!DOCTYPE HTML><html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="/highcharts.js"></script>
+  <title>Pi Status</title>
+  <link rel="icon" href="/favicon.jpg">
+  <style>
+    body {
+      min-width: 310px;
+    	max-width: 800px;
+    	height: 400px;
+      margin: 0 auto;
+    }
+    h2 {
+      font-family: Arial;
+      font-size: 2.5rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h2>Vehicle Data</h2>
+
+
+</form>
+  <h3>Pi Data</h3>
+  <div id="chart-load" class="container"></div>
+  <div id="chart-mem" class="container"></div>
+  <div id="chart-temperature" class="container"></div>
+  <h3>Power Supply Data</h3>
+  <div id="chart-power" class="container"></div>
+  <div id="chart-voltage" class="container"></div>
+  <div id="chart-current" class="container"></div>
+
+</body>
+<script>
+var chartC = new Highcharts.Chart({
+  chart:{ renderTo : 'chart-temperature' },
+  title: { text: 'Temperature' },
+  series: [{
+    name: 'CPU',
+    showInLegend: true,
+    data: [],
+    color: '#eb5b34'
+  }, {
+    name: 'GPU',
+    showInLegend: true,
+    data: [],
+    color: '#24f00a'
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    },
+    series: { color: '#059e8a' }
+  },
+  xAxis: { type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: { text: 'Temperature (C)' }
+  },
+  credits: { enabled: false }
+});
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      //console.log(this.responseText);
+      if(chartC.series[0].data.length > 40) {
+        chartC.series[0].addPoint([x, y], true, true, true);
+      } else {
+        chartC.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/temperature_c.php", true);
+  xhttp.send();  
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      //console.log(this.responseText);
+      if(chartC.series[1].data.length > 40) {
+        chartC.series[1].addPoint([x, y], true, true, true);
+      } else {
+        chartC.series[1].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/temperature_g.php", true);
+  xhttp.send();
+
+}, 1000 ) ;
+
+var chartL = new Highcharts.Chart({
+  chart:{ renderTo : 'chart-load' },
+  title: { text: 'System Load' },
+  series: [{
+    showInLegend: false,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    },
+    series: { color: '#059e8a' }
+  },
+  xAxis: { type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+  },
+  credits: { enabled: false }
+});
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      //console.log(this.responseText);
+      if(chartL.series[0].data.length > 40) {
+        chartL.series[0].addPoint([x, y], true, true, true);
+      } else {
+        chartL.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/load.php", true);
+  xhttp.send();
+}, 1000 ) ;
+
+var chartM = new Highcharts.Chart({
+  chart:{ renderTo : 'chart-mem' },
+  title: { text: 'Memory' },
+  series: [{
+    name: 'Used Memory',
+    color: '#00FF00',
+    showInLegend: true,
+    data: []
+  }, {
+  name: 'Free Memory',
+  color: '#FF00FF',
+  showInLegend: true,
+  data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    },
+    series: { color: '#059e8a' }
+  },
+  xAxis: { type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: {text: "Memory (Mb)" }
+  },
+  credits: { enabled: false }
+});
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      if(chartM.series[0].data.length > 40) {
+        chartM.series[0].addPoint([x, y], true, true, true);
+      } else {
+        chartM.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/memory.php", true);
+  xhttp.send();
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      if(chartM.series[1].data.length > 40) {
+        chartM.series[1].addPoint([x, y], true, true, true);
+      } else {
+        chartM.series[1].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/memfree.php", true);
+  xhttp.send();
+
+}, 1000 ) ;
+
+
+var chartT = new Highcharts.Chart({
+  chart:{ renderTo : 'chart-power' },
+  title: { text: 'Power' },
+  series: [{
+    showInLegend: false,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    },
+    series: { color: '#059e8a' }
+  },
+  xAxis: { type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: { text: 'Power (W)' }
+  },
+  credits: { enabled: false }
+});
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      //console.log(this.responseText);
+      if(chartT.series[0].data.length > 40) {
+        chartT.series[0].addPoint([x, y], true, true, true);
+      } else {
+        chartT.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/power.php", true);
+  xhttp.send();
+}, 1000 ) ;
+
+var chartH = new Highcharts.Chart({
+  chart:{ renderTo:'chart-voltage' },
+  title: { text: 'Battery Voltage' },
+  series: [{
+    showInLegend: false,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    }
+  },
+  xAxis: {
+    type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: { text: 'Voltage (V)' }
+  },
+  credits: { enabled: false }
+});
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      //console.log(this.responseText);
+      if(chartH.series[0].data.length > 40) {
+        chartH.series[0].addPoint([x, y], true, true, true);
+      } else {
+        chartH.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/voltage.php", true);
+  xhttp.send();
+}, 1000 ) ;
+
+var chartP = new Highcharts.Chart({
+  chart:{ renderTo:'chart-current' },
+  title: { text: 'Battery Current' },
+  series: [{
+    showInLegend: false,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    },
+    series: { color: '#18009c' }
+  },
+  xAxis: {
+    type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: { text: 'Current (mA)' }
+  },
+  credits: { enabled: false }
+});
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      //console.log(this.responseText);
+      if(chartP.series[0].data.length > 40) {
+        chartP.series[0].addPoint([x, y], true, true, true);
+      } else {
+        chartP.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/current.php", true);
+  xhttp.send();
+}, 1000 ) ;
+</script>
+</html>
+#+END_SRC
+
+*** power.php
+#+BEGIN_SRC emacs-lisp
+<?php 
+  
+// Use ls command to shell_exec 
+// function 
+$output = shell_exec('(sensors | grep power)'); //'bash -c 'sensors');// | grep power | sed 's/[^0-9]*//g'''); 
+
+$output = preg_replace('/^[^:]+:\s*/', '' ,$output); 
+
+$output = preg_replace('/[^0-9^.]*/', '', $output); 
+
+//$output2 = preg_replace( '[^0-9]*', '', $output); 
+// Display the list of all file 
+// and directory 
+echo "$output"; 
+?> 
+
+#+END_SRC
+
+*** load.php
+#+BEGIN_SRC emacs-lisp
+<?php 
+  
+// Use ls command to shell_exec 
+// function 
+$output = shell_exec('cat /proc/loadavg');  
+
+$output = substr ( $output, 0, 4);
+
+echo "$output"; 
+?> 
+
+#+END_SRC
+
+*** temperature_c.php
+#+BEGIN_SRC emacs-lisp
+<?php 
+  
+// Use ls command to shell_exec 
+// function 
+$output = shell_exec('cat /sys/class/thermal/thermal_zone0/temp');  
+
+$output = $output / 1000;
+
+echo "$output"; 
+?> 
+
+#+END_SRC
+
+*** temperature_g.php
+#+BEGIN_SRC emacs-lisp
+<?php 
+  
+// Use ls command to shell_exec 
+// function 
+$output = shell_exec('/opt/vc/bin/vcgencmd measure_temp');  
+
+$output = preg_replace("/[^0-9]/", "",$output);
+
+$output = $output / 10;
+
+echo "$output"; 
+?> 
+
+#+END_SRC
+
+*** voltage.php
+#+BEGIN_SRC emacs-lisp
+<?php 
+  
+// Use ls command to shell_exec 
+// function 
+$output = shell_exec('(sensors | grep in1)'); //'bash -c 'sensors');// | grep power | sed 's/[^0-9]*//g'''); 
+
+$output = preg_replace('/^[^:]+:\s*/', '' ,$output); 
+
+$output = preg_replace('/[^0-9^.]*/', '', $output); 
+
+//$output2 = preg_replace( '[^0-9]*', '', $output); 
+// Display the list of all file 
+// and directory 
+echo "$output"; 
+?> 
+
+#+END_SRC
