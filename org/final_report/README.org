@@ -206,6 +206,11 @@ There was also a few issues with the second version mainly related to PCB layout
 The ATMEGA328 firmware was tested in two parts, first testing the I2C interface itself and then verifying that the servo and throttle could be controlled using I2C commands. While the ATMEGA328 was originally intended to function as a PID controller as well, this function was eliminated due to a lack of development time.
 
 For the first part of firmware testing, the ATMEGA was tested to ensure it would respond to its own I2C address. The ATMEGA was connected to the Raspberry Pi’s I2C pins through a level converter, and the Linux utility “i2cdetect” was used to scan for I2C devices. This utility tries each possible I2C address, and shows the addresses of the devices that respond. An example of this is shown in figure 1.1.2-1, with the ATMEGA using I2C address 0x32.
+#+caption: Results of running ‘i2cdetect’ command while three devices were connected to the Raspberry Pi’s I2C bus.
+   #+attr_html: :width 300px
+   #+attr_latex: :width \linewidth/2
+   [[./figure/i2cdetect.png]]
+
 
 During this testing, a few issues with the I2C controller were encountered. The first time “i2cdetect” was ran, the results were as shown above, with the ATMEGA responding to its own address and the other devices were able to respond as well. The second time it was run the ATMEGA held the data line to ground and no I2C communication was possible. When the ATMEGA was reset, the same issue would occur with a correct response the first time and a failure for all subsequent tries. This issue was found to be in an open source I2C library used on the ATMEGA which was not properly clearing the I2C interrupt bit. Once this issue was resolved the ATMEGA reliably responded to its I2C address.
 
@@ -218,7 +223,7 @@ Once the power supply was assembled, the first test was a load test to ensure th
    #+caption: Results of load testing, showing 3.4A current output at 5v with 7.4v input voltage
    #+attr_html: :width 300px
    #+attr_latex: :width \linewidth/2
-   [[./figure/powersupply_load_test.JPG]]
+   [[./figure/powersupply_load_test.jpg]]
 
    #+caption: Results of ripple testing with a 3A load and 7.4v input voltage
    #+attr_html: :width 300px
