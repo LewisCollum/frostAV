@@ -1,0 +1,10 @@
+#+latex_header: \usepackage{../research}
+#+bind: org-latex-minted-options (("bgcolor" "code"))
+#+bind: org-latex-default-figure-position "H"
+#+bind: org-latex-image-default-width "\\linewidth"
+#+property: header-args :eval no-export :exports both
+
+#+title: Sign Detection
+#+date: Updated: \today
+*Started 1/27/2020*
+
