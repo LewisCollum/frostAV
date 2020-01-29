@@ -30,3 +30,6 @@ clean
 **.FCStd1
 
 **__pycache__
+
+# Exlude buckets from AWS S3
+images

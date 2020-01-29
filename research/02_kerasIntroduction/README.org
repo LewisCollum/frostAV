@@ -53,85 +53,99 @@ echo "DONE!"
     #+RESULTS:
     : DONE!
 
+**** Common Variables
+     =common.py=
+     #+begin_src python :tangle source/common.py
+trainPath = '../images/train/'
+testPath = '../images/test/'
+classCount = 8
+imageSize = 224
+     #+end_src
+
 **** Preparing Training Data
-     #+name: intro
-     #+begin_src python :results silent :tangle source/batchPreparation.py
+     =batch.py=
+     #+begin_src python :results silent :tangle source/batch.py
 from keras.preprocessing.image import ImageDataGenerator
 import numpy as np
+import common
 
-train_path = '../images/train/'
-test_path = '../images/test/'
-batch_size = 16
-image_size = 224
-num_class = 8
+size = 16
 
-train_datagen = ImageDataGenerator(
+trainingBatchGenerator = ImageDataGenerator(
     validation_split = 0.3,
     shear_range = 0.2,
     zoom_range = 0.2,
     horizontal_flip = True)
 
-train_generator = train_datagen.flow_from_directory(
-    directory = train_path,
-    target_size = (image_size,image_size),
-    batch_size = batch_size,
+trainingBatchIterator = trainingBatchGenerator.flow_from_directory(
+    directory = common.trainPath,
+    target_size = (common.imageSize, common.imageSize),
+    batch_size = size,
     class_mode = 'categorical',
     color_mode = 'rgb',
     shuffle = True)
 
-x_batch, y_batch = train_generator.next()
+x, y = trainingBatchIterator.next()
+sampleSize = trainingBatchIterator.n
      #+end_src
      
 **** Let's See the Batch
-     #+begin_src python :results file :var figure="../figure/generatedTrainingImages.png"
+     #+begin_src python :results file :var figureFile="../figure/generatedTrainingImages.png"
 import matplotlib.pyplot as pyplot
 import numpy
-import batchPreparation as bp
 
-fig=pyplot.figure()
+import batch
+
+figure = pyplot.figure()
 columns = 4
 rows = 4
 
-for i in range(1, columns*rows):
-    num = numpy.random.randint(bp.batch_size)
-    image = bp.x_batch[num].astype(numpy.int)
-    fig.add_subplot(rows, columns, i)
-    pyplot.imshow(image)
+for i in range(1, columns*rows+1):
+    randomImageIndex = numpy.random.randint(batch.size)
+    randomImage = batch.x[randomImageIndex].astype(numpy.int)
+    figure.add_subplot(rows, columns, i)
+    pyplot.imshow(randomImage)
 
-pyplot.savefig(figure)
-return figure
+pyplot.savefig(figureFile)
+return figureFile
      #+end_src
 
      #+RESULTS:
      [[file:figure/generatedTrainingImages.png]]
 
-**** Training
-     #+begin_src python :results output :async
+**** Model Creation from VGG16
+     =model.py=
+     #+begin_src python :results output :async :tangle source/model.py
 import keras
 from keras.models import Model, load_model
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.preprocessing.image import ImageDataGenerator
 from keras.applications.vgg16 import VGG16
-import batchPreparation as bp
 
-base_model = VGG16(weights='imagenet', include_top=False, input_shape=(bp.image_size, bp.image_size, 3))
+import common
 
-for layer in base_model.layers: layer.trainable = False
+baseModel = VGG16(
+    weights = 'imagenet',
+    include_top = False,
+    input_shape = (common.imageSize, common.imageSize, 3))
+
+for layer in baseModel.layers: 
+    layer.trainable = False
  
 model = keras.models.Sequential()
-model.add(base_model)
- 
+model.add(baseModel)
+
 model.add(Flatten())
 model.add(Dense(1024, activation='relu'))
 model.add(Dense(1024, activation='relu'))
-model.add(Dense(bp.num_class, activation='softmax'))
- 
-print(model.summary())
+model.add(Dense(common.classCount, activation='softmax'))
+
+if __name__ == '__main__':
+    print(model.summary())
      #+end_src
 
      #+RESULTS:
      #+begin_example
-     Found 6899 images belonging to 8 classes.
      Model: "sequential_1"
      _________________________________________________________________
      Layer (type)                 Output Shape              Param #   
@@ -152,3 +166,48 @@ print(model.summary())
      _________________________________________________________________
      None
      #+end_example
+
+**** Training
+     =training.py=
+     #+begin_src python :tangle source/training.py :async
+from keras.optimizers import SGD
+
+import batch
+from model import model
+
+model.compile(
+    loss = 'categorical_crossentropy',
+    optimizer = SGD(lr=1e-3),
+    metrics = ['accuracy'])
+
+# # Start the training process
+# model.fit(x_train, y_train, validation_split=0.30, size=32, epochs=50, verbose=2)
+
+# # #save the model
+# model.save('catdog.h5')
+
+history = model.fit_generator(
+    batch.trainingBatchIterator,
+    steps_per_epoch = batch.sampleSize/batch.size,
+    epochs = 10)
+        
+model.save('fine_tune.h5')
+     #+end_src
+
+     #+RESULTS:
+     : 723bc9aae56987359e8608626ea62441
+
+**** Summarize History
+     #+begin_src python
+import matplotlib.pyplot as pyplot
+import training
+
+pyplot.plot(training.history.history['loss'])
+pyplot.title('loss')
+pyplot.ylabel('loss')
+pyplot.xlabel('epoch')
+pyplot.legend(['loss'], loc='upper left')
+pyplot.show()
+     #+end_src
+
+     #+RESULTS:
