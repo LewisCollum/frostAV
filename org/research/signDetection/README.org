@@ -26,7 +26,7 @@ fi
     #+end_src
 
     Then I restarted my shell and went to my project directory and ran
-    ~pyenv local 3.7.6~.
+    ~pyenv local 3.7.6~. Finally, to install python 3.7.6: ~pyenv install 3.7.6~.
 
     In this directory I installed packages, via pip, for this
     version. For example, ~sudo pip install matplotlib~. Refer to the
@@ -41,7 +41,7 @@ fi
     version (which is currently python 3.8). 
 *** Data Preperation
 **** Downloading Images from AWS S3 Bucket
-    #+begin_src bash :async :exports code
+    #+begin_src bash :async :exports code :dir ""
 if [[ ! -d "images" ]]; then
     wget https://s3.us-east-2.amazonaws.com/naturalimages02/images.tar.gz
     tar -xzf images.tar.gz
