@@ -5,7 +5,10 @@
 #+author: Lewis Collum
 *Started 02/09/2020*
 
-* Downloading German Traffic Sign Recognition Benchmark GTSRB
+* Downloading the German Traffic Sign Recognition Benchmark, GTSRB
+  The following downloads the dataset, unzips it, and moves the
+  internal directories around (and changes their name) to match my
+  prefered directory convention.
  #+begin_src bash
 dataset=GTSRB-Training_fixed.zip
 
