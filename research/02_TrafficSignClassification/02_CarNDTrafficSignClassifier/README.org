@@ -1,0 +1,41 @@
+#+setupfile: ../../research.org
+
+#+title: Traffic Sign Classification
+#+date: Updated: \today
+#+author: Lewis Collum
+*Started 02/09/2020*
+
+* Downloading German Traffic Sign Recognition Benchmark GTSRB
+ #+begin_src bash
+dataset=GTSRB-Training_fixed.zip
+
+if [[ ! -d "data" ]]; then
+    wget https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/$dataset
+    unzip $dataset -d "data"
+    rm -f $dataset
+fi;
+
+if [[ -d "data/GTSRB/Training" ]]; then
+    mv "data/GTSRB/Training/" "data/train"
+    rm -rf "data/GTSRB"
+    mv "data/train/Readme.txt" "data/README_GTSRB" 
+fi;
+
+echo "DONE!"
+ #+end_src
+
+* Load the Data
+  =common.py=
+  #+begin_src python :tangle source_signs/common.py
+trainPath = "../image/train"
+
+  #+end_src
+* Resources
+  \scriptsize
+  - Tutorial
+    - https://towardsdatascience.com/recognizing-traffic-signs-with-over-98-accuracy-using-deep-learning-86737aedc2ab
+    - https://github.com/kenshiro-o/CarND-Traffic-Sign-Classifier-Project
+    - https://github.com/kenshiro-o/CarND-Traffic-Sign-Classifier-Project/blob/master/Traffic_Sign_Classifier.ipynb
+  - Dataset
+    - https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/published-archive.html
+    - http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset

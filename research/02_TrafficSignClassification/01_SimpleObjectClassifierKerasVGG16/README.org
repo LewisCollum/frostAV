@@ -1,70 +1,62 @@
-#+latex_header: \usepackage{../research}
-#+bind: org-latex-minted-options (("bgcolor" "code"))
-#+bind: org-latex-default-figure-position "H"
-#+bind: org-latex-image-default-width "\\linewidth"
-#+property: header-args :eval no-export :exports both :dir source
+#+setupfile: ../../research.org
 
-#+title: Sign Detection
+#+title: Common Objects Image Recognition
+#+author: Lewis Collum
 #+date: Updated: \today
 *Started 1/28/2020*
 
-** Keras Demo
-*** Pyenv
-    As of now, Tensorflow requires python 3.7, and the current python
-    version is 3.8. To provide python 3.7 to this project only, I used
-    =pyenv= (https://github.com/pyenv/pyenv). Since I'm using Arch
-    Linux, I used =pacman= to install pyenv, ~sudo pacman -S
-    pyenv~. Then I added the following lines to my bash_profile:
+* Pyenv
+  As of now, Tensorflow requires python 3.7, and the current python
+  version is 3.8. To provide python 3.7 to this project only, I used
+  =pyenv= (https://github.com/pyenv/pyenv). Since I'm using Arch
+  Linux, I used =pacman= to install pyenv, ~sudo pacman -S
+  pyenv~. Then I added the following lines to my bash_profile:
 
-    #+begin_src bash
+  #+begin_src bash
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 
 if command -v pyenv 1>/dev/null 2>&1; then
     eval "$(pyenv init -)"
 fi
-    #+end_src
+  #+end_src
 
-    Then I restarted my shell and went to my project directory and ran
-    ~pyenv local 3.7.6~. Finally, to install python 3.7.6: ~pyenv install 3.7.6~.
+  Then I restarted my shell and went to my project directory and ran
+  ~pyenv local 3.7.6~. Finally, to install python 3.7.6: ~pyenv install 3.7.6~.
 
-    In this directory I installed packages, via pip, for this
-    version. For example, ~sudo pip install matplotlib~. Refer to the
-    github link above for more information.
+  In this directory I installed packages, via pip, for this
+  version. For example, ~sudo pip install matplotlib~. Refer to the
+  github link above for more information.
 
-*** Emacs Pyenv Mode
-    Emacs has the =pyenv-mode-auto= package which, when installed,
-    will automatically detect the project's python version (via the
-    .python-version file generated with ~pyenv local 3.7.6~
-    above). This means that we can run org-mode python code blocks
-    will use the python version detected, instead of the system python
-    version (which is currently python 3.8). 
-*** Data Preperation
-**** Downloading Images from AWS S3 Bucket
-    #+begin_src bash :async :exports code :dir ""
-if [[ ! -d "images" ]]; then
+* Emacs Pyenv Mode
+  Emacs has the =pyenv-mode-auto= package which, when installed,
+  will automatically detect the project's python version (via the
+  .python-version file generated with ~pyenv local 3.7.6~
+  above). This means that we can run org-mode python code blocks
+  will use the python version detected, instead of the system python
+  version (which is currently python 3.8). 
+* Downloading Images from AWS S3 Bucket
+ #+begin_src bash
+if [[ ! -d "data" ]]; then
     wget https://s3.us-east-2.amazonaws.com/naturalimages02/images.tar.gz
     tar -xzf images.tar.gz
     rm -f images.tar.gz*
 fi;
 echo "DONE!"
-    #+end_src
+ #+end_src
 
-    #+RESULTS:
-    : DONE!
-
-**** Common Variables
-     =common.py=
-     #+begin_src python :tangle source/common.py
-trainPath = '../images/train/'
-testPath = '../images/test/'
+* Common Variables
+  =common.py=
+  #+begin_src python :tangle source/common.py
+trainPath = '../data/train/'
+testPath = '../data/test/'
 classCount = 8
 imageSize = 224
-     #+end_src
+  #+end_src
 
-**** Preparing Training Data
-     =batch.py=
-     #+begin_src python :results silent :tangle source/batch.py
+* Preparing Training Data
+  =batch.py=
+  #+begin_src python :tangle source/batch.py
 from keras.preprocessing.image import ImageDataGenerator
 import numpy as np
 import common
@@ -87,10 +79,10 @@ trainingBatchIterator = trainingBatchGenerator.flow_from_directory(
 
 x, y = trainingBatchIterator.next()
 sampleSize = trainingBatchIterator.n
-     #+end_src
+  #+end_src
      
-**** Let's See the Batch
-     #+begin_src python :results file :var figureFile="../figure/generatedTrainingImages.png"
+* Let's See the Batch
+  #+begin_src python :results silent
 import matplotlib.pyplot as pyplot
 import numpy
 
@@ -104,18 +96,17 @@ for i in range(1, columns*rows+1):
     randomImageIndex = numpy.random.randint(batch.size)
     randomImage = batch.x[randomImageIndex].astype(numpy.int)
     figure.add_subplot(rows, columns, i)
+    pyplot.axis('off')
     pyplot.imshow(randomImage)
 
-pyplot.savefig(figureFile)
-return figureFile
-     #+end_src
+pyplot.savefig("../figure/generatedTrainingImages.png")
+  #+end_src
 
-     #+RESULTS:
-     [[file:figure/generatedTrainingImages.png]]
+  [[./figure/generatedTrainingImages.png]]
 
-**** Model Creation from VGG16
-     =model.py=
-     #+begin_src python :results output :async :tangle source/model.py
+* Model Creation from VGG16
+  =model.py=
+  #+begin_src python :tangle source/model.py
 import keras
 from keras.models import Model, load_model
 from keras.layers import Activation, Dropout, Flatten, Dense
@@ -142,10 +133,10 @@ model.add(Dense(common.classCount, activation='softmax'))
 
 if __name__ == '__main__':
     print(model.summary())
-     #+end_src
+  #+end_src
 
-     #+RESULTS:
-     #+begin_example
+  #+RESULTS:
+  #+begin_example
      Model: "sequential_1"
      _________________________________________________________________
      Layer (type)                 Output Shape              Param #   
@@ -165,11 +156,11 @@ if __name__ == '__main__':
      Non-trainable params: 14,714,688
      _________________________________________________________________
      None
-     #+end_example
+  #+end_example
 
-**** Training
-     =training.py=
-     #+begin_src python :tangle source/training.py :async
+* Training
+  =training.py=
+  #+begin_src python :tangle source/training.py
 from keras.optimizers import SGD
 
 import batch
@@ -180,34 +171,65 @@ model.compile(
     optimizer = SGD(lr=1e-3),
     metrics = ['accuracy'])
 
-# # Start the training process
-# model.fit(x_train, y_train, validation_split=0.30, size=32, epochs=50, verbose=2)
-
-# # #save the model
-# model.save('catdog.h5')
-
-history = model.fit_generator(
+model.fit_generator(
     batch.trainingBatchIterator,
     steps_per_epoch = batch.sampleSize/batch.size,
-    epochs = 10)
+    epochs = 2)
         
 model.save('fine_tune.h5')
-     #+end_src
+  #+end_src
 
-     #+RESULTS:
-     : 723bc9aae56987359e8608626ea62441
+* Testing Our Model
+  #+begin_src python :tangle source/testing.py
+import keras
+from keras.models import load_model
+from keras.preprocessing.image import ImageDataGenerator
 
-**** Summarize History
-     #+begin_src python
 import matplotlib.pyplot as pyplot
-import training
+import numpy as np
+import common
 
-pyplot.plot(training.history.history['loss'])
-pyplot.title('loss')
-pyplot.ylabel('loss')
-pyplot.xlabel('epoch')
-pyplot.legend(['loss'], loc='upper left')
+model = load_model('fine_tune.h5')
+
+test_datagen = ImageDataGenerator()
+
+test_generator = test_datagen.flow_from_directory(
+                        directory=common.testPath, 
+                        target_size=(common.imageSize, common.imageSize),
+                        color_mode='rgb',
+                        shuffle=False,
+                        class_mode='categorical',
+                        batch_size=1)
+
+filenames = test_generator.filenames
+nb_samples = len(filenames)
+
+fig=pyplot.figure()
+columns = 4
+rows = 4
+for i in range(1, columns*rows):
+    x_batch, y_batch = test_generator.next()
+
+    name = model.predict(x_batch)
+    name = np.argmax(name, axis=-1)
+    true_name = y_batch
+    true_name = np.argmax(true_name, axis=-1)
+
+    label_map = (test_generator.class_indices)
+    label_map = dict((v,k) for k,v in label_map.items()) #flip k,v
+    predictions = [label_map[k] for k in name]
+    true_value = [label_map[k] for k in true_name]
+
+    image = x_batch[0].astype(np.int)
+    fig.add_subplot(rows, columns, i)
+    pyplot.axis('off')
+    pyplot.title(f"guess: {predictions[0]}\nactual: {true_value[0]}")
+    pyplot.imshow(image)
+
 pyplot.show()
-     #+end_src
+  #+end_src
 
-     #+RESULTS:
+  [[./figure/testSetPredictions.png]]
+
+* Reference
+  - https://www.guru99.com/keras-tutorial.html

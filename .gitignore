@@ -31,5 +31,8 @@ clean
 
 **__pycache__
 
-# Exlude buckets from AWS S3
-images
+# Datasets
+data
+
+# Models
+**.h5
