@@ -31,11 +31,13 @@ trainPath = "../image/train"
 
   #+end_src
 * Resources
+  #+begin_export latex
   \scriptsize
-  - Tutorial
-    - https://towardsdatascience.com/recognizing-traffic-signs-with-over-98-accuracy-using-deep-learning-86737aedc2ab
-    - https://github.com/kenshiro-o/CarND-Traffic-Sign-Classifier-Project
-    - https://github.com/kenshiro-o/CarND-Traffic-Sign-Classifier-Project/blob/master/Traffic_Sign_Classifier.ipynb
-  - Dataset
-    - https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/published-archive.html
-    - http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset
+  #+end_export
+*** Tutorial
+     - https://towardsdatascience.com/recognizing-traffic-signs-with-over-98-accuracy-using-deep-learning-86737aedc2ab
+     - https://github.com/kenshiro-o/CarND-Traffic-Sign-Classifier-Project
+     - https://github.com/kenshiro-o/CarND-Traffic-Sign-Classifier-Project/blob/master/Traffic_Sign_Classifier.ipynb
+*** Dataset
+     - https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/published-archive.html
+     - http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset
