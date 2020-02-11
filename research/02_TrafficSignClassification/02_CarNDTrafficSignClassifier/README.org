@@ -10,7 +10,7 @@
   internal directories around (and changes their name) to match my
   prefered directory convention.
  #+begin_src bash
-dataset=GTSRB-Training_fixed.zip
+dataset=GTSRB_Final_Training_Images.zip
 
 if [[ ! -d "data" ]]; then
     wget https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/$dataset
@@ -18,21 +18,126 @@ if [[ ! -d "data" ]]; then
     rm -f $dataset
 fi;
 
-if [[ -d "data/GTSRB/Training" ]]; then
-    mv "data/GTSRB/Training/" "data/train"
-    rm -rf "data/GTSRB"
-    mv "data/train/Readme.txt" "data/README_GTSRB" 
-fi;
+mv "data/GTSRB/Final_Training/Images" "data/train"
+mv "data/GTSRB/Readme-Images.txt" "data/README_GTSRB" 
+rm -rf "data/GTSRB"
 
 echo "DONE!"
  #+end_src
 
-* Load the Data
+* Common Variables
   =common.py=
-  #+begin_src python :tangle source_signs/common.py
-trainPath = "../image/train"
+  #+begin_src python :tangle source/common.py
+import pandas
 
+signNames = pandas.read_csv("../data/signnames.csv")['SignName'].values
+
+trainPath = "../data/train"
+modelPath = "./model"
+imageSize = 30
   #+end_src
+
+* Class Names
+  #+begin_src python :tangle 
+import common
+for i, name in enumerate(common.signNames):
+    print(i, name)
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  0 Speed limit (20km/h)
+  1 Speed limit (30km/h)
+  2 Speed limit (50km/h)
+  3 Speed limit (60km/h)
+  4 Speed limit (70km/h)
+  5 Speed limit (80km/h)
+  6 End of speed limit (80km/h)
+  7 Speed limit (100km/h)
+  8 Speed limit (120km/h)
+  9 No passing
+  10 No passing for vehicles over 3.5 metric tons
+  11 Right-of-way at the next intersection
+  12 Priority road
+  13 Yield
+  14 Stop
+  15 No vehicles
+  16 Vehicles over 3.5 metric tons prohibited
+  17 No entry
+  18 General caution
+  19 Dangerous curve to the left
+  20 Dangerous curve to the right
+  21 Double curve
+  22 Bumpy road
+  23 Slippery road
+  24 Road narrows on the right
+  25 Road work
+  26 Traffic signals
+  27 Pedestrians
+  28 Children crossing
+  29 Bicycles crossing
+  30 Beware of ice/snow
+  31 Wild animals crossing
+  32 End of all speed and passing limits
+  33 Turn right ahead
+  34 Turn left ahead
+  35 Ahead only
+  36 Go straight or right
+  37 Go straight or left
+  38 Keep right
+  39 Keep left
+  40 Roundabout mandatory
+  41 End of no passing
+  42 End of no passing by vehicles over 3.5 metric tons
+  #+end_example
+
+* Load Images using keras.preprocessing
+  #+begin_src python :tangle source/batch.py :results silent
+from keras.preprocessing.image import ImageDataGenerator
+
+import common
+
+size = 32
+
+trainGenerator = ImageDataGenerator(rescale=1./255)
+trainIterator = trainGenerator.flow_from_directory(
+    directory = common.trainPath,
+    batch_size = size,
+    shuffle = True,
+    target_size = (common.imageSize, common.imageSize))
+  #+end_src 
+
+* View a Batch
+  #+begin_src python :results silent :async
+import matplotlib.pyplot as pyplot
+
+import common
+import batch
+from textwrap import wrap
+
+columns = 5
+rows = 5
+
+def show_batch(image_batch, label_batch):
+  pyplot.figure(figsize=(10,10))
+  pyplot.subplots_adjust(hspace = .6)
+  for n in range(min(columns*rows, batch.size)):
+      ax = pyplot.subplot(rows, columns, n+1)
+      pyplot.imshow(image_batch[n])
+      title = common.signNames[label_batch[n] == 1][0].title()
+      wrappedTitle = "\n".join(wrap(title, 18))
+      pyplot.title(wrappedTitle, fontsize=10)
+      pyplot.axis('off')
+
+image_batch, label_batch = next(batch.trainIterator)
+show_batch(image_batch, label_batch)
+
+pyplot.tight_layout()
+pyplot.savefig('../figure/batchView.png')
+  #+end_src
+
+  [[./figure/batchView.png]]
+
 * Resources
   #+begin_export latex
   \scriptsize
@@ -44,3 +149,5 @@ trainPath = "../image/train"
 *** Dataset
      - https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/published-archive.html
      - http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset
+*** Loading Images
+    - https://www.tensorflow.org/tutorials/load_data/images

@@ -2,6 +2,6 @@
 #+bind: org-latex-minted-options (("bgcolor" "code"))
 #+bind: org-latex-default-figure-position "H"
 #+bind: org-latex-image-default-width "\\linewidth"
-#+property: header-args :eval no-export :async
+#+property: header-args :eval no-export
 #+property: header-args:bash :exports code :results silent
 #+property: header-args:python :dir source :exports both :results output 
