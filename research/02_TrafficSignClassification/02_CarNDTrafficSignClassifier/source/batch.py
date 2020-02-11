@@ -4,8 +4,8 @@ import common
 
 size = 32
 
-trainGenerator = ImageDataGenerator(rescale=1./255)
-trainIterator = trainGenerator.flow_from_directory(
+batchGenerator = ImageDataGenerator(rescale=1./255)
+batch = batchGenerator.flow_from_directory(
     directory = common.trainPath,
     batch_size = size,
     shuffle = True,

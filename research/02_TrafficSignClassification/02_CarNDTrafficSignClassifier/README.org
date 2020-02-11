@@ -99,8 +99,8 @@ import common
 
 size = 32
 
-trainGenerator = ImageDataGenerator(rescale=1./255)
-trainIterator = trainGenerator.flow_from_directory(
+batchGenerator = ImageDataGenerator(rescale=1./255)
+batch = batchGenerator.flow_from_directory(
     directory = common.trainPath,
     batch_size = size,
     shuffle = True,
@@ -118,20 +118,19 @@ from textwrap import wrap
 columns = 5
 rows = 5
 
-def show_batch(image_batch, label_batch):
-  pyplot.figure(figsize=(10,10))
-  pyplot.subplots_adjust(hspace = .6)
-  for n in range(min(columns*rows, batch.size)):
-      ax = pyplot.subplot(rows, columns, n+1)
-      pyplot.imshow(image_batch[n])
-      title = common.signNames[label_batch[n] == 1][0].title()
-      wrappedTitle = "\n".join(wrap(title, 18))
-      pyplot.title(wrappedTitle, fontsize=10)
-      pyplot.axis('off')
+imageBatch, labelBatch = next(batch.batch)
 
-image_batch, label_batch = next(batch.trainIterator)
-show_batch(image_batch, label_batch)
+pyplot.figure(figsize=(2*columns,2*rows))
+pyplot.subplots_adjust(hspace = .6)
 
+for n in range(min(columns*rows, batch.size)):
+    ax = pyplot.subplot(rows, columns, n+1)
+    pyplot.imshow(imageBatch[n])
+    title = common.signNames[labelBatch[n] == 1][0].title()
+    wrappedTitle = "\n".join(wrap(title, 18))
+    pyplot.title(wrappedTitle, fontsize=10)
+    pyplot.axis('off')
+    
 pyplot.tight_layout()
 pyplot.savefig('../figure/batchView.png')
   #+end_src
