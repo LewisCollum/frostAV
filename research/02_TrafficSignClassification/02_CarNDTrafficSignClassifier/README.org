@@ -9,20 +9,40 @@
   The following downloads the dataset, unzips it, and moves the
   internal directories around (and changes their name) to match my
   prefered directory convention.
- #+begin_src bash
+ #+begin_src bash :async
 dataset=GTSRB_Final_Training_Images.zip
+signNames=signnames.csv
+dataDirectory="data"
 
-if [[ ! -d "data" ]]; then
-    wget https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/$dataset
-    unzip $dataset -d "data"
-    rm -f $dataset
-fi;
+function main() {
+    downloadGtsrbDataset
+    downloadSignNames
+    configureDataDirectory
+    echo "DONE!"
+}
 
-mv "data/GTSRB/Final_Training/Images" "data/train"
-mv "data/GTSRB/Readme-Images.txt" "data/README_GTSRB" 
-rm -rf "data/GTSRB"
+function downloadGtsrbDataset() {
+    if [[ ! -d "$dataDirectory" ]]; then
+        wget https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/$dataset
+        unzip $dataset -d "$dataDirectory"
+        rm -f $dataset
+    fi;
+}
 
-echo "DONE!"
+function downloadSignNames() {
+    wget https://raw.githubusercontent.com/udacity/CarND-Traffic-Sign-Classifier-Project/master/"$signNames"
+}
+
+function configureDataDirectory() {
+    mv "$signNames" "$dataDirectory"
+
+    if [[ -d "data/GTSRB/Final_Training/Images" ]]; then
+        mv "data/GTSRB/Final_Training/Images" "data/train"
+        rm -rf "data/GTSRB"
+    fi;
+}
+
+main
  #+end_src
 
 * Common Variables
@@ -92,8 +112,10 @@ for i, name in enumerate(common.signNames):
   #+end_example
 
 * Load Images using keras.preprocessing
+  =batch.py=
   #+begin_src python :tangle source/batch.py :results silent
 from keras.preprocessing.image import ImageDataGenerator
+import numpy
 
 import common
 
@@ -105,28 +127,54 @@ batch = batchGenerator.flow_from_directory(
     batch_size = size,
     shuffle = True,
     target_size = (common.imageSize, common.imageSize))
+
+images, labels = batch.next()
+
+classCount = len(labels[0])
+
+def classAt(index):
+    return numpy.where(labels[index] == 1)[0][0]
+
+sampleClasses = batch.labels
+sampleSize = batch.n
   #+end_src 
 
-* View a Batch
-  #+begin_src python :results silent :async
+* Training Set Distribution of Classes
+  #+begin_src python :results silent :tangle source/temp.py
+import numpy
+import tkinter
 import matplotlib.pyplot as pyplot
 
 import common
 import batch
+
+distribution = numpy.zeros(batch.classCount)
+for i in batch.sampleClasses:
+    distribution[i] += 1
+
+x = numpy.arange(batch.classCount)
+pyplot.bar(x, distribution, align='center')
+pyplot.show()
+  #+end_src
+
+* View a Batch
+  #+begin_src python :results silent
+import matplotlib.pyplot as pyplot
 from textwrap import wrap
+
+import common
+import batch
 
 columns = 5
 rows = 5
-
-imageBatch, labelBatch = next(batch.batch)
 
 pyplot.figure(figsize=(2*columns,2*rows))
 pyplot.subplots_adjust(hspace = .6)
 
 for n in range(min(columns*rows, batch.size)):
     ax = pyplot.subplot(rows, columns, n+1)
-    pyplot.imshow(imageBatch[n])
-    title = common.signNames[labelBatch[n] == 1][0].title()
+    pyplot.imshow(batch.images[n])
+    title = common.signNames[batch.labels[n] == 1][0].title()
     wrappedTitle = "\n".join(wrap(title, 18))
     pyplot.title(wrappedTitle, fontsize=10)
     pyplot.axis('off')
