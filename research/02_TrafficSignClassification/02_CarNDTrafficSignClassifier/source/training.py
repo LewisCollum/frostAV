@@ -12,7 +12,8 @@ model.compile(
     metrics = ['accuracy'])
 
 model.fit_generator(
-    batch.iterator,
+    batch.trainIterator,
+    validation_data = batch.validationIterator,
     steps_per_epoch = batch.sampleSize/batch.size,
     epochs = 20,
     callbacks=[logger])

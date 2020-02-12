@@ -33,7 +33,7 @@ for i in range(1, columns*rows):
     true_name = y_batch
     true_name = np.argmax(true_name, axis=-1)
 
-    label_map = (batch.iterator.class_indices)
+    label_map = (batch.trainIterator.class_indices)
     label_map = dict((v,k) for k,v in label_map.items()) #flip k,v
     predictions = [label_map[k] for k in name]
     true_value = [label_map[k] for k in true_name]

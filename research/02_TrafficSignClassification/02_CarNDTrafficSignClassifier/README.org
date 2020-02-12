@@ -96,18 +96,32 @@ import preprocessing
 
 size = 32
 
-batchGenerator = ImageDataGenerator(rescale=1./255, preprocessing_function = preprocessing.execute)
+batchGenerator = ImageDataGenerator(
+    rescale = 1./255,
+    preprocessing_function = preprocessing.execute,
+    validation_split = 0.2)
 
-iterator = batchGenerator.flow_from_directory(
+trainIterator = batchGenerator.flow_from_directory(
     directory = common.trainPath,
     batch_size = size,
     shuffle = True,
     target_size = (common.imageSize, common.imageSize),
-    color_mode = 'grayscale')
+    color_mode = 'grayscale',
+    subset = 'training')
 
-classCount = len(iterator.classes)
-sampleClasses = iterator.labels
-sampleSize = iterator.n
+validationIterator = batchGenerator.flow_from_directory(
+    directory = common.trainPath,
+    batch_size = size,
+    shuffle = True,
+    target_size = (common.imageSize, common.imageSize),
+    color_mode = 'grayscale',
+    subset = 'validation')
+
+_images, _labels = trainIterator.next()
+classCount = len(_labels[0])
+sampleClasses = trainIterator.labels
+sampleSize = trainIterator.n
+imageShape = _images[0].shape
 
 def classFromLabelsAt(labels, index):
     return numpy.where(labels[index] == 1)[0][0]
@@ -115,9 +129,7 @@ def classFromLabelsAt(labels, index):
 def signNameFromLabelsAt(labels, index):
     return common.signNames[classFromLabelsAt(labels, index)]
 
-def plot(images, labels, titles=True):
-    columns=5
-    rows=5
+def plot(images, labels, titles=True, columns=5, rows=5):
     figure, axes = pyplot.subplots(rows, columns, figsize=(8,2*rows))
     figure.subplots_adjust(hspace = .6)
 
@@ -182,13 +194,13 @@ import batch
 
 batchGenerator = keras.preprocessing.image.ImageDataGenerator(rescale=1./255)
 
-iterator = batchGenerator.flow_from_directory(
+trainIterator = batchGenerator.flow_from_directory(
     directory = common.trainPath,
     batch_size = batch.size,
     shuffle = True,
     target_size = (common.imageSize, common.imageSize))
 
-images, labels = next(iterator)
+images, labels = next(trainIterator)
 batch.plot(images, labels)
 pyplot.savefig('../figure/batchWithoutPreprocessing.png')
   #+end_src
@@ -200,8 +212,8 @@ pyplot.savefig('../figure/batchWithoutPreprocessing.png')
 import batch
 import matplotlib.pyplot as pyplot
 
-images, labels = next(batch.iterator)
-batch.plot(images, labels)
+images, labels = next(batch.trainIterator)
+batch.plot(images, labels, columns=5, rows=2)
 pyplot.savefig('../figure/batchWithPreprocessing.png')
   #+end_src
 
@@ -217,13 +229,15 @@ import common
 import batch
  
 model = keras.models.Sequential()
-model.add(layers.Conv2D(filters=6, kernel_size=(3, 3), activation='relu', input_shape=batch.images[0].shape))
+model.add(layers.Conv2D(filters=6, kernel_size=(3, 3), activation='relu', input_shape=batch.imageShape))
 model.add(layers.AveragePooling2D())
 
 model.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu'))
 model.add(layers.AveragePooling2D())
 
 model.add(layers.Flatten())
+
+model.add(layers.Dropout(0.2))
 
 model.add(layers.Dense(units=1024, activation='relu'))
 model.add(layers.BatchNormalization(axis=1))
@@ -239,12 +253,11 @@ if __name__ == '__main__':
   #+RESULTS:
   #+begin_example
   Found 39209 images belonging to 43 classes.
-  (32, 32, 1)
   Model: "sequential_1"
   _________________________________________________________________
   Layer (type)                 Output Shape              Param #   
   =================================================================
-  conv2d_1 (Conv2D)            (None, 30, 30, 6)         168       
+  conv2d_1 (Conv2D)            (None, 30, 30, 6)         60        
   _________________________________________________________________
   average_pooling2d_1 (Average (None, 15, 15, 6)         0         
   _________________________________________________________________
@@ -262,10 +275,10 @@ if __name__ == '__main__':
   _________________________________________________________________
   batch_normalization_2 (Batch (None, 1024)              4096      
   _________________________________________________________________
-  dense_3 (Dense)              (None, 43)                44075     
+  dense_3 (Dense)              (None, 39209)             40189225  
   =================================================================
-  Total params: 1,693,763
-  Trainable params: 1,689,667
+  Total params: 41,838,805
+  Trainable params: 41,834,709
   Non-trainable params: 4,096
   _________________________________________________________________
   None
@@ -288,13 +301,39 @@ model.compile(
     metrics = ['accuracy'])
 
 model.fit_generator(
-    batch.iterator,
+    batch.trainIterator,
+    validation_data = batch.validationIterator,
     steps_per_epoch = batch.sampleSize/batch.size,
     epochs = 20,
     callbacks=[logger])
         
 model.save('fine_tune.h5')
   #+end_src
+* Accuracy & Loss for Training & Validation
+  #+begin_src python :results silent :var logFile="../source/good2.log"
+import pandas
+import matplotlib.pyplot as pyplot
+
+log = pandas.read_csv(logFile)
+
+figure, axes = pyplot.subplots(1, 2, figsize=(8, 4))
+axes[0].set_title('Accuracy')
+axes[0].plot(log['epoch'], log['accuracy'], log['val_accuracy'])
+axes[0].legend(['training accuracy', 'validation accuracy'])
+axes[0].set_xlabel('epoch')
+
+axes[1].set_title('Loss')
+axes[1].plot(log['epoch'], log['loss'], log['val_loss'])
+axes[1].legend(['training loss', 'validation loss'])
+axes[1].set_xlabel('epoch')
+
+figure.subplots_adjust(top=0.85)
+figure.suptitle('Accuracy & Loss of Training & Validation Sets per Epoch')
+pyplot.savefig("../figure/accuracyAndLoss.png")
+  #+end_src
+
+  [[./figure/accuracyAndLoss.png]]
+
 * Testing
   #+begin_src python :tangle source/testing.py :async
 import keras
@@ -332,7 +371,7 @@ for i in range(1, columns*rows):
     true_name = y_batch
     true_name = np.argmax(true_name, axis=-1)
 
-    label_map = (batch.iterator.class_indices)
+    label_map = (batch.trainIterator.class_indices)
     label_map = dict((v,k) for k,v in label_map.items()) #flip k,v
     predictions = [label_map[k] for k in name]
     true_value = [label_map[k] for k in true_name]

@@ -8,18 +8,32 @@ import preprocessing
 
 size = 32
 
-batchGenerator = ImageDataGenerator(rescale=1./255, preprocessing_function = preprocessing.execute)
+batchGenerator = ImageDataGenerator(
+    rescale = 1./255,
+    preprocessing_function = preprocessing.execute,
+    validation_split = 0.2)
 
-iterator = batchGenerator.flow_from_directory(
+trainIterator = batchGenerator.flow_from_directory(
     directory = common.trainPath,
     batch_size = size,
     shuffle = True,
     target_size = (common.imageSize, common.imageSize),
-    color_mode = 'grayscale')
+    color_mode = 'grayscale',
+    subset = 'training')
 
-classCount = len(iterator.classes)
-sampleClasses = iterator.labels
-sampleSize = iterator.n
+validationIterator = batchGenerator.flow_from_directory(
+    directory = common.trainPath,
+    batch_size = size,
+    shuffle = True,
+    target_size = (common.imageSize, common.imageSize),
+    color_mode = 'grayscale',
+    subset = 'validation')
+
+_images, _labels = trainIterator.next()
+classCount = len(_labels[0])
+sampleClasses = trainIterator.labels
+sampleSize = trainIterator.n
+imageShape = _images[0].shape
 
 def classFromLabelsAt(labels, index):
     return numpy.where(labels[index] == 1)[0][0]
@@ -27,9 +41,7 @@ def classFromLabelsAt(labels, index):
 def signNameFromLabelsAt(labels, index):
     return common.signNames[classFromLabelsAt(labels, index)]
 
-def plot(images, labels, titles=True):
-    columns=5
-    rows=5
+def plot(images, labels, titles=True, columns=5, rows=5):
     figure, axes = pyplot.subplots(rows, columns, figsize=(8,2*rows))
     figure.subplots_adjust(hspace = .6)
 
