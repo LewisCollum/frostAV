@@ -44,7 +44,7 @@ function downloadSignNames() {
 }
 
 function configureDataDirectory() {
-    mv "$signNames" "$dataDirectory"
+    mv "$signNames" "$dataDirectory/names.csv"
 
     [[ -d "data/GTSRB/Final_Training/Images" ]] &&
         mv "data/GTSRB/Final_Training/Images" "data/train"
@@ -58,19 +58,6 @@ function configureDataDirectory() {
 main
  #+end_src
 
-* Common Variables
-  =common.py=
-  #+begin_src python :tangle source/common.py
-import pandas
-
-signNames = pandas.read_csv("../data/signnames.csv")['SignName'].values
-
-trainPath = "../data/train"
-testPath = "../data/test"
-modelPath = "./model"
-imageSize = 32
-  #+end_src
-
 * Preprocessing
   =preprocessing.py=
   #+begin_src python :tangle source/preprocessing.py
@@ -80,7 +67,50 @@ import numpy
 clahe = cv2.createCLAHE(tileGridSize=(2,2), clipLimit=15.0)
 
 def execute(image):
-    return numpy.reshape(clahe.apply(image.astype(numpy.uint8)).astype(numpy.float64), (32, 32, 1))
+    resultImage = clahe.apply(image.astype(numpy.uint8))
+    return numpy.reshape(resultImage, (32, 32, 1))
+  #+end_src
+
+* Path
+  Relies on the user running all code from the =source= directory
+  #+begin_src python :tangle source/path/run.py
+import os
+from datetime import datetime
+
+directory = "../runs"
+current = os.path.join(directory, ".current")
+
+class Run:
+    def __init__(self, runName):
+        run = os.path.join(directory, runName)
+        self.model = os.path.join(run, "model.h5")
+        self.log = os.path.join(run, "log.csv")
+        self.accuracy = os.path.join(run, "accuracy.png")
+        self.modelDiagram = os.path.join(run, "model.png")
+
+def make():
+    runName = f"{datetime.now():%m-%d_%H%M}"
+    newRun = os.path.join(directory, runName)
+    os.mkdir(newRun)
+    with open(current, 'w') as f:
+        f.write(runName)
+    
+def loadFromName(runName):
+    return Run(runName)
+
+def loadCurrent():
+    with open(current) as f:
+        return loadFromName(f.readline())
+
+def has(path):
+    return os.path.isfile(path)
+  #+end_src
+
+  #+begin_src python :tangle source/path/data.py
+import os
+
+names = "../data/names.csv"
+train = "../data/train"
   #+end_src
 
 * Load Images using keras.preprocessing
@@ -90,30 +120,33 @@ from keras.preprocessing.image import ImageDataGenerator
 import numpy
 import matplotlib.pyplot as pyplot
 from textwrap import wrap
+import pandas
 
-import common
 import preprocessing
+import path
 
+signNames = pandas.read_csv(path.data.names)['SignName'].values
+imageSize = 32
 size = 32
 
 batchGenerator = ImageDataGenerator(
-    rescale = 1./255,
     preprocessing_function = preprocessing.execute,
-    validation_split = 0.2)
+    validation_split = 0.2,
+    dtype=numpy.uint8)
 
 trainIterator = batchGenerator.flow_from_directory(
-    directory = common.trainPath,
+    directory = path.data.train,
     batch_size = size,
     shuffle = True,
-    target_size = (common.imageSize, common.imageSize),
+    target_size = (imageSize, imageSize),
     color_mode = 'grayscale',
     subset = 'training')
 
 validationIterator = batchGenerator.flow_from_directory(
-    directory = common.trainPath,
+    directory = path.data.train,
     batch_size = size,
     shuffle = True,
-    target_size = (common.imageSize, common.imageSize),
+    target_size = (imageSize, imageSize),
     color_mode = 'grayscale',
     subset = 'validation')
 
@@ -127,7 +160,7 @@ def classFromLabelsAt(labels, index):
     return numpy.where(labels[index] == 1)[0][0]
 
 def signNameFromLabelsAt(labels, index):
-    return common.signNames[classFromLabelsAt(labels, index)]
+    return signNames[classFromLabelsAt(labels, index)]
 
 def plot(images, labels, titles=True, columns=5, rows=5):
     figure, axes = pyplot.subplots(rows, columns, figsize=(8,2*rows))
@@ -146,9 +179,64 @@ def plot(images, labels, titles=True, columns=5, rows=5):
     for subplotAxes in figure.axes: subplotAxes.axis('off')
     figure.tight_layout()
   #+end_src 
+  
+* Class Printout
+  #+begin_src python
+import common
 
+for i, name in enumerate(batch.signNames):
+    print(i, name)
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  0 Speed limit (20km/h)
+  1 Speed limit (30km/h)
+  2 Speed limit (50km/h)
+  3 Speed limit (60km/h)
+  4 Speed limit (70km/h)
+  5 Speed limit (80km/h)
+  6 End of speed limit (80km/h)
+  7 Speed limit (100km/h)
+  8 Speed limit (120km/h)
+  9 No passing
+  10 No passing for vehicles over 3.5 metric tons
+  11 Right-of-way at the next intersection
+  12 Priority road
+  13 Yield
+  14 Stop
+  15 No vehicles
+  16 Vehicles over 3.5 metric tons prohibited
+  17 No entry
+  18 General caution
+  19 Dangerous curve to the left
+  20 Dangerous curve to the right
+  21 Double curve
+  22 Bumpy road
+  23 Slippery road
+  24 Road narrows on the right
+  25 Road work
+  26 Traffic signals
+  27 Pedestrians
+  28 Children crossing
+  29 Bicycles crossing
+  30 Beware of ice/snow
+  31 Wild animals crossing
+  32 End of all speed and passing limits
+  33 Turn right ahead
+  34 Turn left ahead
+  35 Ahead only
+  36 Go straight or right
+  37 Go straight or left
+  38 Keep right
+  39 Keep left
+  40 Roundabout mandatory
+  41 End of no passing
+  42 End of no passing by vehicles over 3.5 metric tons
+  #+end_example
+  
 * Distribution of Classes (Training Set)
-  #+begin_src python :results silent :tangle source/temp.py :async
+  #+begin_src python :results silent :async
 import numpy
 import matplotlib.pyplot as pyplot
 
@@ -161,7 +249,7 @@ for i in batch.sampleClasses:
 
 sortedIndices = distribution.argsort()
 distribution = distribution[sortedIndices]
-signNames = common.signNames[sortedIndices]
+signNames = batch.signNames[sortedIndices]
 
 pyplot.figure(figsize=(8, 0.2*len(signNames)))
 bars = pyplot.barh(signNames, distribution, align='center')
@@ -208,12 +296,13 @@ pyplot.savefig('../figure/batchWithoutPreprocessing.png')
   [[./figure/batchWithoutPreprocessing.png]]
 
 * Batch with Histogram Equalization (Contrast Balancing)
-  #+begin_src python :results silent :async
+  #+begin_src python :results silent
 import batch
 import matplotlib.pyplot as pyplot
 
 images, labels = next(batch.trainIterator)
 batch.plot(images, labels, columns=5, rows=2)
+pyplot.show()
 pyplot.savefig('../figure/batchWithPreprocessing.png')
   #+end_src
 
@@ -229,113 +318,147 @@ import common
 import batch
  
 model = keras.models.Sequential()
-model.add(layers.Conv2D(filters=6, kernel_size=(3, 3), activation='relu', input_shape=batch.imageShape))
-model.add(layers.AveragePooling2D())
 
-model.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu'))
-model.add(layers.AveragePooling2D())
+for i in range(3):
+    model.add(layers.Conv2D(filters=32*2**i, kernel_size=(3, 3), activation='relu', input_shape=batch.imageShape))
+    model.add(layers.Dropout(0.1))
+    model.add(layers.MaxPool2D(pool_size=(2, 2)))
 
 model.add(layers.Flatten())
 
-model.add(layers.Dropout(0.2))
-
-model.add(layers.Dense(units=1024, activation='relu'))
-model.add(layers.BatchNormalization(axis=1))
-model.add(layers.Dense(units=1024, activation='relu'))
-model.add(layers.BatchNormalization(axis=1))
+model.add(layers.Dense(units=120, activation='relu'))
+model.add(layers.Dense(units=84, activation='relu'))
 model.add(layers.Dense(units=batch.classCount, activation = 'softmax'))
 
 if __name__ == '__main__':
     print(model.summary())
-    keras.utils.plot_model(model, to_file='model.png')
   #+end_src
 
   #+RESULTS:
   #+begin_example
-  Found 39209 images belonging to 43 classes.
+  Found 31368 images belonging to 43 classes.
+  Found 7841 images belonging to 43 classes.
   Model: "sequential_1"
   _________________________________________________________________
   Layer (type)                 Output Shape              Param #   
   =================================================================
-  conv2d_1 (Conv2D)            (None, 30, 30, 6)         60        
+  conv2d_1 (Conv2D)            (None, 30, 30, 32)        320       
   _________________________________________________________________
-  average_pooling2d_1 (Average (None, 15, 15, 6)         0         
+  dropout_1 (Dropout)          (None, 30, 30, 32)        0         
   _________________________________________________________________
-  conv2d_2 (Conv2D)            (None, 13, 13, 16)        880       
+  max_pooling2d_1 (MaxPooling2 (None, 15, 15, 32)        0         
   _________________________________________________________________
-  average_pooling2d_2 (Average (None, 6, 6, 16)          0         
+  conv2d_2 (Conv2D)            (None, 13, 13, 64)        18496     
   _________________________________________________________________
-  flatten_1 (Flatten)          (None, 576)               0         
+  dropout_2 (Dropout)          (None, 13, 13, 64)        0         
   _________________________________________________________________
-  dense_1 (Dense)              (None, 1024)              590848    
+  max_pooling2d_2 (MaxPooling2 (None, 6, 6, 64)          0         
   _________________________________________________________________
-  batch_normalization_1 (Batch (None, 1024)              4096      
+  conv2d_3 (Conv2D)            (None, 4, 4, 128)         73856     
   _________________________________________________________________
-  dense_2 (Dense)              (None, 1024)              1049600   
+  dropout_3 (Dropout)          (None, 4, 4, 128)         0         
   _________________________________________________________________
-  batch_normalization_2 (Batch (None, 1024)              4096      
+  max_pooling2d_3 (MaxPooling2 (None, 2, 2, 128)         0         
   _________________________________________________________________
-  dense_3 (Dense)              (None, 39209)             40189225  
+  flatten_1 (Flatten)          (None, 512)               0         
+  _________________________________________________________________
+  dense_1 (Dense)              (None, 120)               61560     
+  _________________________________________________________________
+  dropout_4 (Dropout)          (None, 120)               0         
+  _________________________________________________________________
+  dense_2 (Dense)              (None, 84)                10164     
+  _________________________________________________________________
+  dropout_5 (Dropout)          (None, 84)                0         
+  _________________________________________________________________
+  dense_3 (Dense)              (None, 43)                3655      
+  _________________________________________________________________
+  dropout_6 (Dropout)          (None, 43)                0         
   =================================================================
-  Total params: 41,838,805
-  Trainable params: 41,834,709
-  Non-trainable params: 4,096
+  Total params: 168,051
+  Trainable params: 168,051
+  Non-trainable params: 0
   _________________________________________________________________
   None
   #+end_example
 
+* Accuracy & Loss for Training & Validation
+  #+begin_src python :results silent :tangle source/logger.py
+import pandas
+import matplotlib.pyplot as pyplot
+import keras
+import path
+import os
+
+def addAccuracyPlot(run):
+    log = pandas.read_csv(run.log)
+
+    figure, axes = pyplot.subplots(1, 2, figsize=(8, 4))
+    axes[0].set_title('Accuracy')
+    axes[0].plot(log['epoch'], log['accuracy'], log['val_accuracy'])
+    axes[0].legend(['training accuracy', 'validation accuracy'])
+    axes[0].set_xlabel('epoch')
+
+    axes[1].set_title('Loss')
+    axes[1].plot(log['epoch'], log['loss'], log['val_loss'])
+    axes[1].legend(['training loss', 'validation loss'])
+    axes[1].set_xlabel('epoch')
+    
+    figure.subplots_adjust(top=0.85)
+    figure.suptitle('Accuracy & Loss of Training & Validation Sets per Epoch')
+
+    pyplot.savefig(run.accuracy)
+
+    
+def addModelDiagram(run):
+    model = keras.models.load_model(run.model)
+    keras.utils.plot_model(model, run.modelDiagram)
+
+    
+if __name__ == '__main__':
+    for runName in next(os.walk(path.run.directory))[1]:
+        run = path.run.loadFromName(runName)
+        if not path.run.has(run.accuracy):
+            addAccuracyPlot(run)
+        if not path.run.has(run.modelDiagram):
+            addModelDiagram(run)
+  #+end_src
+
+  [[./figure/accuracyAndLoss.png]]
+
 * Training
   =training.py=
   #+begin_src python :tangle source/training.py
-from keras.optimizers import SGD
+import keras
 from keras.callbacks import CSVLogger
 
-import batch
+import path
 from model import model
+import batch
+import logger
 
-logger = CSVLogger('training.log', separator=',', append=False)
+path.run.make()
+run = path.run.loadCurrent()
 
 model.compile(
     loss = 'categorical_crossentropy',
-    optimizer = SGD(lr=1e-3),
+    optimizer = keras.optimizers.Adam(),
     metrics = ['accuracy'])
 
 model.fit_generator(
     batch.trainIterator,
     validation_data = batch.validationIterator,
-    steps_per_epoch = batch.sampleSize/batch.size,
-    epochs = 20,
-    callbacks=[logger])
-        
-model.save('fine_tune.h5')
+    steps_per_epoch = batch.trainIterator.n/batch.size,
+    epochs = 1,
+    callbacks = [
+        keras.callbacks.CSVLogger(run.log, separator=',', append=False)
+    ])
+
+model.save(run.model)
+logger.addModelDiagram(run)
+logger.addAccuracyPlot(run)
   #+end_src
-* Accuracy & Loss for Training & Validation
-  #+begin_src python :results silent :var logFile="../source/good2.log"
-import pandas
-import matplotlib.pyplot as pyplot
-
-log = pandas.read_csv(logFile)
-
-figure, axes = pyplot.subplots(1, 2, figsize=(8, 4))
-axes[0].set_title('Accuracy')
-axes[0].plot(log['epoch'], log['accuracy'], log['val_accuracy'])
-axes[0].legend(['training accuracy', 'validation accuracy'])
-axes[0].set_xlabel('epoch')
-
-axes[1].set_title('Loss')
-axes[1].plot(log['epoch'], log['loss'], log['val_loss'])
-axes[1].legend(['training loss', 'validation loss'])
-axes[1].set_xlabel('epoch')
-
-figure.subplots_adjust(top=0.85)
-figure.suptitle('Accuracy & Loss of Training & Validation Sets per Epoch')
-pyplot.savefig("../figure/accuracyAndLoss.png")
-  #+end_src
-
-  [[./figure/accuracyAndLoss.png]]
-
 * Testing
-  #+begin_src python :tangle source/testing.py :async
+  #+begin_src python :tangle source/testing.py :var modelPath="../model/01/01.h5" :var testSetPath="../data/mytest"
 import keras
 from keras.models import load_model
 from keras.preprocessing.image import ImageDataGenerator
@@ -346,15 +469,14 @@ import common
 import preprocessing
 import batch
 
-model = load_model('fine_tune.h5')
+model = load_model(modelPath)
 
 test_generator = batch.batchGenerator.flow_from_directory(
-    directory="../data", 
+    directory=testSetPath, 
     target_size=(common.imageSize, common.imageSize),
     color_mode='grayscale',
-    shuffle=False,
-    batch_size=1,
-    classes=['test'])
+    shuffle=True,
+    batch_size=1)
 
 filenames = test_generator.filenames
 nb_samples = len(filenames)
@@ -386,8 +508,9 @@ pyplot.show()
   #+end_src
 
   #+RESULTS:
-  : Found 39209 images belonging to 43 classes.
-  : Found 12630 images belonging to 1 classes.
+  : Found 31368 images belonging to 43 classes.
+  : Found 7841 images belonging to 43 classes.
+  : Found 2 images belonging to 1 classes.
 
 * Resources
   #+begin_export latex
@@ -402,6 +525,4 @@ pyplot.show()
      - http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset
 *** Loading Images
     - https://www.tensorflow.org/tutorials/load_data/images
-* [0/1] Tasks                                                      :noexport:
-  - [ ] Download validation/test dataset
-  - [ ] Extract helper functions for plotting
+  

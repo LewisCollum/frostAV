@@ -1,3 +1,5 @@
+modelPath="../model/01/01.h5"
+testSetPath="../data/mytest"
 import keras
 from keras.models import load_model
 from keras.preprocessing.image import ImageDataGenerator
@@ -8,15 +10,14 @@ import common
 import preprocessing
 import batch
 
-model = load_model('fine_tune.h5')
+model = load_model(modelPath)
 
 test_generator = batch.batchGenerator.flow_from_directory(
-    directory="../data", 
+    directory=testSetPath, 
     target_size=(common.imageSize, common.imageSize),
     color_mode='grayscale',
-    shuffle=False,
-    batch_size=1,
-    classes=['test'])
+    shuffle=True,
+    batch_size=1)
 
 filenames = test_generator.filenames
 nb_samples = len(filenames)

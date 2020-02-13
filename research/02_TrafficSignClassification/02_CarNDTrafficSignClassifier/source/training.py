@@ -1,21 +1,28 @@
-from keras.optimizers import SGD
+import keras
 from keras.callbacks import CSVLogger
 
-import batch
+import path
 from model import model
+import batch
+import logger
 
-logger = CSVLogger('training.log', separator=',', append=False)
+path.run.make()
+run = path.run.loadCurrent()
 
 model.compile(
     loss = 'categorical_crossentropy',
-    optimizer = SGD(lr=1e-3),
+    optimizer = keras.optimizers.Adam(),
     metrics = ['accuracy'])
 
 model.fit_generator(
     batch.trainIterator,
     validation_data = batch.validationIterator,
-    steps_per_epoch = batch.sampleSize/batch.size,
-    epochs = 20,
-    callbacks=[logger])
-        
-model.save('fine_tune.h5')
+    steps_per_epoch = batch.trainIterator.n/batch.size,
+    epochs = 1,
+    callbacks = [
+        keras.callbacks.CSVLogger(run.log, separator=',', append=False)
+    ])
+
+model.save(run.model)
+logger.addModelDiagram(run)
+logger.addAccuracyPlot(run)
