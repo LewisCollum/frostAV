@@ -11,6 +11,7 @@ class Run:
         self.log = os.path.join(run, "log.csv")
         self.accuracy = os.path.join(run, "accuracy.png")
         self.modelDiagram = os.path.join(run, "model.png")
+        self.modelSummary = os.path.join(run, "modelSummary")
 
 def make():
     runName = f"{datetime.now():%m-%d_%H%M}"

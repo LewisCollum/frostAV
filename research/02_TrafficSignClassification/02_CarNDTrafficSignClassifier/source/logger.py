@@ -28,6 +28,10 @@ def addModelDiagram(run):
     model = keras.models.load_model(run.model)
     keras.utils.plot_model(model, run.modelDiagram)
 
+def addModelSummary(run):
+    model = keras.models.load_model(run.model)
+    with open(run.modelSummary, 'w+') as f:
+        model.summary(print_fn = lambda x: f.write(x + '\n'))
     
 if __name__ == '__main__':
     for runName in next(os.walk(path.run.directory))[1]:
@@ -36,3 +40,4 @@ if __name__ == '__main__':
             addAccuracyPlot(run)
         if not path.run.has(run.modelDiagram):
             addModelDiagram(run)
+        addModelSummary(run)

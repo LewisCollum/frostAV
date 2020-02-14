@@ -87,6 +87,7 @@ class Run:
         self.log = os.path.join(run, "log.csv")
         self.accuracy = os.path.join(run, "accuracy.png")
         self.modelDiagram = os.path.join(run, "model.png")
+        self.modelSummary = os.path.join(run, "modelSummary")
 
 def make():
     runName = f"{datetime.now():%m-%d_%H%M}"
@@ -314,7 +315,6 @@ pyplot.savefig('../figure/batchWithPreprocessing.png')
 import keras
 import keras.layers as layers
 
-import common
 import batch
  
 model = keras.models.Sequential()
@@ -324,6 +324,7 @@ for i in range(3):
     model.add(layers.Dropout(0.1))
     model.add(layers.MaxPool2D(pool_size=(2, 2)))
 
+model.add(layers.BatchNormalization())
 model.add(layers.Flatten())
 
 model.add(layers.Dense(units=120, activation='relu'))
@@ -413,6 +414,10 @@ def addModelDiagram(run):
     model = keras.models.load_model(run.model)
     keras.utils.plot_model(model, run.modelDiagram)
 
+def addModelSummary(run):
+    model = keras.models.load_model(run.model)
+    with open(run.modelSummary, 'w+') as f:
+        model.summary(print_fn = lambda x: f.write(x + '\n'))
     
 if __name__ == '__main__':
     for runName in next(os.walk(path.run.directory))[1]:
@@ -421,6 +426,7 @@ if __name__ == '__main__':
             addAccuracyPlot(run)
         if not path.run.has(run.modelDiagram):
             addModelDiagram(run)
+        addModelSummary(run)
   #+end_src
 
   [[./figure/accuracyAndLoss.png]]
@@ -448,13 +454,14 @@ model.fit_generator(
     batch.trainIterator,
     validation_data = batch.validationIterator,
     steps_per_epoch = batch.trainIterator.n/batch.size,
-    epochs = 1,
+    epochs = 8,
     callbacks = [
         keras.callbacks.CSVLogger(run.log, separator=',', append=False)
     ])
 
 model.save(run.model)
 logger.addModelDiagram(run)
+logger.addModelSummary(run)
 logger.addAccuracyPlot(run)
   #+end_src
 * Testing
@@ -525,4 +532,3 @@ pyplot.show()
      - http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset
 *** Loading Images
     - https://www.tensorflow.org/tutorials/load_data/images
-  

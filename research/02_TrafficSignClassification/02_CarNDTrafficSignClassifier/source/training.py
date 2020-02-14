@@ -18,11 +18,12 @@ model.fit_generator(
     batch.trainIterator,
     validation_data = batch.validationIterator,
     steps_per_epoch = batch.trainIterator.n/batch.size,
-    epochs = 1,
+    epochs = 8,
     callbacks = [
         keras.callbacks.CSVLogger(run.log, separator=',', append=False)
     ])
 
 model.save(run.model)
 logger.addModelDiagram(run)
+logger.addModelSummary(run)
 logger.addAccuracyPlot(run)
