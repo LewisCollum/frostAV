@@ -10,7 +10,6 @@ for i in range(3):
     model.add(layers.Dropout(0.1))
     model.add(layers.MaxPool2D(pool_size=(2, 2)))
 
-model.add(layers.BatchNormalization())
 model.add(layers.Flatten())
 
 model.add(layers.Dense(units=120, activation='relu'))
