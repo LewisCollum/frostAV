@@ -33,3 +33,6 @@ clean
 
 # Datasets
 data
+
+# Compressed
+**.zip
