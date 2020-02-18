@@ -1,3 +1,8 @@
 #+title: Frost: The Minimalistic Lane Navigating Vehicle
- 
-[[./org/figure/2019-12-10_Frost.JPG]]
+
+[[./org/figure/poster.png]] 
+
+* [0/1] Tasks                                                      :noexport:
+  - [ ] Remove dependency on Arduino & XBee
+    - Protoboard for Pi Hat
+    - 
