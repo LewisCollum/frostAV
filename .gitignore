@@ -33,6 +33,3 @@ clean
 
 # Datasets
 data
-
-# Models
-**.h5
