@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+find . \( \
+     -name ".\#*" -type f -o \
+     -name "\#*" -type f -o \
+     -name "*~" -type f -o \
+     -name "_minted*" -type d -o \
+     -name "__pycache__" -type d -o \
+     -name "ltximg" -type d \) \
+     -exec rm -rvf {} +
+
+find . \( \
+     -name "*.html" -type f -o \
+     -name "*.tex" -type f \) \
+     -exec rm -rvi {} +
