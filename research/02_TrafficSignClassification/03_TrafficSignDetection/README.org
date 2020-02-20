@@ -127,3 +127,9 @@ import batch
 batch.quickPlot()
 pyplot.show()
    #+end_src
+* Resources
+  #+begin_export latex
+  \scriptsize
+  #+end_export
+
+  - https://www.learnopencv.com/training-yolov3-deep-learning-based-custom-object-detector/
