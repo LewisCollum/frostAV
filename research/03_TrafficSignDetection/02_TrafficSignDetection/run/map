@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+~/darknet/darknet detector map ../data/sign.data ../cfg/my-lite.cfg ../weights/my-lite_last.weights -iou_thresh $1

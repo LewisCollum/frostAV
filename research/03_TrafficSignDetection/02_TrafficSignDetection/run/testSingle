@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+~/darknet/darknet detector test ../data/sign.data ../cfg/my-lite.cfg ../weights/my-lite_last.weights $1
