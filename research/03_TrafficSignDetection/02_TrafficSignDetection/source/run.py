@@ -7,7 +7,7 @@ import sys
 import numpy as np
 import os.path
 
-confThreshold = 0.4  #Confidence threshold
+confThreshold = 0.2  #Confidence threshold
 nmsThreshold = 0.4   #Non-maximum suppression threshold
 inpWidth = 416       #Width of network's input image
 inpHeight = 416      #Height of network's input image
@@ -15,6 +15,7 @@ inpHeight = 416      #Height of network's input image
 parser = argparse.ArgumentParser(description='Object Detection using YOLO in OPENCV')
 parser.add_argument('--image', help='Path to image file.')
 parser.add_argument('--video', help='Path to video file.')
+parser.add_argument('--nosave', nargs='?', const=True, default=False, help='Do not save the output')
 args = parser.parse_args()
         
 # Load names of classes
@@ -113,19 +114,21 @@ elif (args.video):
         print("Input video file ", args.video, " doesn't exist")
         sys.exit(1)
     cap = cv.VideoCapture(args.video)
-    inputFileName = os.path.splitext(os.path.split(args.image)[1])[0]
+    inputFileName = os.path.splitext(os.path.split(args.video)[1])[0]
     outputFile = f'../demo/{inputFileName}.avi'
 else:
     # Webcam input
     cap = cv.VideoCapture(0)
 
 # Get the video writer initialized to save the output video
-if (not args.image):
-    vid_writer = cv.VideoWriter(outputFile, cv.VideoWriter_fourcc('M','J','P','G'), 30, (round(cap.get(cv.CAP_PROP_FRAME_WIDTH)),round(cap.get(cv.CAP_PROP_FRAME_HEIGHT))))
+if (not args.image and not args.nosave):
+    vid_writer = cv.VideoWriter(
+        outputFile,
+        cv.VideoWriter_fourcc('M','J','P','G'),
+        30,
+        (round(cap.get(cv.CAP_PROP_FRAME_WIDTH)), round(cap.get(cv.CAP_PROP_FRAME_HEIGHT))))
 
-while cv.waitKey(1) < 0:
-    
-    # get frame from the video
+while cv.waitKey(33) != ord('q'):
     hasFrame, frame = cap.read()
     
     # Stop the program if reached end of video
@@ -155,9 +158,10 @@ while cv.waitKey(1) < 0:
     cv.putText(frame, label, (0, 15), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
 
     # Write the frame with the detection boxes
-    if (args.image):
-        cv.imwrite(outputFile, frame.astype(np.uint8))
-    else:
-        vid_writer.write(frame.astype(np.uint8))
+    if (not args.nosave):
+        if (args.image):
+            cv.imwrite(outputFile, frame.astype(np.uint8))
+        else:
+            vid_writer.write(frame.astype(np.uint8))
 
     cv.imshow(winName, frame)

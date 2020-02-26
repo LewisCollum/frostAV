@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-~/darknet/darknet detector train ../data/sign.data ../cfg/my-lite.cfg ../cfg/yolov3-tiny.conv.11 > ../data/log
+~/darknet/darknet detector train ../data/sign.data ../cfg/yolov3-tiny-prn.cfg ../cfg/yolov3-tiny.conv.11 -map
