@@ -1,0 +1,238 @@
+#+setupfile: ../research.org
+
+#+title: Nodal Lane Detection
+#+date: Updated: \today
+#+author: Lewis Collum
+*Started 03/04/2020*
+
+** Node
+   #+begin_src python :tangle source/Node.py
+class Node:
+    def __init__(self, strategy, distributor):
+        self.strategy = strategy
+        self.distributor = distributor
+
+    def __call__(self, package):
+        self.distributor(self.strategy(package))
+   #+end_src
+
+** Distributor
+   #+begin_src python :tangle source/distributor.py
+class SingleDistributor:
+    def __init__(self, receiver = None):
+        self.receiver = receiver
+        
+    def __call__(self, package):
+        self.receiver(package)
+
+    def connect(self, receiver):
+        self.receiver = receiver
+        
+    def disconnect(self):
+        self.receiver = None
+        
+    
+class MultiDistributor:
+    def __init__(self, receivers = []):
+        self.receivers = receivers
+
+    def __call__(self, package):
+        for receiver in self.receivers:
+            receiver(package)
+        
+    def connect(self, receiver):
+        self.receivers.append(receiver)
+
+    def disconnect(self):
+        self.receivers.clear()
+
+        
+class NamingDistributor:
+    def __init__(self):
+        self.receivers = {}
+
+    def __call__(self, package):
+        for receiver in self.receivers[pk.PackageConfig.nameFromDict(package)]:
+            receiver.onReceivedPackage(package)
+        
+    def connect(self, name: str, receiver):
+        self.receivers.setdefault(name, []).append(receiver)
+        
+    def disconnect(self):
+        self.receivers.clear()
+   #+end_src
+** Edge Detect
+   #+begin_src python :tangle source/MaskEdgeDetector.py
+import cv2
+
+class MaskEdgeDetector:
+    def __init__(self, maskLower, maskUpper):
+        self.maskLower = maskLower
+        self.maskUpper = maskUpper
+
+    def __call__(self, frame):
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        mask = cv2.inRange(hsv, self.maskLower, self.maskUpper)
+        edges = cv2.Canny(mask, 200, 400)
+        return edges
+   #+end_src
+
+** Hough Lines
+   #+begin_src python :tangle source/segment.py
+import cv2
+import numpy
+import frame_distributor
+
+class EdgeSegmentator:
+    def __init__(self, distancePrecision, angularPrecision, minimumThreshold):
+        self.distancePrecision = distancePrecision
+        self.angularPrecision = angularPrecision
+        self.minimumThreshold = minimumThreshold
+        
+    def __call__(self, frame):
+        return cv2.HoughLinesP(
+            frame,
+            self.distancePrecision,
+            self.angularPrecision,
+            self.minimumThreshold,
+            numpy.array([]),
+            minLineLength=8,
+            maxLineGap=4)
+
+def segmentsToImage(segments):
+    frame = frame_distributor.frame
+    segmentFrame = numpy.zeros_like(frame)
+    
+    for segment in segments:
+        x1, y1, x2, y2 = segment[0]
+        dy = y2-y1
+        dx = x2-x1
+        r = numpy.sqrt(dy**2 + dx**2)
+        theta = numpy.pi/2 if dx == 0 else numpy.arctan(dy/dx)
+        cv2.line(segmentFrame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+    segmentFrame = cv2.addWeighted(frame, 0.8, segmentFrame, 1, 1)
+    return segmentFrame
+    
+   #+end_src
+** Frame Distribution
+   #+begin_src python :tangle source/frame_distributor.py
+import cv2
+import sys
+
+import distributor
+
+def startAtHead(head):
+    frameDistributor = distributor.SingleDistributor(head)
+    capture = cv2.VideoCapture(sys.argv[1])
+    while cv2.waitKey(33) != ord('q'):
+        global frame
+        hasFrame, frame = capture.read()
+        if not hasFrame: break
+        frameDistributor(frame)
+        
+    cv2.waitKey(0)
+    capture.release()
+    cv2.destroyAllWindows()
+   #+end_src
+** Region of Interest
+   #+begin_src python :tangle source/roi.py
+import cv2
+import numpy
+
+class RegionOfInterest:
+    def __init__(self, insetWeight = 1):
+        self.insetWeight = insetWeight
+        
+    def __call__(self, frame):
+        height, width = frame.shape
+        mask = numpy.zeros_like(frame)
+        
+        polygon = numpy.array([[
+            (width * self.insetWeight/2, 0),
+            (width * (1 - self.insetWeight/2), 0),
+            (width, height),
+            (0, height),
+        ]], numpy.int32)
+        
+        cv2.fillPoly(mask, polygon, 255)
+        frame = cv2.bitwise_and(frame, mask)
+        return frame        
+   #+end_src
+** Image Displayer
+   #+begin_src python :tangle source/displayer.py
+import cv2
+
+class Displayer:
+    totalDisplayers = 0
+
+    def __init__(self):
+        self.id = self.totalDisplayers
+        self.totalDisplayers += 1
+    
+    def __call__(self, frame):
+        cv2.imshow(f"{self.id}", frame)
+   #+end_src
+** TODO Sandbox
+   #+begin_src python :tangle source/sandbox.py
+import cv2
+import numpy
+
+from Node import Node
+import distributor
+from MaskEdgeDetector import MaskEdgeDetector
+import segment
+import frame_distributor
+from displayer import Displayer
+import roi
+
+def displayAsVectors(frame): print(frame)
+
+def slope(segments):
+    print(numpy.mean(segments, 0))
+    for segment in segments:
+        x1, y1, x2, y2 = segment[0]
+        dy = y2-y1
+        dx = x2-x1
+        r = numpy.sqrt(dy**2 + dx**2)
+        theta = numpy.pi/2 if dx == 0 else numpy.arctan(dy/dx)
+        print(segment[0])
+        print(r, theta)
+
+def meanSegmentSlope(segments):
+    for segment in segments:
+        x1, y1, x2, y2 = segment[0]
+        #...
+
+
+segmentImage = Node(
+    strategy = segment.segmentsToImage,
+    distributor = distributor.SingleDistributor(Displayer()))
+
+segmentSlopeAverager = Node(
+    strategy = meanSegmentSlope,
+    distributor = distributor.MultiDistributor([]))
+
+edgeSegmentator = Node(
+    strategy = segment.EdgeSegmentator(
+        distancePrecision = 1,
+        angularPrecision = numpy.pi/180,
+        minimumThreshold = 80),
+    distributor = distributor.MultiDistributor([segmentImage, slope, segmentSlopeAverager]))
+
+regionOfInterest = Node(
+    strategy = roi.RegionOfInterest(insetWeight = 0.75),
+    distributor = distributor.MultiDistributor([Displayer(), edgeSegmentator]))
+
+edgeDetector = Node(
+    strategy = MaskEdgeDetector(
+        maskLower = numpy.asarray([60, 40, 40]),
+        maskUpper = numpy.asarray([150, 255, 255])),
+    distributor = distributor.MultiDistributor([Displayer(), regionOfInterest]))
+
+
+
+frame_distributor.startAtHead(edgeDetector)
+   #+end_src
+
+   #+RESULTS:
