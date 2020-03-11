@@ -5,6 +5,71 @@
 #+author: Lewis Collum
 *Started 03/04/2020*
 
+** Concept Example
+   #+begin_src python :results output
+class Subject:
+    def __init__(self, observers: list):
+        self.observers = observers
+
+    def notifyObservers(self, data):
+        for observer in self.observers:
+            observer.grab(data)
+
+class Observer:
+    def grab(self, data):
+        print(data)
+
+        
+observerA = Observer()
+observerB = Observer()
+subject = Subject([observerA, observerB])
+
+subject.notifyObservers("pickle")
+
+class Node:
+    def __init__(self, strategy, observers: list):
+        self.observers = observers
+        self.strategy = strategy
+
+    def notifyObservers(self, data):
+        for observer in self.observers:
+            observer.grab(data)
+    
+    def grab(self, data):
+        self.notifyObservers(self.strategy(data))
+
+nodeB = Node(
+    strategy = lambda data: print(data*3),
+    observers = [])
+
+nodeA = Node(
+    strategy = lambda data: data*2,
+    observers = [nodeB])
+
+head = Node(
+    strategy = None,
+    observers = [nodeA])
+
+head.notifyObservers(data = 1)
+
+
+def doA(data):
+    return data*3
+
+def doB(data):
+    return data*2
+
+A = doA(1)
+B = doB(A)
+print(B)
+   #+end_src
+
+   #+RESULTS:
+   : pickle
+   : pickle
+   : 6
+   : 6
+
 ** Node
    #+begin_src python :tangle source/Node.py
 class Node:
@@ -167,13 +232,13 @@ class Displayer:
     totalDisplayers = 0
 
     def __init__(self):
-        self.id = self.totalDisplayers
-        self.totalDisplayers += 1
+        self.imageName = Displayer.totalDisplayers
+        Displayer.totalDisplayers += 1
     
     def __call__(self, frame):
-        cv2.imshow(f"{self.id}", frame)
+        cv2.imshow(f"{self.imageName}", frame)
    #+end_src
-** TODO Sandbox
+** Sandbox
    #+begin_src python :tangle source/sandbox.py
 import cv2
 import numpy
