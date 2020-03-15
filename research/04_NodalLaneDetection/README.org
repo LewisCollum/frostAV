@@ -155,7 +155,7 @@ class EdgeSegmentator:
         self.minimumThreshold = minimumThreshold
         
     def __call__(self, frame):
-        return cv2.HoughLinesP(
+        segments = cv2.HoughLinesP(
             frame,
             self.distancePrecision,
             self.angularPrecision,
@@ -163,22 +163,7 @@ class EdgeSegmentator:
             numpy.array([]),
             minLineLength=8,
             maxLineGap=4)
-
-def segmentsToImage(segments):
-    frame = frame_distributor.frame
-    segmentFrame = numpy.zeros_like(frame)
-    
-    for segment in segments:
-        x1, y1, x2, y2 = segment[0]
-        dy = y2-y1
-        dx = x2-x1
-        r = numpy.sqrt(dy**2 + dx**2)
-        theta = numpy.pi/2 if dx == 0 else numpy.arctan(dy/dx)
-        cv2.line(segmentFrame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-
-    segmentFrame = cv2.addWeighted(frame, 0.8, segmentFrame, 1, 1)
-    return segmentFrame
-    
+        return () if isinstance(segments, type(None)) else segments    
    #+end_src
 ** Frame Distribution
    #+begin_src python :tangle source/frame_distributor.py
@@ -227,16 +212,35 @@ class RegionOfInterest:
 ** Image Displayer
    #+begin_src python :tangle source/displayer.py
 import cv2
+import frame_distributor
+import numpy
+totalDisplayers = 0
 
 class Displayer:
-    totalDisplayers = 0
-
     def __init__(self):
-        self.imageName = Displayer.totalDisplayers
-        Displayer.totalDisplayers += 1
+        global totalDisplayers
+        self.imageName = totalDisplayers
+        totalDisplayers += 1
     
     def __call__(self, frame):
         cv2.imshow(f"{self.imageName}", frame)
+
+
+class LineDisplayer:
+    def __init__(self):
+        global totalDisplayers
+        self.imageName = totalDisplayers
+        totalDisplayers += 1
+        
+    def __call__(self, lines):
+        frame = frame_distributor.frame
+        lineFrame = numpy.zeros_like(frame)
+        for line in lines:
+            x1, y1, x2, y2 = line[0]
+            cv2.line(lineFrame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            
+        lineFrame = cv2.addWeighted(frame, 0.8, lineFrame, 1, 1)
+        cv2.imshow(f"{self.imageName}", lineFrame)
    #+end_src
 ** Sandbox
    #+begin_src python :tangle source/sandbox.py
@@ -248,21 +252,23 @@ import distributor
 from MaskEdgeDetector import MaskEdgeDetector
 import segment
 import frame_distributor
-from displayer import Displayer
+from displayer import Displayer, LineDisplayer
 import roi
 
 def displayAsVectors(frame): print(frame)
 
 def slope(segments):
-    print(numpy.mean(segments, 0))
-    for segment in segments:
-        x1, y1, x2, y2 = segment[0]
-        dy = y2-y1
-        dx = x2-x1
-        r = numpy.sqrt(dy**2 + dx**2)
-        theta = numpy.pi/2 if dx == 0 else numpy.arctan(dy/dx)
-        print(segment[0])
-        print(r, theta)
+    if len(segments) != 0:
+        print(numpy.mean(segments, 0))
+    
+        for segment in segments:
+            x1, y1, x2, y2 = segment[0]
+            dy = y2-y1
+            dx = x2-x1
+            r = numpy.sqrt(dy**2 + dx**2)
+            theta = numpy.pi/2 if dx == 0 else numpy.arctan(dy/dx)
+            print(segment[0])
+            print(r, theta)
 
 def meanSegmentSlope(segments):
     for segment in segments:
@@ -270,34 +276,30 @@ def meanSegmentSlope(segments):
         #...
 
 
-segmentImage = Node(
-    strategy = segment.segmentsToImage,
-    distributor = distributor.SingleDistributor(Displayer()))
-
 segmentSlopeAverager = Node(
     strategy = meanSegmentSlope,
     distributor = distributor.MultiDistributor([]))
 
-edgeSegmentator = Node(
+edgeSegmentatorNode = Node(
     strategy = segment.EdgeSegmentator(
         distancePrecision = 1,
         angularPrecision = numpy.pi/180,
         minimumThreshold = 80),
-    distributor = distributor.MultiDistributor([segmentImage, slope, segmentSlopeAverager]))
+    distributor = distributor.MultiDistributor([LineDisplayer()]))
 
-regionOfInterest = Node(
+regionOfInterestNode = Node(
     strategy = roi.RegionOfInterest(insetWeight = 0.75),
-    distributor = distributor.MultiDistributor([Displayer(), edgeSegmentator]))
+    distributor = distributor.MultiDistributor([Displayer(), edgeSegmentatorNode]))
 
-edgeDetector = Node(
+edgeDetectorNode = Node(
     strategy = MaskEdgeDetector(
         maskLower = numpy.asarray([60, 40, 40]),
         maskUpper = numpy.asarray([150, 255, 255])),
-    distributor = distributor.MultiDistributor([Displayer(), regionOfInterest]))
+    distributor = distributor.MultiDistributor([Displayer(), regionOfInterestNode]))
 
 
 
-frame_distributor.startAtHead(edgeDetector)
+frame_distributor.startAtHead(edgeDetectorNode)
    #+end_src
 
    #+RESULTS:
