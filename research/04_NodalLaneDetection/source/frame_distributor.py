@@ -3,8 +3,13 @@ import sys
 
 import distributor
 
+def grabFrame():
+    global frame
+    capture = cv2.VideoCapture(sys.argv[1])
+    _, frame = capture.read()
+    
 def startAtHead(head):
-    frameDistributor = distributor.SingleDistributor(head)
+    frameDistributor = distributor.MultiDistributor(head)
     capture = cv2.VideoCapture(sys.argv[1])
     while cv2.waitKey(33) != ord('q'):
         global frame

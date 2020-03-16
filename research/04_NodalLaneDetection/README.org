@@ -73,12 +73,13 @@ print(B)
 ** Node
    #+begin_src python :tangle source/Node.py
 class Node:
-    def __init__(self, strategy, distributor):
+    def __init__(self, strategy, observers):
         self.strategy = strategy
-        self.distributor = distributor
+        self.observers = observers
 
     def __call__(self, package):
-        self.distributor(self.strategy(package))
+        for observer in self.observers:
+            observer(self.strategy(package))
    #+end_src
 
 ** Distributor
@@ -136,8 +137,17 @@ class MaskEdgeDetector:
         self.maskUpper = maskUpper
 
     def __call__(self, frame):
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        mask = cv2.inRange(hsv, self.maskLower, self.maskUpper)
+        mask = cv2.inRange(frame, self.maskLower, self.maskUpper)
+        edges = cv2.Canny(mask, 200, 400)
+        return edges
+
+class HsvMaskEdgeDetector:
+    def __init__(self, maskLower, maskUpper):
+        self.maskLower = maskLower
+        self.maskUpper = maskUpper
+
+    def __call__(self, frame):
+        mask = cv2.inRange(frame, self.maskLower, self.maskUpper)
         edges = cv2.Canny(mask, 200, 400)
         return edges
    #+end_src
@@ -172,8 +182,13 @@ import sys
 
 import distributor
 
+def grabFrame():
+    global frame
+    capture = cv2.VideoCapture(sys.argv[1])
+    _, frame = capture.read()
+    
 def startAtHead(head):
-    frameDistributor = distributor.SingleDistributor(head)
+    frameDistributor = distributor.MultiDistributor(head)
     capture = cv2.VideoCapture(sys.argv[1])
     while cv2.waitKey(33) != ord('q'):
         global frame
@@ -242,6 +257,62 @@ class LineDisplayer:
         lineFrame = cv2.addWeighted(frame, 0.8, lineFrame, 1, 1)
         cv2.imshow(f"{self.imageName}", lineFrame)
    #+end_src
+** White Balancer
+   #+begin_src python :tangle source/WhiteBalancer.py
+class WhiteBalancer:
+    def __call__(self, frame):
+        balanced_img = numpy.zeros_like(frame) #Initialize final image
+
+        for i in range(3): #i stands for the channel index 
+            hist, bins = numpy.histogram(frame[..., i].ravel(), 256, (0, 256))
+            bmin = numpy.min(numpy.where(hist>(hist.sum()*0.0005)))
+            bmax = numpy.max(numpy.where(hist>(hist.sum()*0.0005)))
+            balanced_img[...,i] = numpy.clip(frame[...,i], bmin, bmax)
+            balanced_img[...,i] = (balanced_img[...,i]-bmin) / (bmax - bmin) * 255
+            
+        return balanced_img
+   #+end_src
+
+** Two Line Average
+   #+begin_src python :tangle source/TwoLineAverage.py
+import numpy
+from sklearn.neighbors import KernelDensity
+
+class TwoLineAverage:
+    def __init__(self, frameShape, insetPercentage):
+        self.height, width, _ = frameShape
+        self.leftBoundary = width * (1-insetPercentage)
+        self.rightBoundary = width * insetPercentage
+        
+    def __call__(self, lines):
+        lanes = []
+        left = []
+        right = []
+        total = []
+
+        for line in lines:
+            x1, y1, x2, y2 = line[0].astype(int)
+            top = (x1, y1) if y1 > y2 else (x2, y2)
+            bottom = (x1, y1) if y1 < y2 else (x2, y2)
+            dx = bottom[0] - top[0]
+            dy = bottom[1] - top[1]
+            topToFrameBottom = self.height - top[1]
+            bottomXIntersept = topToFrameBottom/dy * dx + top[0]
+            if bottomXIntersept <= self.leftBoundary:
+                left.append(numpy.asarray([bottomXIntersept, *top, *bottom]))
+            if bottomXIntersept >= self.rightBoundary:
+                right.append(numpy.asarray([bottomXIntersept, *top, *bottom]))
+
+        if len(left) >= 3:
+            leftAverage = numpy.mean(left, axis = 0).astype(int)
+            lanes.append([[leftAverage[0], self.height, leftAverage[1], leftAverage[2]]])
+
+        if len(right) >= 3:
+            rightAverage = numpy.mean(right, axis = 0).astype(int)
+            lanes.append([[rightAverage[0], self.height, rightAverage[1], rightAverage[2]]])
+            
+        return lanes
+   #+end_src
 ** Sandbox
    #+begin_src python :tangle source/sandbox.py
 import cv2
@@ -250,10 +321,58 @@ import numpy
 from Node import Node
 import distributor
 from MaskEdgeDetector import MaskEdgeDetector
+from TwoLineAverage import TwoLineAverage
+from WhiteBalancer import WhiteBalancer
 import segment
 import frame_distributor
 from displayer import Displayer, LineDisplayer
 import roi
+
+frame_distributor.grabFrame()
+    
+twoLineAverageNode = Node(
+    strategy = TwoLineAverage(
+        frameShape = frame_distributor.frame.shape,
+        insetPercentage = 0.60),
+    observers = [LineDisplayer()])
+
+edgeSegmentatorNode = Node(
+    strategy = segment.EdgeSegmentator(
+        distancePrecision = 1,
+        angularPrecision = numpy.pi/180,
+        minimumThreshold = 40),
+    observers = [twoLineAverageNode])
+
+regionOfInterestNode = Node(
+    strategy = roi.RegionOfInterest(insetWeight = 0.75),
+    observers = [edgeSegmentatorNode])
+
+cannyNode = Node(lambda mask: cv2.Canny(mask, 200, 400), [edgeSegmentatorNode, Displayer()])
+
+hsvMaskNode = Node(lambda frame: cv2.inRange(frame, numpy.asarray([100, 50, 110]), numpy.asarray([120, 255, 255])), [cannyNode])
+labMaskNode = Node(lambda frame: cv2.inRange(frame, numpy.asarray([0, 0, 110]), numpy.asarray([255, 255, 255])), [cannyNode])
+
+labNode = Node(lambda frame: cv2.cvtColor(frame, cv2.COLOR_BGR2LAB), [Displayer(), labMaskNode])
+hsvNode = Node(lambda frame: cv2.cvtColor(frame, cv2.COLOR_BGR2HSV), [Displayer(), hsvMaskNode])
+balancerNode = Node(WhiteBalancer(), [labNode])
+
+frame_distributor.startAtHead([labNode])
+   #+end_src
+** Scrap
+   #+begin_src python
+class ClaheEdgeDetector:
+    def __init__(self, clahe):
+        self.clahe = clahe
+        
+    def __call__(self, frame):
+        f = frame.copy()
+        f[:, :, 1] = self.clahe.apply(f[:, :, 1])
+        return f
+
+claheHSVNode = Node(
+    strategy = ClaheEdgeDetector(clahe = cv2.createCLAHE(10, (10, 10))),
+    distributor = distributor.MultiDistributor([Displayer()]))
+
 
 def displayAsVectors(frame): print(frame)
 
@@ -275,31 +394,23 @@ def meanSegmentSlope(segments):
         x1, y1, x2, y2 = segment[0]
         #...
 
-
 segmentSlopeAverager = Node(
     strategy = meanSegmentSlope,
     distributor = distributor.MultiDistributor([]))
 
-edgeSegmentatorNode = Node(
-    strategy = segment.EdgeSegmentator(
-        distancePrecision = 1,
-        angularPrecision = numpy.pi/180,
-        minimumThreshold = 80),
-    distributor = distributor.MultiDistributor([LineDisplayer()]))
+   #+end_src
+   #+RESULTS:
+** Polar Fitting
+   #+begin_src python :results output
+import numpy
 
-regionOfInterestNode = Node(
-    strategy = roi.RegionOfInterest(insetWeight = 0.75),
-    distributor = distributor.MultiDistributor([Displayer(), edgeSegmentatorNode]))
-
-edgeDetectorNode = Node(
-    strategy = MaskEdgeDetector(
-        maskLower = numpy.asarray([60, 40, 40]),
-        maskUpper = numpy.asarray([150, 255, 255])),
-    distributor = distributor.MultiDistributor([Displayer(), regionOfInterestNode]))
-
-
-
-frame_distributor.startAtHead(edgeDetectorNode)
+x = (0, 0)
+y = (1, 4)
+A = numpy.polyfit(y, x, deg=1)
+A[1] = -A[1]/A[0]
+A[0] = 1/A[0]
+print(A)
    #+end_src
 
    #+RESULTS:
+   : [inf nan]

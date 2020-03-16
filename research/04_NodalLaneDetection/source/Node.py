@@ -1,7 +1,8 @@
 class Node:
-    def __init__(self, strategy, distributor):
+    def __init__(self, strategy, observers):
         self.strategy = strategy
-        self.distributor = distributor
+        self.observers = observers
 
     def __call__(self, package):
-        self.distributor(self.strategy(package))
+        for observer in self.observers:
+            observer(self.strategy(package))
