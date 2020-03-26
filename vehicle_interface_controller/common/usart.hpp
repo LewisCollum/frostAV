@@ -4,24 +4,45 @@
 #include <avr/io.h>
 #include <stdint.h>
 
-namespace usart {
-    constexpr uint32_t clockFrequency = F_CPU;
-
-    void beginAtBaud(uint32_t baud) {
-        uint8_t ubrr = clockFrequency/16/baud - 1;
-        UBRR0H = ubrr >> 8;
-        UBRR0L = ubrr;
-
-        //Enable Transmitter & Receiver
+namespace usart::internal {
+    void setBaudRegisterWithPrescaler(uint8_t prescaler) {
+        UBRR0H = prescaler >> 8;
+        UBRR0L = prescaler;
+    }
+        
+    void enableTransmitterAndReceiver() {
         UCSR0B = 1 << RXEN0 | 1 << TXEN0;
-        //Frame Format: 8 data, 2 stop
-        UCSR0C = 3 << UCSZ00;	//1 << USBS0 | 3 << UCSZ00;
-
     }
 
+    bool isTransmitBufferEmpty() {
+        return UCSR0A & 1<<UDRE0;
+    }
+
+    bool isReceiveBufferEmpty() {
+        return !(UCSR0A & 1<<RXC0);
+    }
+
+    void setDataBuffer(char const c) {
+        UDR0 = c;
+    }
+
+    char const getDataBuffer() {
+        return UDR0;
+    }
+}
+
+namespace usart {
+    constexpr uint32_t clockFrequency = F_CPU;
+    
+    void beginAtBaud(uint32_t baud) {
+        uint8_t prescaler = clockFrequency/16/baud - 1;
+        internal::setBaudRegisterWithPrescaler(prescaler);
+        internal::enableTransmitterAndReceiver();
+    }
+    
     void print(char const c) {
-        while (!(UCSR0A & 1<<UDRE0));
-        UDR0 = c;    
+        while (!internal::isTransmitBufferEmpty());
+        internal::setDataBuffer(c);
     }
         
     void print(char const * string) {
@@ -29,8 +50,8 @@ namespace usart {
     }
     
     char getChar() {
-        while (!(UCSR0A & 1<<RXC0));
-        return UDR0;    
+        while (internal::isReceiveBufferEmpty());
+        return internal::getDataBuffer();    
     }
 }
 

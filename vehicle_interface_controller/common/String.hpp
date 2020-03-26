@@ -14,10 +14,9 @@ public:
     }
     
     String(): size{0}, string{0} {}
-    String(const char* string): size{0} {
-        char* copy = const_cast<char*>(string);
-        for (; *copy; ++size)
-            this->string[size] = *copy++;
+    String(char* string): size{0} {
+        for (; *string; ++size) 
+            this->string[size] = *string++;
     }
     
     void clear() {

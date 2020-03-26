@@ -26,16 +26,16 @@ public:
             value;
     }
     
-    T mapValueToBounds(T value, Bounds<T> other) {
+    T mapDirectlyToBounds(T value, Bounds<T> other) {
         T otherRange = other.upper - other.lower;
         T thisRange = bounds.upper - bounds.lower;
         
         return other.lower + otherRange*(clamp(value) - bounds.lower)/thisRange;
     }
 
-    T mirrorMapValueToBounds(T value, Bounds<T> other) {
-        T mirroredValue = bounds.upper-value + bounds.lower;
-        return mapValueToBounds(mirroredValue, other);
+    T mapInverselyToBounds(T value, Bounds<T> other) {
+        T inverse = bounds.upper-value + bounds.lower;
+        return mapDirectlyToBounds(inverse, other);
     }
     
     Clamp() {}

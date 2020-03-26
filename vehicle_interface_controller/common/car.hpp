@@ -5,43 +5,37 @@
 #include "dual_servo.hpp"
 #include <util/delay.h>
 
-//Arduino Uno Pins: 9 (ESC), 10 (Servo)
+//Arduino Uno Pins: 9 (ESC, MicrosA), 10 (Servo, MicrosB)
+
+namespace car {
+    using MicrosType = int16_t;
+}
 
 namespace car::servo {
-    constexpr uint16_t rightBoundMicros = 1150;
-    constexpr uint16_t leftBoundMicros = 1850;
-    constexpr uint16_t centerMicros = 1500;
-    constexpr Bounds<uint16_t> microsBounds = {
+    //Calibration Parameters
+    constexpr MicrosType rightBoundMicros = 1300;
+    constexpr MicrosType leftBoundMicros = 2000;
+    constexpr MicrosType centerMicros = 1650;
+    
+    constexpr Bounds<MicrosType> microsBounds = {
         .lower = rightBoundMicros,
         .upper = leftBoundMicros};
 
-    uint16_t currentMicros;     
+    MicrosType currentMicros;     
     
-    namespace {
-        Clamp clamper = Clamp<uint16_t>::makeFromBounds(microsBounds);
-    }
-    
-    void setMicros(uint16_t micros) {
-        dual_servo::setMicrosB(currentMicros = clamper.clamp(micros));
-    }
-
-    void setPositionFromBounds(uint16_t position, Bounds<uint16_t> bounds) {
-        Clamp positionClamper = Clamp<uint16_t>::makeFromBounds(bounds);
-        uint16_t micros = positionClamper.mapValueToBounds(position, microsBounds);
-        setMicros(micros);
-    }
-
-    void setMirroredPositionFromBounds(uint16_t position, Bounds<uint16_t> bounds) {
-        Clamp positionClamper = Clamp<uint16_t>::makeFromBounds(bounds);
-        uint16_t micros = positionClamper.mirrorMapValueToBounds(position, microsBounds);
-        setMicros(micros);
+    namespace internal {
+        Clamp clamper = Clamp<MicrosType>::makeFromBounds(microsBounds);
     }
     
+    void setMicros(MicrosType micros) {
+        dual_servo::setMicrosB(currentMicros = internal::clamper.clamp(micros));
+    }
+        
     void center() {
         dual_servo::setMicrosB(currentMicros = centerMicros);
     }
 
-    void increment(uint16_t increment) {
+    void increment(MicrosType increment) {
         setMicros(currentMicros += increment);
     }
 
@@ -51,37 +45,37 @@ namespace car::servo {
 }
 
 namespace car::esc {
-    constexpr uint16_t upperBoundMicros = 1600;
-    constexpr uint16_t lowerBoundMicros = 1420;
-    constexpr uint16_t centerMicros = 1500;
-    constexpr Bounds<uint16_t> forwardMicrosBounds = {
+    constexpr MicrosType upperBoundMicros = 1650;
+    constexpr MicrosType lowerBoundMicros = 1250;
+    constexpr MicrosType centerMicros = 1500;
+    constexpr Bounds<MicrosType> forwardMicrosBounds = {
         .lower = centerMicros,
         .upper = upperBoundMicros};
-    constexpr Bounds<uint16_t> reverseMicrosBounds = {
+    constexpr Bounds<MicrosType> reverseMicrosBounds = {
         .lower = lowerBoundMicros,
         .upper = centerMicros};
 
-    uint16_t currentMicros; 
+    MicrosType currentMicros; 
     
-    namespace {
-        Clamp forwardClamper = Clamp<uint16_t>::makeFromBounds(forwardMicrosBounds);
-        Clamp reverseClamper = Clamp<uint16_t>::makeFromBounds(reverseMicrosBounds);
+    namespace internal {
+        Clamp forwardClamper = Clamp<MicrosType>::makeFromBounds(forwardMicrosBounds);
+        Clamp reverseClamper = Clamp<MicrosType>::makeFromBounds(reverseMicrosBounds);
 
         void setMicrosToArm() {
             dual_servo::setMicrosA(currentMicros = centerMicros);
         }
     }
     
-    void setMicrosForward(uint16_t micros) {
-        dual_servo::setMicrosA(currentMicros = forwardClamper.clamp(micros));
+    void setMicrosForward(MicrosType micros) {
+        dual_servo::setMicrosA(currentMicros = internal::forwardClamper.clamp(micros));
     }
     
-    void setMicrosReverse(uint16_t micros) {
-        dual_servo::setMicrosA(currentMicros = reverseClamper.clamp(micros));
+    void setMicrosReverse(MicrosType micros) {
+        dual_servo::setMicrosA(currentMicros = internal::reverseClamper.clamp(micros));
     }
 
     void arm() {
-        setMicrosToArm();
+        internal::setMicrosToArm();
         _delay_ms(2000);
     }
 
@@ -91,7 +85,7 @@ namespace car::esc {
         dual_servo::setMicrosA(currentMicros = centerMicros);
     }
 
-    void increment(uint16_t increment) {
+    void increment(MicrosType increment) {
         currentMicros += increment;
         setMicrosForward(currentMicros);
     }
