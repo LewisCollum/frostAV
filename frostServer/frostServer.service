@@ -1,0 +1,12 @@
+[Unit]
+Description=Gunicorn instance to serve frostServer
+After=network.target
+
+[Service]
+User=alarm
+Group=alarm
+WorkingDirectory=/home/alarm/frostServer
+ExecStart=gunicorn --workers 3 --bind unix:frostServer.sock -m 007 wsgi:application --timeout 999999 --reload
+
+[Install]
+WantedBy=multi-user.target

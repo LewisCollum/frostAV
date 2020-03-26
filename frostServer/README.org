@@ -1,0 +1,50 @@
+#+title: FrostServer
+
+* Server Overview: Flask, GUnicorn, and Nginx
+  We use Flask, GUnicorn, and Nginx. Let's work our way down, from the
+  website, to our application code (in python).
+
+** Nginx
+  Nginx acts as our *web server*, fulfilling requests from clients for
+  static content from our website (e.g. HTML pages, files and
+  images). Nginx is also being used as a *reverse proxy*. In our case,
+  this means that any dynamic requests (e.g. all of our python
+  application code) are passed on to GUnicorn, our *application
+  server*.
+
+** GUnicorn
+  GUnicorn ensures that Nginx and our Flask python application can
+  talk to each other. Ultimately, GUnicorn routes requests (passed
+  through Nginx) to their corresponding function in our Flask
+  application.
+
+** Flask
+  Flask is a web [[https://en.wikipedia.org/wiki/Microframework][microframework]] in the form of a python library. It is
+  used in our python application to provide functions that can receive
+  requests, and return a response (e.g. sensor data).
+
+** Example: Real-Time Sensor Reading
+  We have real-time plots on our front-end that request sensor
+  data. Eventually, we expect to receive this sensor data from a URL
+  of our choice (e.g. "/sensor_reading"). These requests are sent to
+  Nginx, which are then passed to GUnicorn (since they are dynamic
+  requests). GUnicorn sends the requests to a function in our python
+  application that is registered for the formerly mentioned URL. The
+  function is registered with the given URL using Flask. This function
+  has code to get sensor data from the underlying linux system
+  (typically, by reading a sensor file or running a shell
+  command). Finally, the function returns a response which contains
+  the sensor data.
+  
+** Resources  
+   - https://en.wikipedia.org/wiki/Multitier_architecture
+   - https://serverfault.com/questions/331256/why-do-i-need-nginx-and-something-like-gunicorn
+   - https://www.nginx.com/resources/glossary/application-server-vs-web-server/
+   - https://flask.palletsprojects.com/en/1.1.x/api/#flask.Flask.route
+
+  
+# * Server Started at Boot
+# Stuff about systemctl
+
+# * Developing with Flask
+# export FLASK_ENV=development
