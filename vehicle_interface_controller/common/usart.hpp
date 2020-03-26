@@ -19,12 +19,12 @@ namespace usart {
 
     }
 
-    void print(char c) {
+    void print(char const c) {
         while (!(UCSR0A & 1<<UDRE0));
         UDR0 = c;    
     }
         
-    void print(char* string) {
+    void print(char const * string) {
         while (*string) print(*string++);
     }
     
