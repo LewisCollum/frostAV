@@ -1,22 +1,29 @@
 import cv2
 import sys
 
-import distributor
+source = sys.argv[1] if len(sys.argv) > 1 else 0
+observers = []
 
-def grabFrame():
-    global frame
-    capture = cv2.VideoCapture(sys.argv[1])
+def grabCaptureFrame():
+    capture = cv2.VideoCapture(source)
     _, frame = capture.read()
+    capture.release()
+    return frame
     
-def startAtHead(head):
-    frameDistributor = distributor.MultiDistributor(head)
-    capture = cv2.VideoCapture(sys.argv[1])
+def sendCapture():
+    capture = cv2.VideoCapture(source)
     while cv2.waitKey(33) != ord('q'):
         global frame
         hasFrame, frame = capture.read()
         if not hasFrame: break
-        frameDistributor(frame)
+        for observer in observers: node(frame)
         
     cv2.waitKey(0)
     capture.release()
     cv2.destroyAllWindows()
+
+
+def sendFrame(externalFrame):
+    global frame
+    frame = externalFrame
+    for observer in observers: observer(frame)

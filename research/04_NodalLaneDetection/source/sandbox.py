@@ -10,12 +10,10 @@ import segment
 import frame_distributor
 from displayer import Displayer, LineDisplayer
 import roi
-
-frame_distributor.grabFrame()
     
 twoLineAverageNode = Node(
     strategy = TwoLineAverage(
-        frameShape = frame_distributor.frame.shape,
+        frameShape = frame_distributor.grabCaptureFrame().shape,
         insetPercentage = 0.60),
     observers = [LineDisplayer()])
 

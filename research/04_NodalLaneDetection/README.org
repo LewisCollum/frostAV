@@ -156,7 +156,6 @@ class HsvMaskEdgeDetector:
    #+begin_src python :tangle source/segment.py
 import cv2
 import numpy
-import frame_distributor
 
 class EdgeSegmentator:
     def __init__(self, distancePrecision, angularPrecision, minimumThreshold):
@@ -180,25 +179,32 @@ class EdgeSegmentator:
 import cv2
 import sys
 
-import distributor
+source = sys.argv[1] if len(sys.argv) > 1 else 0
+observers = []
 
-def grabFrame():
-    global frame
-    capture = cv2.VideoCapture(sys.argv[1])
+def grabCaptureFrame():
+    capture = cv2.VideoCapture(source)
     _, frame = capture.read()
+    capture.release()
+    return frame
     
-def startAtHead(head):
-    frameDistributor = distributor.MultiDistributor(head)
-    capture = cv2.VideoCapture(sys.argv[1])
+def sendCapture():
+    capture = cv2.VideoCapture(source)
     while cv2.waitKey(33) != ord('q'):
         global frame
         hasFrame, frame = capture.read()
         if not hasFrame: break
-        frameDistributor(frame)
+        for observer in observers: node(frame)
         
     cv2.waitKey(0)
     capture.release()
     cv2.destroyAllWindows()
+
+
+def sendFrame(externalFrame):
+    global frame
+    frame = externalFrame
+    for observer in observers: observer(frame)
    #+end_src
 ** Region of Interest
    #+begin_src python :tangle source/roi.py
@@ -224,18 +230,40 @@ class RegionOfInterest:
         frame = cv2.bitwise_and(frame, mask)
         return frame        
    #+end_src
+** Line Utils
+#+begin_src python :tangle source/line.py
+import cv2
+import numpy
+
+def addLinesToFrame(lines, frame):
+    lineFrame = numpy.zeros_like(frame)
+    for line in lines:
+        x1, y1, x2, y2 = line[0]
+        cv2.line(lineFrame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        
+    lineFrame = cv2.addWeighted(frame, 0.8, lineFrame, 1, 1)    
+    return lineFrame
+#+end_src
 ** Image Displayer
    #+begin_src python :tangle source/displayer.py
 import cv2
-import frame_distributor
 import numpy
+
+from . import frame_distributor
+from . import line
+
 totalDisplayers = 0
+
+def newImageName():
+    global totalDisplayers
+    name = totalDisplayers
+    totalDisplayers += 1
+    return name
+    
 
 class Displayer:
     def __init__(self):
-        global totalDisplayers
-        self.imageName = totalDisplayers
-        totalDisplayers += 1
+        self.imageName = newImageName()
     
     def __call__(self, frame):
         cv2.imshow(f"{self.imageName}", frame)
@@ -243,19 +271,11 @@ class Displayer:
 
 class LineDisplayer:
     def __init__(self):
-        global totalDisplayers
-        self.imageName = totalDisplayers
-        totalDisplayers += 1
+        self.image = newImageName()
         
     def __call__(self, lines):
-        frame = frame_distributor.frame
-        lineFrame = numpy.zeros_like(frame)
-        for line in lines:
-            x1, y1, x2, y2 = line[0]
-            cv2.line(lineFrame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            
-        lineFrame = cv2.addWeighted(frame, 0.8, lineFrame, 1, 1)
-        cv2.imshow(f"{self.imageName}", lineFrame)
+        frame = line.addLinesToFrame(lines, frame_distributor.frame)
+        cv2.imshow(f"{self.imageName}", frame)
    #+end_src
 ** White Balancer
    #+begin_src python :tangle source/WhiteBalancer.py
@@ -276,7 +296,6 @@ class WhiteBalancer:
 ** Two Line Average
    #+begin_src python :tangle source/TwoLineAverage.py
 import numpy
-from sklearn.neighbors import KernelDensity
 
 class TwoLineAverage:
     def __init__(self, frameShape, insetPercentage):
@@ -327,12 +346,10 @@ import segment
 import frame_distributor
 from displayer import Displayer, LineDisplayer
 import roi
-
-frame_distributor.grabFrame()
     
 twoLineAverageNode = Node(
     strategy = TwoLineAverage(
-        frameShape = frame_distributor.frame.shape,
+        frameShape = frame_distributor.grabCaptureFrame().shape,
         insetPercentage = 0.60),
     observers = [LineDisplayer()])
 
@@ -357,6 +374,48 @@ hsvNode = Node(lambda frame: cv2.cvtColor(frame, cv2.COLOR_BGR2HSV), [Displayer(
 balancerNode = Node(WhiteBalancer(), [labNode])
 
 frame_distributor.startAtHead([labNode])
+   #+end_src
+** InOut
+   #+begin_src python :tangle source/inout.py
+import cv2
+import numpy
+
+from .Node import Node
+from .MaskEdgeDetector import MaskEdgeDetector
+from .TwoLineAverage import TwoLineAverage
+from . import segment
+from . import frame_distributor
+from . import roi
+from . import line
+
+class LineOutputNode:
+    def __call__(self, lines):
+        self.output = line.addLinesToFrame(lines, frame_distributor.frame) 
+        
+outputNode = LineOutputNode()
+twoLineAverageNode = Node(
+    strategy = TwoLineAverage(
+        frameShape = frame_distributor.grabCaptureFrame().shape,
+        insetPercentage = 0.60),
+    observers = [outputNode])
+edgeSegmentatorNode = Node(
+    strategy = segment.EdgeSegmentator(
+        distancePrecision = 1,
+        angularPrecision = numpy.pi/180,
+        minimumThreshold = 40),
+    observers = [twoLineAverageNode])
+regionOfInterestNode = Node(
+    strategy = roi.RegionOfInterest(insetWeight = 0.75),
+    observers = [edgeSegmentatorNode])
+cannyNode = Node(lambda mask: cv2.Canny(mask, 200, 400), [edgeSegmentatorNode])
+labMaskNode = Node(lambda frame: cv2.inRange(frame, numpy.asarray([0, 0, 110]), numpy.asarray([255, 255, 255])), [cannyNode])
+labNode = Node(lambda frame: cv2.cvtColor(frame, cv2.COLOR_BGR2LAB), [labMaskNode])
+
+frame_distributor.observers = [labNode]
+   #+end_src
+** init
+   #+begin_src python :tangle source/__init__.py
+from . import inout   
    #+end_src
 ** Scrap
    #+begin_src python

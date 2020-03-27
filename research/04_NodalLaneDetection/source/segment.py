@@ -1,6 +1,5 @@
 import cv2
 import numpy
-import frame_distributor
 
 class EdgeSegmentator:
     def __init__(self, distancePrecision, angularPrecision, minimumThreshold):

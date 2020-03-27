@@ -1,29 +1,46 @@
 import os
 import cv2
-from base_camera import BaseCamera
+import time
+import threading
 
+event = threading.Event()
+currentFrame = None
+readingThread = None
+onFrame = lambda frame: frame
 
-class Camera(BaseCamera):
-    video_source = 0
+def startReading():
+    global readingThread    
+    global lastAccessTime
+    lastAccessTime = time.time()
+    if readingThread == None:
+        readingThread = threading.Thread(target=readingHandler)
+        readingThread.start()
+        
+def readingHandler():
+    global currentFrame
+    print('Starting camera thread.')
+    for frame in frameGenerator():
+        currentFrame = frame
+        event.set()
+        time.sleep(0)
+        
+        if time.time() - lastAccessTime > 10:
+            frameGenerator().close()
+            print('Stopping camera thread due to inactivity.')
+            break
 
-    def __init__(self):
-        if os.environ.get('OPENCV_CAMERA_SOURCE'):
-            Camera.set_video_source(int(os.environ['OPENCV_CAMERA_SOURCE']))
-        super(Camera, self).__init__()
+def frameGenerator():
+    camera = cv2.VideoCapture(0)
+    while True:
+        isFrameRead, frame = camera.read()
+        if isFrameRead:
+            modifiedFrame = onFrame(frame)
+            yield cv2.imencode('.jpg', modifiedFrame)[1].tobytes()
 
-    @staticmethod
-    def set_video_source(source):
-        Camera.video_source = source
-
-    @staticmethod
-    def frames():
-        camera = cv2.VideoCapture(Camera.video_source)
-        if not camera.isOpened():
-            raise RuntimeError('Could not start camera.')
-
-        while True:
-            # read current frame
-            _, img = camera.read()
-
-            # encode as a jpeg image and return it
-            yield cv2.imencode('.jpg', img)[1].tobytes()
+        
+def getFrame():
+    global lastAccessTime
+    lastAccessTime = time.time()
+    event.wait()
+    event.clear()    
+    return currentFrame

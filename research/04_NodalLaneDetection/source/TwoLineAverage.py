@@ -1,5 +1,4 @@
 import numpy
-from sklearn.neighbors import KernelDensity
 
 class TwoLineAverage:
     def __init__(self, frameShape, insetPercentage):

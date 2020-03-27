@@ -4,8 +4,15 @@ import os
 from flask import Flask, render_template, Response, request
 import time
 import re
+import time 
 
-from camera_opencv import Camera
+import camera_opencv as camera
+import source as s
+
+def onFrame(frame):
+    s.frame_distributor.sendFrame(frame)
+    return s.inout.outputNode.output
+camera.onFrame = onFrame
 
 application = Flask(__name__)
 
@@ -14,15 +21,19 @@ def index():
     return render_template('index.html')
 
 
+def asImageResponse(frame):
+    return b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + frame + b'\r\n'
+
 @application.route('/video_feed')
 def video_feed():
-    def generate(camera):
+    def generate():
+        camera.startReading()
         while True:
-            frame = camera.get_frame()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            frame = camera.getFrame() 
+            if frame:
+                yield asImageResponse(frame)
     
-    return Response(generate(Camera()), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @application.route('/cpuCelsius')
 def cpuCelsius():
