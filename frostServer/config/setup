@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+serviceFile="frostServer.service"
+serviceTargetDirectory="/etc/systemd/system/"
+
+nginxFile="frostServer.nginx"
+nginxTargetDirectory="/etc/nginx/sites-enabled/frostServer.nginx"
+
+
+ln -svf `realpath $nginxFile` $nginxTargetDirectory
+systemctl enable nginx
+
+ln -svf `realpath $serviceFile` $serviceTargetDirectory
+systemctl enable $serviceFile
+
+
+systemctl start nginx
+systemctl start $serviceFile

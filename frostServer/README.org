@@ -1,5 +1,38 @@
 #+title: FrostServer
 
+* Installing Nginx, Flask, and GUnicorn
+  Since we are using Arch Linux ARM on our Pi, we used Arch Linux's
+  package manager ~pacman~ for Nginx and Gunicorn. We used ~pip~ to
+  install Flask.
+
+  #+begin_src bash
+pacman -S nginx
+pacman -S gunicorn
+pip install flask
+  #+end_src
+
+  These commands have to be run as sudo, since we are a user on the Pi.
+
+* Starting the Server the First time
+  For ease, this repository was cloned on our Raspberry Pi to the user
+  directory (e.g. "/home/alarm"). In the ~frostServer/config~ directory,
+  there is a setup script which does the following:
+  
+  1. links the frostServer.service to the system directory;
+  2. links the frostServer.nginx config file to nginx's enabled-sites
+     directory;
+  3. enables both the nginx and the frostServer services;
+  4. starts both services.
+     
+  For this script to work, it should be run as ~sudo~.
+  
+  Now, on a computer connected to the same WiFi as our Pi, we can
+  type the IP of the Pi into the browser search bar
+  (e.g. "192.168.0.106") and the Frost website appears.
+
+  Since we enabled the server service, the server will start at
+  boot without any user intervention.
+
 * Server Overview: Flask, GUnicorn, and Nginx
   We use Flask, GUnicorn, and Nginx. Let's work our way down, from the
   website, to our application code (in python).
