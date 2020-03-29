@@ -2,7 +2,7 @@ import cv2
 import sys
 import threading 
 
-source = sys.argv[1] if len(sys.argv) > 1 else 0
+source = 0
 observers = []
 currentFrame = None
 
@@ -22,8 +22,8 @@ def grabCaptureFrame():
 def startCapture():
     capture = cv2.VideoCapture(source)
     while True: #cv2.waitKey(33) != ord('q'):
-        print("anotha one")
         hasFrame, frame = capture.read()
+        print(f"SUBJECT READ: {hasFrame}")
         if hasFrame:
             global currentFrame
             currentFrame = frame
