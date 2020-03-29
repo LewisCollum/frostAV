@@ -1,7 +1,10 @@
 import cv2
 import numpy
 
-def addLinesToFrame(lines, frame):
+from . import subject
+
+def addLines(lines):
+    frame = subject.getCurrentFrame()
     lineFrame = numpy.zeros_like(frame)
     for line in lines:
         x1, y1, x2, y2 = line[0]

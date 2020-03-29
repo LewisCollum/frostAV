@@ -1,17 +1,8 @@
 import cv2
 import numpy
 
-from . import frame_distributor
-from . import line
-
-totalDisplayers = 0
-
-def newImageName():
-    global totalDisplayers
-    name = totalDisplayers
-    totalDisplayers += 1
-    return name
-    
+from .line import addLines
+from . import subject
 
 class Displayer:
     def __init__(self):
@@ -23,8 +14,15 @@ class Displayer:
 
 class LineDisplayer:
     def __init__(self):
-        self.image = newImageName()
+        self.imageName = newImageName()
         
     def __call__(self, lines):
-        frame = line.addLinesToFrame(lines, frame_distributor.frame)
+        frame = addLines(lines)
         cv2.imshow(f"{self.imageName}", frame)
+
+totalDisplayers = 0
+def newImageName():
+    global totalDisplayers
+    name = totalDisplayers
+    totalDisplayers += 1
+    return name

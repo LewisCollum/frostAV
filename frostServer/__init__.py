@@ -6,13 +6,8 @@ import time
 import re
 import time 
 
-import camera_opencv as camera
-import source as s
-
-def onFrame(frame):
-    s.frame_distributor.sendFrame(frame)
-    return s.inout.outputNode.output
-camera.onFrame = onFrame
+import laneModel
+import frame as fm
 
 application = Flask(__name__)
 
@@ -27,11 +22,13 @@ def asImageResponse(frame):
 @application.route('/video_feed')
 def video_feed():
     def generate():
-        camera.startReading()
+        fm.subject.startThreadedCapture()
         while True:
-            frame = camera.getFrame() 
-            if frame:
-                yield asImageResponse(frame)
+            time.sleep(0.2)
+            output = laneModel.twoLineAverageNode.output #make casting 
+            if output != None:
+                image = fm.toImage(fm.addLines(output))
+                yield asImageResponse(image)
     
     return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 

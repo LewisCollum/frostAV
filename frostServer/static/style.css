@@ -1,22 +1,142 @@
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Roboto;
+    min-width: 310px;
+    max-width: 800px;
+    /* height: 400px; */
+    margin: 0 auto;
+}
+
+main-header {
+    line-height: 10px;
+}
+
+p {
+    margin: 0;
+}
+
 img {
     max-width: 100%;
     max-height: 100%;
 }
 
-body {
-    min-width: 310px;
-    max-width: 800px;
-    height: 400px;
-    margin: 0 auto;
+.row {
+    margin: 0;
+    grid-gap: 0.25rem;
+}
+
+.column {
+    float: left;
+    padding: 0px;
+}
+
+.left {
+    width: 70%;
+}
+
+.right {
+    width: 30%;
+}
+
+@media (max-width: 900px) {
+    .left {
+        width: 100%;
+    }
+
+    .right {
+        width: 100%;
+    }
+}
+
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: inline-block;
+  width: 100%;
+}
+
+
+.across {
+    margin: 0;
+    display: grid;
+    grid-gap: 0.25rem;
+}
+
+@media (min-width: 300px) {
+  .across { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 600px) {
+  .across { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 900px) {
+  .across { grid-template-columns: repeat(5, 1fr); }
+}
+
+.across li {
+    background-color: #D0D0FF;
+    text-align: center;
+    display: inline-block;
+    padding: 0.1rem;    
+}
+
+.across:after {
+  content: '';
+  width: 100%; /* Ensures justification for single lines */
+  display: inline-block;
+}
+
+header {
+    background-color: #8080F0;
+    color: white;
 }
 
 h2 {
     font-family: Roboto;
-    font-size: 2.5rem;
+    font-size: 1.4rem;
     text-align: center;
+    margin:0.25rem;
 }
 
-#container {
+.container {
 	margin: auto;
 	max-width: 500px;
+}
+
+
+.sticky {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0px;
+}
+    
+#topNavigation {
+  overflow: hidden;
+  background-color: #333;
+  z-index: 1;
+}
+
+/* Navbar links */
+#topNavigation a {
+  float: left;
+  display: block;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 10px;
+  text-decoration: none;
+}
+
+#topNavigation a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+#topNavigation a.active {
+  background-color: #8080F0;
+  color: white;
 }

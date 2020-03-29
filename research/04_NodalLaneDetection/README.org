@@ -5,6 +5,7 @@
 #+author: Lewis Collum
 *Started 03/04/2020*
 
+* Concept
 ** Concept Example
    #+begin_src python :results output
 class Subject:
@@ -70,270 +71,9 @@ print(B)
    : 6
    : 6
 
-** Node
-   #+begin_src python :tangle source/Node.py
-class Node:
-    def __init__(self, strategy, observers):
-        self.strategy = strategy
-        self.observers = observers
-
-    def __call__(self, package):
-        for observer in self.observers:
-            observer(self.strategy(package))
-   #+end_src
-
-** Distributor
-   #+begin_src python :tangle source/distributor.py
-class SingleDistributor:
-    def __init__(self, receiver = None):
-        self.receiver = receiver
-        
-    def __call__(self, package):
-        self.receiver(package)
-
-    def connect(self, receiver):
-        self.receiver = receiver
-        
-    def disconnect(self):
-        self.receiver = None
-        
-    
-class MultiDistributor:
-    def __init__(self, receivers = []):
-        self.receivers = receivers
-
-    def __call__(self, package):
-        for receiver in self.receivers:
-            receiver(package)
-        
-    def connect(self, receiver):
-        self.receivers.append(receiver)
-
-    def disconnect(self):
-        self.receivers.clear()
-
-        
-class NamingDistributor:
-    def __init__(self):
-        self.receivers = {}
-
-    def __call__(self, package):
-        for receiver in self.receivers[pk.PackageConfig.nameFromDict(package)]:
-            receiver.onReceivedPackage(package)
-        
-    def connect(self, name: str, receiver):
-        self.receivers.setdefault(name, []).append(receiver)
-        
-    def disconnect(self):
-        self.receivers.clear()
-   #+end_src
-** Edge Detect
-   #+begin_src python :tangle source/MaskEdgeDetector.py
-import cv2
-
-class MaskEdgeDetector:
-    def __init__(self, maskLower, maskUpper):
-        self.maskLower = maskLower
-        self.maskUpper = maskUpper
-
-    def __call__(self, frame):
-        mask = cv2.inRange(frame, self.maskLower, self.maskUpper)
-        edges = cv2.Canny(mask, 200, 400)
-        return edges
-
-class HsvMaskEdgeDetector:
-    def __init__(self, maskLower, maskUpper):
-        self.maskLower = maskLower
-        self.maskUpper = maskUpper
-
-    def __call__(self, frame):
-        mask = cv2.inRange(frame, self.maskLower, self.maskUpper)
-        edges = cv2.Canny(mask, 200, 400)
-        return edges
-   #+end_src
-
-** Hough Lines
-   #+begin_src python :tangle source/segment.py
-import cv2
-import numpy
-
-class EdgeSegmentator:
-    def __init__(self, distancePrecision, angularPrecision, minimumThreshold):
-        self.distancePrecision = distancePrecision
-        self.angularPrecision = angularPrecision
-        self.minimumThreshold = minimumThreshold
-        
-    def __call__(self, frame):
-        segments = cv2.HoughLinesP(
-            frame,
-            self.distancePrecision,
-            self.angularPrecision,
-            self.minimumThreshold,
-            numpy.array([]),
-            minLineLength=8,
-            maxLineGap=4)
-        return () if isinstance(segments, type(None)) else segments    
-   #+end_src
-** Frame Distribution
-   #+begin_src python :tangle source/frame_distributor.py
-import cv2
-import sys
-
-source = sys.argv[1] if len(sys.argv) > 1 else 0
-observers = []
-
-def grabCaptureFrame():
-    capture = cv2.VideoCapture(source)
-    _, frame = capture.read()
-    capture.release()
-    return frame
-    
-def sendCapture():
-    capture = cv2.VideoCapture(source)
-    while cv2.waitKey(33) != ord('q'):
-        global frame
-        hasFrame, frame = capture.read()
-        if not hasFrame: break
-        for observer in observers: node(frame)
-        
-    cv2.waitKey(0)
-    capture.release()
-    cv2.destroyAllWindows()
-
-
-def sendFrame(externalFrame):
-    global frame
-    frame = externalFrame
-    for observer in observers: observer(frame)
-   #+end_src
-** Region of Interest
-   #+begin_src python :tangle source/roi.py
-import cv2
-import numpy
-
-class RegionOfInterest:
-    def __init__(self, insetWeight = 1):
-        self.insetWeight = insetWeight
-        
-    def __call__(self, frame):
-        height, width = frame.shape
-        mask = numpy.zeros_like(frame)
-        
-        polygon = numpy.array([[
-            (width * self.insetWeight/2, 0),
-            (width * (1 - self.insetWeight/2), 0),
-            (width, height),
-            (0, height),
-        ]], numpy.int32)
-        
-        cv2.fillPoly(mask, polygon, 255)
-        frame = cv2.bitwise_and(frame, mask)
-        return frame        
-   #+end_src
-** Line Utils
-#+begin_src python :tangle source/line.py
-import cv2
-import numpy
-
-def addLinesToFrame(lines, frame):
-    lineFrame = numpy.zeros_like(frame)
-    for line in lines:
-        x1, y1, x2, y2 = line[0]
-        cv2.line(lineFrame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        
-    lineFrame = cv2.addWeighted(frame, 0.8, lineFrame, 1, 1)    
-    return lineFrame
-#+end_src
-** Image Displayer
-   #+begin_src python :tangle source/displayer.py
-import cv2
-import numpy
-
-from . import frame_distributor
-from . import line
-
-totalDisplayers = 0
-
-def newImageName():
-    global totalDisplayers
-    name = totalDisplayers
-    totalDisplayers += 1
-    return name
-    
-
-class Displayer:
-    def __init__(self):
-        self.imageName = newImageName()
-    
-    def __call__(self, frame):
-        cv2.imshow(f"{self.imageName}", frame)
-
-
-class LineDisplayer:
-    def __init__(self):
-        self.image = newImageName()
-        
-    def __call__(self, lines):
-        frame = line.addLinesToFrame(lines, frame_distributor.frame)
-        cv2.imshow(f"{self.imageName}", frame)
-   #+end_src
-** White Balancer
-   #+begin_src python :tangle source/WhiteBalancer.py
-class WhiteBalancer:
-    def __call__(self, frame):
-        balanced_img = numpy.zeros_like(frame) #Initialize final image
-
-        for i in range(3): #i stands for the channel index 
-            hist, bins = numpy.histogram(frame[..., i].ravel(), 256, (0, 256))
-            bmin = numpy.min(numpy.where(hist>(hist.sum()*0.0005)))
-            bmax = numpy.max(numpy.where(hist>(hist.sum()*0.0005)))
-            balanced_img[...,i] = numpy.clip(frame[...,i], bmin, bmax)
-            balanced_img[...,i] = (balanced_img[...,i]-bmin) / (bmax - bmin) * 255
-            
-        return balanced_img
-   #+end_src
-
-** Two Line Average
-   #+begin_src python :tangle source/TwoLineAverage.py
-import numpy
-
-class TwoLineAverage:
-    def __init__(self, frameShape, insetPercentage):
-        self.height, width, _ = frameShape
-        self.leftBoundary = width * (1-insetPercentage)
-        self.rightBoundary = width * insetPercentage
-        
-    def __call__(self, lines):
-        lanes = []
-        left = []
-        right = []
-        total = []
-
-        for line in lines:
-            x1, y1, x2, y2 = line[0].astype(int)
-            top = (x1, y1) if y1 > y2 else (x2, y2)
-            bottom = (x1, y1) if y1 < y2 else (x2, y2)
-            dx = bottom[0] - top[0]
-            dy = bottom[1] - top[1]
-            topToFrameBottom = self.height - top[1]
-            bottomXIntersept = topToFrameBottom/dy * dx + top[0]
-            if bottomXIntersept <= self.leftBoundary:
-                left.append(numpy.asarray([bottomXIntersept, *top, *bottom]))
-            if bottomXIntersept >= self.rightBoundary:
-                right.append(numpy.asarray([bottomXIntersept, *top, *bottom]))
-
-        if len(left) >= 3:
-            leftAverage = numpy.mean(left, axis = 0).astype(int)
-            lanes.append([[leftAverage[0], self.height, leftAverage[1], leftAverage[2]]])
-
-        if len(right) >= 3:
-            rightAverage = numpy.mean(right, axis = 0).astype(int)
-            lanes.append([[rightAverage[0], self.height, rightAverage[1], rightAverage[2]]])
-            
-        return lanes
-   #+end_src
+* Application
 ** Sandbox
-   #+begin_src python :tangle source/sandbox.py
+   #+begin_src python :tangle sandbox.py
 import cv2
 import numpy
 
@@ -375,48 +115,303 @@ balancerNode = Node(WhiteBalancer(), [labNode])
 
 frame_distributor.startAtHead([labNode])
    #+end_src
-** InOut
-   #+begin_src python :tangle source/inout.py
+** Model
+   #+begin_src python :tangle laneModel.py
 import cv2
 import numpy
 
+import lane
+import frame
+
+labNode = lane.Node(
+    subjects = [frame.subject],
+    strategy = lambda frame: cv2.cvtColor(frame, cv2.COLOR_BGR2LAB))
+
+labMaskNode = lane.Node(
+    subjects = [labNode],
+    strategy = lambda frame: cv2.inRange(frame, numpy.asarray([0, 0, 110]), numpy.asarray([255, 255, 255])))
+
+cannyNode = lane.Node(
+    subjects = [labMaskNode],
+    strategy = lambda mask: cv2.Canny(mask, 200, 400))
+
+regionOfInterestNode = lane.Node(
+    subjects = [cannyNode],
+    strategy = lane.RegionOfInterest(insetWeight = 0.75))
+
+edgeSegmentatorNode = lane.Node(
+    subjects = [regionOfInterestNode],
+    strategy = lane.EdgeSegmentator(
+        distancePrecision = 1,
+        angularPrecision = numpy.pi/180,
+        minimumThreshold = 40))
+
+twoLineAverageNode = lane.Node(
+    subjects = [edgeSegmentatorNode],
+    strategy = lane.TwoLineAverage(
+        frameShape = frame.subject.grabCaptureFrame().shape,
+        insetPercentage = 0.60))
+   #+end_src
+
+* Frame
+** init
+   #+begin_src python :tangle frame/__init__.py
+from . import subject
+from .displayer import Displayer, LineDisplayer
+from .line import addLines
+
+import cv2
+def toImage(frame):
+    return cv2.imencode('.jpg', frame)[1].tobytes()
+   #+end_src
+** displayer
+   #+begin_src python :tangle frame/displayer.py
+import cv2
+import numpy
+
+from .line import addLines
+from . import subject
+
+class Displayer:
+    def __init__(self):
+        self.imageName = newImageName()
+    
+    def __call__(self, frame):
+        cv2.imshow(f"{self.imageName}", frame)
+
+
+class LineDisplayer:
+    def __init__(self):
+        self.imageName = newImageName()
+        
+    def __call__(self, lines):
+        frame = addLines(lines)
+        cv2.imshow(f"{self.imageName}", frame)
+
+totalDisplayers = 0
+def newImageName():
+    global totalDisplayers
+    name = totalDisplayers
+    totalDisplayers += 1
+    return name
+   #+end_src
+** subject
+   #+begin_src python :tangle frame/subject.py
+import cv2
+import sys
+import threading 
+
+source = sys.argv[1] if len(sys.argv) > 1 else 0
+observers = []
+currentFrame = None
+
+def getCurrentFrame():
+    return currentFrame
+
+def addObservers(others):
+    global observers
+    observers += others
+
+def grabCaptureFrame():
+    capture = cv2.VideoCapture(source)
+    _, frame = capture.read()
+    capture.release()
+    return frame
+
+def startCapture():
+    capture = cv2.VideoCapture(source)
+    while True: #cv2.waitKey(33) != ord('q'):
+        print("anotha one")
+        hasFrame, frame = capture.read()
+        if hasFrame:
+            global currentFrame
+            currentFrame = frame
+            for observer in observers: observer(currentFrame)
+
+captureThread = None
+def startThreadedCapture():
+    global captureThread
+    if captureThread == None:
+        captureThread = threading.Thread(target=startCapture)
+        captureThread.start()
+
+def stop():
+    capture.release()
+    cv2.destroyAllWindows()
+   #+end_src
+** line
+#+begin_src python :tangle frame/line.py
+import cv2
+import numpy
+
+from . import subject
+
+def addLines(lines):
+    frame = subject.getCurrentFrame()
+    lineFrame = numpy.zeros_like(frame)
+    for line in lines:
+        x1, y1, x2, y2 = line[0]
+        cv2.line(lineFrame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        
+    lineFrame = cv2.addWeighted(frame, 0.8, lineFrame, 1, 1)    
+    return lineFrame
+#+end_src
+* Lane Package
+** init
+   #+begin_src python :tangle lane/__init__.py
 from .Node import Node
 from .MaskEdgeDetector import MaskEdgeDetector
 from .TwoLineAverage import TwoLineAverage
-from . import segment
-from . import frame_distributor
-from . import roi
-from . import line
+from .segment import EdgeSegmentator
+from .roi import RegionOfInterest
+   #+end_src
 
-class LineOutputNode:
-    def __call__(self, lines):
-        self.output = line.addLinesToFrame(lines, frame_distributor.frame) 
+** Node
+   #+begin_src python :tangle lane/Node.py
+class Node:
+    def __init__(self, subjects, strategy):
+        self.strategy = strategy
+        self.observers = []
+        for subject in subjects: subject.addObservers([self])
+        self.output = None
+                
+    def addObservers(self, observers):
+        self.observers += observers
         
-outputNode = LineOutputNode()
-twoLineAverageNode = Node(
-    strategy = TwoLineAverage(
-        frameShape = frame_distributor.grabCaptureFrame().shape,
-        insetPercentage = 0.60),
-    observers = [outputNode])
-edgeSegmentatorNode = Node(
-    strategy = segment.EdgeSegmentator(
-        distancePrecision = 1,
-        angularPrecision = numpy.pi/180,
-        minimumThreshold = 40),
-    observers = [twoLineAverageNode])
-regionOfInterestNode = Node(
-    strategy = roi.RegionOfInterest(insetWeight = 0.75),
-    observers = [edgeSegmentatorNode])
-cannyNode = Node(lambda mask: cv2.Canny(mask, 200, 400), [edgeSegmentatorNode])
-labMaskNode = Node(lambda frame: cv2.inRange(frame, numpy.asarray([0, 0, 110]), numpy.asarray([255, 255, 255])), [cannyNode])
-labNode = Node(lambda frame: cv2.cvtColor(frame, cv2.COLOR_BGR2LAB), [labMaskNode])
+    def __call__(self, package):
+        self.output = self.strategy(package)
+        for observer in self.observers:
+            observer(self.output)
+   #+end_src
 
-frame_distributor.observers = [labNode]
+** Edge Detect
+   #+begin_src python :tangle lane/MaskEdgeDetector.py
+import cv2
+
+class MaskEdgeDetector:
+    def __init__(self, maskLower, maskUpper):
+        self.maskLower = maskLower
+        self.maskUpper = maskUpper
+
+    def __call__(self, frame):
+        mask = cv2.inRange(frame, self.maskLower, self.maskUpper)
+        edges = cv2.Canny(mask, 200, 400)
+        return edges
+
+class HsvMaskEdgeDetector:
+    def __init__(self, maskLower, maskUpper):
+        self.maskLower = maskLower
+        self.maskUpper = maskUpper
+
+    def __call__(self, frame):
+        mask = cv2.inRange(frame, self.maskLower, self.maskUpper)
+        edges = cv2.Canny(mask, 200, 400)
+        return edges
    #+end_src
-** init
-   #+begin_src python :tangle source/__init__.py
-from . import inout   
+
+** Hough Lines
+   #+begin_src python :tangle lane/segment.py
+import cv2
+import numpy
+
+class EdgeSegmentator:
+    def __init__(self, distancePrecision, angularPrecision, minimumThreshold):
+        self.distancePrecision = distancePrecision
+        self.angularPrecision = angularPrecision
+        self.minimumThreshold = minimumThreshold
+        
+    def __call__(self, frame):
+        segments = cv2.HoughLinesP(
+            frame,
+            self.distancePrecision,
+            self.angularPrecision,
+            self.minimumThreshold,
+            numpy.array([]),
+            minLineLength=8,
+            maxLineGap=4)
+        return () if isinstance(segments, type(None)) else segments    
    #+end_src
+** Region of Interest
+   #+begin_src python :tangle lane/roi.py
+import cv2
+import numpy
+
+class RegionOfInterest:
+    def __init__(self, insetWeight = 1):
+        self.insetWeight = insetWeight
+        
+    def __call__(self, frame):
+        height, width = frame.shape
+        mask = numpy.zeros_like(frame)
+        
+        polygon = numpy.array([[
+            (width * self.insetWeight/2, 0),
+            (width * (1 - self.insetWeight/2), 0),
+            (width, height),
+            (0, height),
+        ]], numpy.int32)
+        
+        cv2.fillPoly(mask, polygon, 255)
+        frame = cv2.bitwise_and(frame, mask)
+        return frame        
+   #+end_src
+** White Balancer
+   #+begin_src python :tangle lane/WhiteBalancer.py
+class WhiteBalancer:
+    def __call__(self, frame):
+        balanced_img = numpy.zeros_like(frame) #Initialize final image
+
+        for i in range(3): #i stands for the channel index 
+            hist, bins = numpy.histogram(frame[..., i].ravel(), 256, (0, 256))
+            bmin = numpy.min(numpy.where(hist>(hist.sum()*0.0005)))
+            bmax = numpy.max(numpy.where(hist>(hist.sum()*0.0005)))
+            balanced_img[...,i] = numpy.clip(frame[...,i], bmin, bmax)
+            balanced_img[...,i] = (balanced_img[...,i]-bmin) / (bmax - bmin) * 255
+            
+        return balanced_img
+   #+end_src
+
+** Two Line Average
+   #+begin_src python :tangle lane/TwoLineAverage.py
+import numpy
+
+class TwoLineAverage:
+    def __init__(self, frameShape, insetPercentage):
+        self.height, width, _ = frameShape
+        self.leftBoundary = width * (1-insetPercentage)
+        self.rightBoundary = width * insetPercentage
+        
+    def __call__(self, lines):
+        lanes = []
+        left = []
+        right = []
+        total = []
+
+        for line in lines:
+            x1, y1, x2, y2 = line[0].astype(int)
+            top = (x1, y1) if y1 > y2 else (x2, y2)
+            bottom = (x1, y1) if y1 < y2 else (x2, y2)
+            dx = bottom[0] - top[0]
+            dy = bottom[1] - top[1]
+            topToFrameBottom = self.height - top[1]
+            bottomXIntersept = topToFrameBottom/dy * dx + top[0]
+            if bottomXIntersept <= self.leftBoundary:
+                left.append(numpy.asarray([bottomXIntersept, *top, *bottom]))
+            if bottomXIntersept >= self.rightBoundary:
+                right.append(numpy.asarray([bottomXIntersept, *top, *bottom]))
+
+        if len(left) >= 3:
+            leftAverage = numpy.mean(left, axis = 0).astype(int)
+            lanes.append([[leftAverage[0], self.height, leftAverage[1], leftAverage[2]]])
+
+        if len(right) >= 3:
+            rightAverage = numpy.mean(right, axis = 0).astype(int)
+            lanes.append([[rightAverage[0], self.height, rightAverage[1], rightAverage[2]]])
+            
+        return lanes
+   #+end_src
+
+* Misc
 ** Scrap
    #+begin_src python
 class ClaheEdgeDetector:
