@@ -1,3 +1,75 @@
+ /* The sidepanel menu */
+.sidepanel {
+    width: 0;
+    position: absolute;
+    top: 10px;
+    left: 0;
+    background-color: black;
+    overflow-x: hidden;
+    transition: width 0.25s;
+}
+
+.sidepanel ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidepanel p {
+    padding: 2px;
+    font-weight: bold;
+    text-align: center;
+    color: lightgrey;
+    background-color: darkslategrey;
+}
+
+.sidepanel li {
+    font-size: 15px;
+    color: lightgrey;
+    display: block;
+    transition: 0.3s;
+    background-color: inherit;
+    width: 100%;    
+}
+
+.sidepanel label:hover {
+    background-color: dodgerblue;
+}
+
+.sidepanel input:checked + label {
+    background-color: darkslateblue;
+}
+
+.sidepanel input {
+    visibility: hidden;
+    display: none;
+}
+
+.sidepanel label {
+    padding-right: 20px;
+    padding-left: 20px;
+    float: left;
+    width: 100%;
+    background-color: #111;
+}
+
+/* Style the button that is used to open the sidepanel */
+.openbtn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 15px;
+    cursor: pointer;
+    background-color: #111;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+}
+
+.openbtn:hover {
+  background-color: #444;
+} 
+
 html {
     scroll-behavior: smooth;
 }
@@ -22,43 +94,6 @@ img {
     max-width: 100%;
     max-height: 100%;
 }
-
-.row {
-    margin: 0;
-    grid-gap: 0.25rem;
-}
-
-.column {
-    float: left;
-    padding: 0px;
-}
-
-.left {
-    width: 70%;
-}
-
-.right {
-    width: 30%;
-}
-
-@media (max-width: 900px) {
-    .left {
-        width: 100%;
-    }
-
-    .right {
-        width: 100%;
-    }
-}
-
-
-/* Clear floats after the columns */
-.row:after {
-  content: "";
-  display: inline-block;
-  width: 100%;
-}
-
 
 .across {
     margin: 0;
@@ -104,6 +139,7 @@ h2 {
 }
 
 .container {
+    position: relative;
 	margin: auto;
 	max-width: 500px;
 }

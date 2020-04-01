@@ -1,35 +1,67 @@
 #!/usr/bin/env python
 from importlib import import_module
 import os
-from flask import Flask, render_template, Response, request
+from flask import Flask, render_template, Response, request, stream_with_context, jsonify
 import time
 import re
 import time 
+import cv2
 
 import laneModel
-import frame as fm
+import frame
 
 application = Flask(__name__)
+
+frameSubject = frame.Subject(0)
+model = laneModel.generateForFrameSubject(frameSubject)
+model.connect()
+frameKey = 'Raw'
+annotations = []
 
 @application.route('/')
 def index():
     return render_template('index.html')
-
-
+    
 def asImageResponse(frame):
     return b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + frame + b'\r\n'
 
-@application.route('/video_feed')
-def video_feed():
-    def generate():
-        fm.subject.startThreadedCapture()
-        while True:
-            time.sleep(0.2)
-            output = laneModel.twoLineAverageNode.output #make casting 
-            if output != None:
-                image = fm.toImage(fm.addLines(output))
-                yield asImageResponse(image)
+@application.route('/imageStreamChoices')
+def imageStreamChoices():
+    return jsonify({
+        'frames': ['Raw', *model.framers],
+        'annotations': model.annotators
+    })
+
+@application.route('/updateImageStream', methods=['POST'])
+def updateImageStream():
+    global frameKey
+    global annotations
     
+    update = request.json
+    frameKey = update['frame']
+    annotations = update['annotations']
+        
+    return ('', 204)
+        
+@application.route('/imageStream')
+def imageStream():
+    frameSubject.startThreadedCapture()    
+    def generate():
+        while True:
+            if frameKey == 'Raw':
+                selectedFrameNode = frameSubject
+            else:
+                selectedFrameNode = model.get(frameKey)
+            
+            outputFrame = selectedFrameNode.output
+            if outputFrame is not None:
+                if frameKey not in ['Mask', 'Canny', 'ROI']:
+                    for annotation in annotations:
+                        outputFrame = frame.addLines(outputFrame, model.get(annotation).output)
+                        
+                image = frame.toImage(outputFrame)
+                yield asImageResponse(image)
+
     return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @application.route('/cpuCelsius')
@@ -107,4 +139,4 @@ def gamepad():
 
 
 if __name__ == '__main__':
-    application.run(host='0.0.0.0')
+    application.run(debug=True, use_reloader=False, host='0.0.0.0')

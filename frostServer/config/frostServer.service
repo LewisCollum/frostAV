@@ -6,7 +6,11 @@ After=network.target
 User=alarm
 Group=alarm
 WorkingDirectory=/home/alarm/frostAV/frostServer
-ExecStart=gunicorn --workers 3 --bind unix:frostServer.sock -m 007 wsgi:application --timeout 999999 --reload
+ExecStart=gunicorn wsgi:application \
+         --bind unix:frostServer.sock \
+         --workers 1 \
+         --threads 10 \
+         --timeout 1800
 
 [Install]
 WantedBy=multi-user.target
