@@ -29,7 +29,8 @@ def asImageResponse(frame):
 def imageStreamChoices():
     return jsonify({
         'frames': ['Raw', *model.framers],
-        'annotations': model.annotators
+        'annotations': model.annotators,
+        'frameModifiers': model.frameModifiers
     })
 
 @application.route('/updateImageStream', methods=['POST'])
@@ -40,6 +41,17 @@ def updateImageStream():
     update = request.json
     frameKey = update['frame']
     annotations = update['annotations']
+    frameModifiers = update['frameModifiers']
+    
+    #Disconnect modifier from model if not present in website post
+    for modifier in model.frameModifiers:
+        if modifier not in frameModifiers:
+            model.disconnectFrameModifier(modifier)
+            
+    #Connect modifier to model if present in website post
+    for modifier in frameModifiers:
+        if modifier not in model.framers:
+            model.reconnectFrameModifier(modifier)
         
     return ('', 204)
         
@@ -52,7 +64,7 @@ def imageStream():
                 selectedFrameNode = frameSubject
             else:
                 selectedFrameNode = model.get(frameKey)
-            
+                
             outputFrame = selectedFrameNode.output
             if outputFrame is not None:
                 if frameKey not in ['Mask', 'Canny', 'ROI']:
@@ -139,4 +151,5 @@ def gamepad():
 
 
 if __name__ == '__main__':
+    os.environ["FLASK_ENV"] = "development"
     application.run(debug=True, use_reloader=False, host='0.0.0.0')
