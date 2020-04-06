@@ -1,16 +1,19 @@
+from .switchable import Switchables
+
 class Model:
-    def __init__(self, subject):
-        self.subject = subject
+    def __init__(self):
         self.model = {}
         self.annotators = []
         self.framers = []
-        self.frameModifiers = []
-        self.frameStrategyStorage = {}
+        self.switchables = Switchables()
         self.headName = None
 
     def setHead(self, headName):
         self.headName = headName
 
+    @property
+    def head(self): return self.get(self.headName)
+        
     def add(self, name, node):
         self.model[name] = node
         
@@ -22,32 +25,16 @@ class Model:
         self.add(name, node)
         self.framers.append(name)
 
-    def addFrameModifier(self, name, node):
+    def addSwitchable(self, name, node):
         self.add(name, node)
-        self.frameModifiers.append(name)
-        self.frameStrategyStorage[name] = node.strategy
-
-    def reconnectFrameModifier(self, name):
-        if name in self.frameStrategyStorage:
-            node = self.model.get(name)
-            node.strategy = self.frameStrategyStorage[name]
-            del self.frameStrategyStorage[name]
-            self.framers.append(name)
-            print('R', self.framers)
-            
-    def disconnectFrameModifier(self, name):
-        if name not in self.frameStrategyStorage:
-            node = self.model.get(name)
-            self.frameStrategyStorage[name] = node.strategy
-            node.strategy = lambda x: x
-            self.framers.remove(name)
-            print('D', self.framers)
+        self.switchables.add(name, node)
         
     def get(self, name):
         return self.model[name]
         
-    def connect(self):
-        self.subject.addObserver(self, self.get(self.headName))
-
-    def disconnect(self):
-        self.subject.removeObserver(self)
+    def asDict(self):
+        return {
+            'frames': self.framers[:],
+            'annotations': self.annotators[:],
+            'switchables': list(self.switchables)
+        }

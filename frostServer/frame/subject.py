@@ -38,6 +38,6 @@ class Subject:
             threading.Thread(target=self.startDistribution, args=(observer,)).start()            
 
     def stop():
-        self.captureThread.terminate()
-        self.captureThread = None
+        # self.captureThread.terminate()
+        # self.captureThread = None
         self.capture.release()
