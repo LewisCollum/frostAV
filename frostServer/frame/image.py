@@ -9,21 +9,21 @@ def toImage(frame):
 class Imager:
     def __init__(self, defaultSubject):
         self.subject = defaultSubject
-        self.annotationNodes = []
+        self.annotatorNodes = []
         
     def __iter__(self):
         while True:
             outputFrame = self.subject.output
             if outputFrame is not None:
-                outputFrame = self.addAnnotations(outputFrame)
+                outputFrame = self.addAnnotators(outputFrame)
                 image = toImage(outputFrame)
                 yield image
 
-    def addAnnotations(self, frame):
-        isAnnotatable = len(self.annotationNodes) > 0 and len(frame.shape) == 3 and frame.shape[2] == 3
+    def addAnnotators(self, frame):
+        isAnnotatable = len(self.annotatorNodes) > 0 and len(frame.shape) == 3 and frame.shape[2] == 3
         if isAnnotatable:
-            for annotationNode in self.annotationNodes:
-                frame = line.addLines(frame, annotationNode.output)
+            for annotatorNode in self.annotatorNodes:
+                frame = cv2.addWeighted(frame, 0.8, annotatorNode(), 1, 1, dtype = cv2.CV_32F)
         return frame
 
 class ImageResponder:

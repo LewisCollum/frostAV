@@ -4,6 +4,7 @@ import time
 import cv2
 
 import laneModel
+import signModel
 import frame as fm
 import stats
 import vic
@@ -11,14 +12,17 @@ import vic
 application = Flask(__name__)
 
 frameSubject = fm.Subject(0)
-model = laneModel.generateForFrameSubject(frameSubject)
-frameSubject.addObserver('laneModel', model.head)
+models = {
+    'lane': laneModel.generateForFrameSubject(frameSubject),
+    'sign': signModel.generateForFrameSubject(frameSubject)}
+#for name, model in models.items():
+#    frameSubject.addObserver(name, model.head)
+frameSubject.addObserver('sign', models['sign'].head)
 imager = fm.Imager(defaultSubject = frameSubject)
 imageResponder = fm.ImageResponder(imager)
-
-vehicle = vic.VehicleInterfaceController(crossTrackSubject = model.get('CrossTrackError'))
-
+#vehicle = vic.VehicleInterfaceController(crossTrackSubject = models.get('CrossTrackError'))
 frameSubject.startThreadedCapture()
+
 
 @application.route('/')
 def index(): return render_template('index.html')
@@ -30,18 +34,36 @@ def gamepad():
 
 @application.route('/imageStreamChoices')
 def imageStreamChoices():
-    selections = model.asDict()
+    selections = {
+        'frames': [],
+        'annotators': [],
+        'switchables': []
+    }
+    
+    for model in models.values():
+        for name, values in model.asDict().items():
+            selections[name] += values
+            
     selections['frames'] += ['Raw']
+    
     return jsonify(selections)
+
 
 @application.route('/updateImageStream', methods=['POST'])
 def updateImageStream():
     def nodeFromFrameKey(frameKey):
-        return frameSubject if frameKey == 'Raw' else model.get(frameKey)
+        return frameSubject if frameKey == 'Raw' else models['lane'].get(frameKey)
     
     imager.subject = nodeFromFrameKey(request.json['frame'])
-    imager.annotationNodes = [model.get(annotation) for annotation in request.json['annotations']]
-    model.switchables.matchNames(request.json['switchables'])
+    
+    imager.annotatorNodes = []
+    for annotator in request.json['annotators']:
+        for model in models.values():
+            if annotator in model.annotators:
+                imager.annotatorNodes.append(model.getAnnotator(annotator))
+    
+    models['lane'].switchables.matchNames(request.json['switchables'])
+    
     return ('', 204)
 
 @application.route('/imageStream')

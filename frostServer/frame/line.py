@@ -13,5 +13,4 @@ def addLines(frame, lines):
                 color = (0, 255, 0),
                 thickness = 2)
         
-    lineFrame = cv2.addWeighted(frame, 0.8, lineFrame, 1, 1)    
     return lineFrame

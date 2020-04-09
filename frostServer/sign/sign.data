@@ -1,0 +1,5 @@
+classes = 43
+train = /home/charon/frostAV/research/03_TrafficSignDetection/02_TrafficSignDetection/data/train.txt
+valid = /home/charon/frostAV/research/03_TrafficSignDetection/02_TrafficSignDetection/data/test.txt
+names = /home/charon/frostAV/research/03_TrafficSignDetection/02_TrafficSignDetection/data/sign.names
+backup = /home/charon/frostAV/research/03_TrafficSignDetection/02_TrafficSignDetection/weights/

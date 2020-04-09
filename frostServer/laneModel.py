@@ -2,7 +2,8 @@ import cv2
 import numpy
 
 import lane
-from frame import Node, Switchable, Model
+from frame import Node, Switchable, Model, Annotator
+from frame import line
 
 def generateForFrameSubject(subject):
     model = Model()
@@ -33,7 +34,7 @@ def generateForFrameSubject(subject):
             liftWeight = 0.2,
             shallowWeight = 0.4)))
     
-    model.addAnnotator('Segment', Node(
+    model.add('Segment', Node(
         subjects = [model.get('ROI')],
         strategy = lambda frame: cv2.HoughLinesP(
             image = frame,
@@ -42,13 +43,23 @@ def generateForFrameSubject(subject):
             threshold = 60,
             minLineLength=10,
             maxLineGap=2)))
-
-    model.addAnnotator('Lane', Node(
+    
+    model.addAnnotator('Segment', Annotator(
+        frameShape = subject.frameShape,
+        node = model.get('Segment'),
+        strategy = line.addLines))
+    
+    model.add('Lane', Node(
         subjects = [model.get('Segment')],
         strategy = lane.TwoLineAverage(
             frameShape = subject.frameShape,
             insetPercentage = 0.60)))
 
+    model.addAnnotator('Lane', Annotator(
+        frameShape = subject.frameShape,
+        node = model.get('Lane'),
+        strategy = line.addLines))
+    
     model.add('CrossTrackError', Node(
         subjects = [model.get('Lane')],
         strategy = lane.CrossTrackError(frameWidth = subject.frameShape[1])))
@@ -59,4 +70,3 @@ def generateForFrameSubject(subject):
     
     model.setHead('LAB')
     return model
-
