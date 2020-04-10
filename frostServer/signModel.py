@@ -1,9 +1,23 @@
 import cv2
 import numpy
+import time
 
 from frame import Node, Switchable, Model, Annotator
 import sign
 
+class Timer:
+    initialTime = None
+    def __init__(self, strategy):
+        self.strategy = strategy
+
+    def __call__(self, unused):
+        if self.initialTime:
+            self.strategy(time.time() - self.initialTime)
+            self.initialTime = None
+        else:
+            self.initialTime = time.time()
+            
+    
 def generateForFrameSubject(subject):
     model = Model()
 
@@ -17,12 +31,16 @@ def generateForFrameSubject(subject):
             swapRB = True,
             crop = False)))
 
+    netTimer = Timer(strategy = lambda delay: print((f'Net Timer: {delay:.2f}s\t'
+                                                     f'FPS: {1/delay:.2f}')))
+    model.get('Blob').addObservers([netTimer])        
+
     model.add('Net', Node(
         subjects = [model.get('Blob')],
-        strategy = sign.Net(sign.makeCpuDarknet(
-            configurationPath = "sign/my-lite.cfg",
-            weightsPath = "sign/my-lite_last.weights"))))
-    
+        strategy = sign.Net(sign.makeCpuDarknet(rootPath = 'sign/my-lite'))))
+
+    model.get('Net').addObservers([netTimer])
+        
     model.add('NonMaxSuppression', Node(
         subjects = [model.get('Net')],
         strategy = sign.DetectionBoxes(

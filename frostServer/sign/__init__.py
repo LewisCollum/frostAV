@@ -1,16 +1,25 @@
 import cv2
 import numpy as np
+import os
 
-def makeCpuDarknet(configurationPath, weightsPath):
-    net = cv2.dnn.readNetFromDarknet(configurationPath, weightsPath)
-    #net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
-    #net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
+def readDarknetModel(rootPath):
+    modelName = os.path.basename(rootPath)
+    return {
+        'cfg': os.path.join(rootPath, f"{modelName}.cfg"),
+        'weights': os.path.join(rootPath, f"{modelName}.weights")}
+
+def makeCpuDarknet(rootPath):
+    model = readDarknetModel(rootPath)
+    net = cv2.dnn.readNetFromDarknet(*model.values())
+    net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
+    net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
     return net
 
-def readClasses(classesPath):
+def readClasses(classesPath = "sign.names"):
     with open(classesPath, 'rt') as f:
         return f.read().rstrip('\n').split('\n')
-           
+
+    
 class Net:
     def __init__(self, net):
         self.net = net
@@ -21,9 +30,7 @@ class Net:
         return [layerNames[i[0] - 1] for i in self.net.getUnconnectedOutLayers()]
         
     def __call__(self, blob):
-        print("NET CALL")
         self.net.setInput(blob)
-        print("INPUTTED")
         return self.net.forward(self.outputNames)
 
     
@@ -38,7 +45,6 @@ class DetectionBoxes:
     def __call__(self, outs):
         # Scan through all the bounding boxes output from the network and keep only the
         # ones with high confidence scores. Assign the box's class label as the class with the highest score.
-        print("START NMS")        
         classIds = []
         confidences = []
         boxes = []
@@ -78,7 +84,6 @@ class DetectionBoxes:
                 'top': top,
                 'bottom': top + height})
 
-        print("DONE NMS")
         return detectionBoxes
 
 

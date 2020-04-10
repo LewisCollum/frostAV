@@ -9,15 +9,19 @@ import frame as fm
 import stats
 import vic
 
+import logging
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+
 application = Flask(__name__)
 
 frameSubject = fm.Subject(0)
 models = {
     'lane': laneModel.generateForFrameSubject(frameSubject),
-    'sign': signModel.generateForFrameSubject(frameSubject)}
-#for name, model in models.items():
-#    frameSubject.addObserver(name, model.head)
+    'sign': signModel.generateForFrameSubject(frameSubject)
+}
 frameSubject.addObserver('sign', models['sign'].head)
+frameSubject.addObserver('lane', models['lane'].head)
 imager = fm.Imager(defaultSubject = frameSubject)
 imageResponder = fm.ImageResponder(imager)
 #vehicle = vic.VehicleInterfaceController(crossTrackSubject = models.get('CrossTrackError'))
