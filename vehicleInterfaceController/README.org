@@ -13,7 +13,7 @@ ROOT = ../..
 include $(ROOT)/mk/all.mk
   #+end_src
 
-  were =ROOT= is the directory that contains the =mk= directory.
+  where =ROOT= is the directory that contains the =mk= directory.
 
 ** Making a New Application 
   We have included a bash script in =app= called =createNewApp=. To make a new application, go to the app directory and run
