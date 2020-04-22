@@ -1,7 +1,5 @@
 import cv2
-
-from . import line
-
+import time
 
 def toImage(frame):
     return cv2.imencode('.jpg', frame)[1].tobytes()
@@ -17,15 +15,18 @@ class Imager:
             if outputFrame is not None:
                 outputFrame = self.addAnnotators(outputFrame)
                 image = toImage(outputFrame)
+                time.sleep(0.05)
                 yield image
 
     def addAnnotators(self, frame):
         isAnnotatable = len(self.annotatorNodes) > 0 and len(frame.shape) == 3 and frame.shape[2] == 3
         if isAnnotatable:
+            frameCopy = frame.copy()
             for annotatorNode in self.annotatorNodes:
-                frame = cv2.addWeighted(frame, 0.8, annotatorNode(), 1, 1, dtype = cv2.CV_32F)
+                frame = annotatorNode(frameCopy)
         return frame
 
+    
 class ImageResponder:
     def __init__(self, imager):
         self.imager = imager

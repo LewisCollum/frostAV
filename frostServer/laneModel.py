@@ -1,72 +1,201 @@
 import cv2
 import numpy
+import time
 
 import lane
-from frame import Node, Switchable, Model, Annotator
-from frame import line
 
-def generateForFrameSubject(subject):
+from frame import Node, Switchable, Model, Annotator, Joiner
+import frame.node as node 
+
+from collections import namedtuple
+Package = namedtuple('Package', ['name', 'content'])
+class Packager:
+    def __init__(self, node):
+        self.node = node
+        self.packagingNode = Node(
+            name = None,
+            subjects = [self.node],
+            strategy = lambda content: Package(self.node.name, content))
+
+    @property
+    def name(self):
+        return self.node.name
+
+    def pull(self):
+        return self.node.pull()
+    
+    def addObservers(self, observers):
+        self.packagingNode.addObservers(observers)
+        
+    def __call__(self, content):
+        self.packagingNode(content)
+
+    
+def delay(frame):
+    time.sleep(0.02)
+    return frame
+
+def generate(subject):
     model = Model()
 
-    model.addFramer('LAB', Node(
+    model.add(Node(
+        name = 'delay',
         subjects = [],
+        strategy = delay))
+    
+    model.addFramer(Node(
+        name = 'LAB',
+        subjects = [model['delay']],
         strategy = lambda frame: cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)))
 
-    model.addSwitchable('CLAHE', Switchable(Node(
-        subjects = [model.get('LAB')],
-        strategy = lane.Clahe(
-            clipLimit = 1000,
-            tileGridSize = (4,4),
-            frameChannel = 0))))
-    
-    model.addFramer('Mask', Node(
-        subjects = [model.get('CLAHE')],
-        strategy = lambda frame: cv2.inRange(frame, numpy.asarray([0, 0, 110]), numpy.asarray([255, 255, 255]))))
+    model.addFramer(Node(
+        name = 'Mask',
+        subjects = [model['LAB']],
+        strategy = lambda frame: cv2.inRange(
+            frame,
+            numpy.asarray([0, 0, 95]),
+            numpy.asarray([255, 255, 255]))))
 
-    model.addFramer('Canny', Node(
-        subjects = [model.get('Mask')],
+    model.addFramer(Node(
+        name = 'Blur',
+        subjects = [model['Mask']],
+        strategy = lambda frame: cv2.medianBlur(frame,15)))
+    
+    model.addFramer(Node(
+        name = 'Canny',
+        subjects = [model['Blur']],
         strategy = lambda mask: cv2.Canny(mask, 200, 400)))
 
-    model.addFramer('ROI', Node(
-        subjects = [model.get('Canny')],
+    model.addFramer(Node(
+        name = 'ROI',
+        subjects = [model['Canny']],
         strategy = lane.RegionOfInterest(
             insetWeight = 0.75,
-            liftWeight = 0.2,
-            shallowWeight = 0.4)))
+            liftWeight = 0.4,
+            shallowWeight = 0.6)))
     
-    model.add('Segment', Node(
-        subjects = [model.get('ROI')],
-        strategy = lambda frame: cv2.HoughLinesP(
-            image = frame,
-            rho = 1,
-            theta = numpy.pi/180,
+    model.add(Node(
+        name = 'Segment',
+        subjects = [model['ROI']],
+        strategy = lane.HoughLines(
             threshold = 60,
-            minLineLength=10,
-            maxLineGap=2)))
+            minLineLength=30,
+            maxLineGap=20)))
     
-    model.addAnnotator('Segment', Annotator(
-        frameShape = subject.frameShape,
-        node = model.get('Segment'),
-        strategy = line.addLines))
-    
-    model.add('Lane', Node(
-        subjects = [model.get('Segment')],
+    model.add(Node(
+        name = 'Lane',
+        subjects = [model['Segment']],
         strategy = lane.TwoLineAverage(
             frameShape = subject.frameShape,
-            insetPercentage = 0.60)))
+            insetPercentage = 0.55)))
 
-    model.addAnnotator('Lane', Annotator(
-        frameShape = subject.frameShape,
-        node = model.get('Lane'),
-        strategy = line.addLines))
-    
-    model.add('CrossTrackError', Node(
-        subjects = [model.get('Lane')],
-        strategy = lane.CrossTrackError(frameWidth = subject.frameShape[1])))
 
-    # model.add('DisplayCTE', Node(
-    #     subjects = [model.get('CrossTrackError')],
-    #     strategy = lambda cte: print(cte)))
+    model.add(Packager(Node(
+        name = 'LaneState',
+        subjects = [model['Lane']],
+        strategy = lane.state.fromLines)))
+    model.add(Packager(Node(
+        name = 'TurnAngle',
+        subjects = [model['Lane']],
+        strategy = lane.angle.fromLines)))
+    model.add(Packager(Node(
+        name = 'CrossTrackAngle',
+        subjects = [model['Lane']], 
+        strategy = lane.angle.CrossTrackAngle(subject.frameShape))))
+
+    # model.add(Joiner(
+    #     name = 'Error',
+    #     subjects = [model['LaneState'], model['TurnAngle'], model['CrossTrackAngle']],
+    #     strategy = lane.CrossTurnError(
+    #         stateNodeName = 'LaneState',
+    #         turnAnglesNodeName = 'TurnAngle',
+    #         crossTrackAngleNodeName = 'CrossTrackAngle',
+    #         perspectiveAngle = 65)))  
     
-    model.setHead('LAB')
+    
+    model.add(Joiner(
+        name = 'TurnError',
+        subjects = [model['LaneState'], model['TurnAngle']],
+        strategy = lane.Error(
+            stateNodeName = 'LaneState',
+            anglesNodeName = 'TurnAngle',
+            perspectiveAngle = 65)))
+
+    model.add(Joiner(
+        name = 'CrossTrackError',
+        subjects = [model['LaneState'], model['CrossTrackAngle']],
+        strategy = lane.Error(
+            stateNodeName = 'LaneState',
+            anglesNodeName = 'CrossTrackAngle',
+            perspectiveAngle = 15)))
+
+    model.add(Packager(Node(
+        name = 'SmoothTurnError',
+        subjects = [model['TurnError']],
+        strategy = lane.MovingAverage(5))))
+    model.add(Packager(Node(
+        name = 'SmoothCrossTrackError',
+        subjects = [model['CrossTrackError']],
+        strategy = lane.MovingAverage(5))))
+
+    model.add(Joiner(
+        name = 'TotalError',
+        subjects = [model['SmoothTurnError'], model['SmoothCrossTrackError']],
+        strategy = lambda errors: errors['SmoothTurnError'] + errors['SmoothCrossTrackError']))
+
+
+    model.addAnnotator(Annotator(
+        name = 'Segment',
+        node = model['Segment'],
+        strategy = lane.annotation.frameLines))
+        
+    model.addAnnotator(Annotator(
+        name = 'Lane',
+        node = model['Lane'],
+        strategy = lane.annotation.frameLines))
+    
+    model.addAnnotator(Annotator(
+        name = 'TurnError',
+        node = model['SmoothTurnError'],
+        strategy = lane.annotation.Error(
+            label = 'Turn Error',
+            yWeight = 0.3,
+            maxError = 60)))
+    
+    model.addAnnotator(Annotator(
+        name = 'CTE',
+        node = model['SmoothCrossTrackError'],
+        strategy = lane.annotation.Error(
+            label = 'Cross Track Error',
+            yWeight = 0.4,
+            maxError = 60)))
+    
+    model.addAnnotator(Annotator(
+        name = 'TotalError',
+        node = model['TotalError'],
+        strategy = lane.annotation.Error(
+            label = 'Total Error',
+            yWeight = 0.5,
+            maxError = 60)))
+
+    # model.addAnnotator(Annotator(
+    #     name = 'Error',
+    #     node = model['Error'],
+    #     strategy = lane.annotation.Error(
+    #         label = 'Error',
+    #         yWeight = 0.5,
+    #         maxError = 60)))    
+    
+    model.addAnnotator(Annotator(
+        name = 'LaneState',
+        node = model['LaneState'],
+        strategy = lane.annotation.State(
+            yWeight = 0.2)))
+
+    # node.addObserverToSubjects(print, [
+    #     model['TurnError'],
+    #     model['CrossTrackError']])
+    
+    model['Lane']
+    model.setHead('delay')
     return model

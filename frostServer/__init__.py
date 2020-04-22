@@ -3,6 +3,7 @@ from flask import Flask, render_template, Response, request, jsonify
 import time 
 import cv2
 
+import vehicleModel
 import laneModel
 import signModel
 import frame as fm
@@ -15,16 +16,29 @@ log.setLevel(logging.ERROR)
 
 application = Flask(__name__)
 
+gamepadNode = fm.Node(
+    name = 'gamepad',
+    subjects = [],
+    strategy = lambda package: package)
+
 frameSubject = fm.Subject(0)
-models = {
-    'lane': laneModel.generateForFrameSubject(frameSubject),
-    'sign': signModel.generateForFrameSubject(frameSubject)
-}
+models = {}
+models['lane'] = laneModel.generate(subject = frameSubject)
+models['sign'] = signModel.generate(subject = frameSubject)    
+models['vehicle'] = vehicleModel.generate()
+
+models['sign']['NMS'].addObservers([models['vehicle']['signs']])
+# models['lane']['Error'].addObservers([
+#     models['vehicle']['driveController'],
+#     models['vehicle']['steeringController']])
+
 frameSubject.addObserver('sign', models['sign'].head)
 frameSubject.addObserver('lane', models['lane'].head)
+models['lane']['TotalError'].addObservers([models['vehicle']['controlPackager']])
+
 imager = fm.Imager(defaultSubject = frameSubject)
 imageResponder = fm.ImageResponder(imager)
-#vehicle = vic.VehicleInterfaceController(crossTrackSubject = models.get('CrossTrackError'))
+
 frameSubject.startThreadedCapture()
 
 
@@ -33,7 +47,8 @@ def index(): return render_template('index.html')
 
 @application.route('/gamepad', methods=['POST'])
 def gamepad():
-    vehicle.manualUpdate(request.json)
+    #gamepadNode(request.json)
+    models['vehicle']['controller'](request.json)
     return ('', 204)
 
 @application.route('/imageStreamChoices')

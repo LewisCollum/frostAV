@@ -1,19 +1,30 @@
 import cv2
 import numpy
 
-class EdgeSegmentator:
-    def __init__(self, distancePrecision, angularPrecision, minimumThreshold):
-        self.distancePrecision = distancePrecision
-        self.angularPrecision = angularPrecision
-        self.minimumThreshold = minimumThreshold
+from .line import Line
+
+class HoughLines:
+    def __init__(self, threshold, minLineLength, maxLineGap):
+        self.threshold = threshold
+        self.minLineLength = minLineLength
+        self.maxLineGap = maxLineGap
         
     def __call__(self, frame):
         segments = cv2.HoughLinesP(
-            frame,
-            self.distancePrecision,
-            self.angularPrecision,
-            self.minimumThreshold,
-            numpy.array([]),
-            minLineLength=8,
-            maxLineGap=4)
-        return () if isinstance(segments, type(None)) else segments
+            image = frame,
+            rho = 1,
+            theta = numpy.pi/180,
+            threshold = self.threshold,
+            minLineLength=self.minLineLength,
+            maxLineGap=self.maxLineGap)
+
+        lines = []
+        if segments is not None:        
+            for segment in segments:
+                lines.append(Line(
+                    x1=segment[0][0],
+                    y1=segment[0][1],
+                    x2=segment[0][2],
+                    y2=segment[0][3]))
+                
+        return lines

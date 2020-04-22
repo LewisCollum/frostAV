@@ -107,3 +107,31 @@ class DrawDetectionBoxes:
                 cv2.putText(frame, label, (box['left'], top), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0,0,0), 1)
         return frame
         
+
+def label(frame, label):
+    font_scale = 0.6
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    rectangle_bgr = (255, 255, 255)
+    (label_width, label_height) = cv2.getTextSize(label, font, fontScale=font_scale, thickness=1)[0]
+    label_offset_x = 5
+    label_offset_y = 15
+    box_coords = ((label_offset_x-5, label_offset_y+5), (label_offset_x + label_width + 5, label_offset_y - label_height - 5))
+    cv2.rectangle(frame, box_coords[0], box_coords[1], rectangle_bgr, cv2.FILLED)
+    cv2.putText(frame, label, (label_offset_x, label_offset_y), font, fontScale=font_scale, color=(255, 0, 0), thickness=1)
+    return frame
+
+
+
+    # labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+    # cv2.rectangle(frame, (0, labelSize[1] - round(1.5*labelSize[1])), (15+round(1.5*labelSize[0]), baseLine), (255, 255, 255), cv2.FILLED)    
+    # cv2.putText(frame, label,
+    #             (0, 15),
+    #              cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255))
+    # return frame
+
+
+# def fps(frame, net):
+#     t, _ = net.getPerfProfile()
+#     label = f'FPS: {cv.getTickFrequency() / t}'
+#     cv.putText(frame, label, (0, 15), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
+    

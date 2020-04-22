@@ -25,6 +25,7 @@ class Subject:
             hasFrame, frame = self.capture.read()
             if hasFrame:
                 self.output = frame
+            time.sleep(0.05)
 
     def startDistribution(self, observer):
         print(f"Distribution started for {observer}...")
