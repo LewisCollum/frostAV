@@ -1,0 +1,6 @@
+#+title: Design
+
+*** Power Supply (Designed by [[https://github.com/ishelly404][Ian Shelly]])
+Designed in KiCad, this power supply is meant to step down a *7.4V LiPo battery* to *5V*. It can output up to at least *3.5A*. In order to conveniently power USB devices (such as a Raspberry Pi), it has a 5V USB output socket.
+
+[[powersupply/3D Render.PNG]]
