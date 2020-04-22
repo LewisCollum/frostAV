@@ -4,3 +4,8 @@
 Designed in KiCad, this power supply is meant to step down a *7.4V LiPo battery* to *5V*. It can output up to at least *3.5A*. In order to conveniently power USB devices (such as a Raspberry Pi), it has a 5V USB output socket.
 
 [[powersupply/3D Render.PNG]]
+
+*** Frost Schematic (Designed by [[https://github.com/ishelly404][Ian Shelly]])
+The main components on Frost include the Raspberry Pi 4, Arduino, OLED status display, and power supply. We also included an optional remote fail-safe switch that uses an XBee transmitter and receiver. 
+
+[[schematic/PDF Schematic.pdf]]
