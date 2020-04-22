@@ -4,7 +4,7 @@ serviceFile="frostServer.service"
 serviceTargetDirectory="/etc/systemd/system/"
 
 nginxFile="frostServer.nginx"
-nginxTargetDirectory="/etc/nginx/sites-enabled/frostServer.nginx"
+nginxTargetDirectory="/etc/nginx/sites-enabled/"
 
 
 ln -svf `realpath $nginxFile` $nginxTargetDirectory
