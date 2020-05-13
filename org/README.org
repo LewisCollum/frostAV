@@ -2,6 +2,24 @@
 #+title: FrostAV: Lane & Sign Detecting Tenth-Scale Vehicle
 #+author: Lewis Collum
 
+* Introduction
+  Autonomous vehicles need to be able to follow a path, and react to
+  environmental queues. The research that encompasses autonomous
+  vehicles is not only useful for self-driving cars, but also within
+  factory settings and places where transportation work can be
+  automated.
+
+  We 3D printed a vehicle, which holds a raspberry pi 4, Arduino, and
+  a $5 USB camera, that is capable of following a lane and reacting to
+  signs. This project demonstrates a real-time object detection
+  network, a web server, and a lane detection system all
+  simultaneously running on a $35 raspberry pi computer. In total,
+  the cost of all parts on our vehicle is around $160.
+
+  #+caption: 3D-printed tenth-scale chassis.
+  #+attr_latex: :width 0.5\linewidth
+  [[../design/vehicle/figure/2020_03-newPartsChassis.JPG]]
+  
 * Vehicle Monitoring with a Web Server
   #+include: "../frostServer/README.org" :lines "4-"
 * Lane Detection
@@ -13,7 +31,18 @@
    #+include: "../frostServer/vic/README.org" :lines "4-"   
 ** Vehicle Interface Controller (Arduino)
    #+include: "../vehicleInterfaceController/README.org" :lines "4-"
-* Simple Framework for Nodal Frame Processing
+* Simple Framework for Nodal Frame Processing                      :noexport:
   #+include: "../frostServer/frame/README.org" :lines "4-"
-* Vehicle Design :noexport:
+* Vehicle Design                                                   :noexport:
   #+include: "../design/README.org" :lines "4-"
+* Conclusion & Necessary Improvements
+  We demonstrated the ability for a low-cost, $35 Raspberry Pi 4, to
+  run a web server, lane detection system, and sign detection
+  system. The method we used for calculating lane error has edge cases
+  which make it inaccurate, (such as if the vehicle is outside the
+  lane lines). This method would need to be improve the reliability of
+  the vehicle navigation. Our sign detection model runs at about 1
+  frame-per-second, which would need to be increased (through
+  optimizations) if we want the vehicle to travel faster. Increasing
+  the speed of the vehicle now, generally results in a sign being
+  missed.

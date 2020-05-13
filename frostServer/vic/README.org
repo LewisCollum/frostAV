@@ -3,5 +3,18 @@
 #+author: Lewis Collum
 
 * Summary
-  Get lane error to plug into vehicle controller.
+  The vehicle control model contains the decision making for
+  controlling the vehicle. We use the lane error, we got from the lane
+  model, to proportionally control the steering and driving. The
+  signs, we get from our sign detection model, are pushed to a queue
+  and, handled by the drive controller. Currently, we are only
+  reacting to stop signs. If a stop sign is detected, the drive
+  controller outputs a drive value which stops the vehicle. The final
+  drive and steering values, determined by the drive and steering
+  controllers, are sent over I2C to the Arduino which maps the values
+  to a pulse-width to control the steering servo and the Electronic
+  Speed Controller for the drive motor.
+
+  #+name: fig-block-vic
+  #+caption: Lane error and detected signs are used to control the driving and steering values send to the Arduino over I2C.
   [[../figure/blocks/block_vic.png]]

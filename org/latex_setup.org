@@ -3,3 +3,4 @@
 #+bind: org-latex-minted-options (("rulecolor" "gray") ("frame" "leftline") ("fontsize" "\\scriptsize") ("xleftmargin" "20pt") ("baselinestretch" "0.9"))
 #+bind: org-latex-image-default-width "0.8\\linewidth"
 #+options: num:t tags:nil toc:t
+#+bind: org-latex-default-figure-position "H"
