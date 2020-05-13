@@ -1,4 +1,6 @@
+#+setupFile: ../org/latex_setup.org
 #+title: FrostServer
+#+author: Lewis Collum
 
 * Installing Nginx, Flask, and GUnicorn
   Since we are using Arch Linux ARM on our Pi, we used Arch Linux's
@@ -37,21 +39,18 @@ pip install flask
   We use Flask, GUnicorn, and Nginx. Let's work our way down, from the
   website, to our application code (in python).
 
-*** Nginx
-  Nginx acts as our web server, fulfilling requests from clients for
+  *Nginx* acts as our web server, fulfilling requests from clients for
   static content from our website (e.g. HTML pages, files and
   images). Nginx forwards dynamic requests (e.g. all of the requests 
   that we want Python to handle) to GUnicorn, our 
   application server.
 
-*** GUnicorn
-  GUnicorn ensures that Nginx and our Flask Python application can
+  *GUnicorn* ensures that Nginx and our Flask Python application can
   talk to each other. Ultimately, GUnicorn routes requests (passed
   through Nginx) to their corresponding function in our Flask
   application.
 
-*** Flask
-  Flask is a web [[https://en.wikipedia.org/wiki/Microframework][microframework]] in the form of a Python library. It is
+  *Flask* is a web [[https://en.wikipedia.org/wiki/Microframework][microframework]] in the form of a Python library. It is
   used in our Python application to provide functions that can receive
   requests, and return a response (e.g. sensor data).
 

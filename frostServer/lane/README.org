@@ -1,0 +1,3 @@
+#+setupFile: ../../org/latex_setup.org
+#+title: Lane Detection
+#+author: Lewis Collum

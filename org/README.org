@@ -1,0 +1,12 @@
+#+setupFile: latex_setup.org 
+#+title: FrostAV: Lane & Sign Detecting Tenth-Scale Vehicle
+#+author: Lewis Collum
+
+* YOLOv3 Real-Time Sign Detection
+  #+include: "../frostServer/sign/README.org" :lines "4-"
+* Lane Detection
+  #+include: "../frostServer/lane/README.org" :lines "4-"
+* Vehicle Monitoring with a Web Server
+  #+include: "../frostServer/README.org" :lines "4-"
+* Vehicle Design :noexport:
+  #+include: "../design/README.org" :lines "4-"

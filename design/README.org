@@ -1,16 +1,26 @@
+#+setupFile: ../org/latex_setup.org
 #+title: Design
+#+author: Lewis Collum
 
 *** Power Supply (Designed by [[https://github.com/ishelly404][Ian Shelly]])
-Designed in KiCad, this power supply is meant to step down a *7.4V LiPo battery* to *5V*. It can output up to at least *3.5A*. In order to conveniently power USB devices (such as a Raspberry Pi), it has a 5V USB output socket.
-
-[[powersupply/3D Render.PNG]]
+    Designed in KiCad, this power supply is meant to step down a *7.4V
+    LiPo battery* to *5V*. It can output up to at least *3.5A*. In
+    order to conveniently power USB devices (such as a Raspberry Pi),
+    it has a 5V USB output socket.
+    
+    [[./powersupply/3D Render.PNG]]
 
 *** Frost Schematic (Designed by [[https://github.com/ishelly404][Ian Shelly]])
-The main components on Frost include the Raspberry Pi 4, Arduino, OLED status display, and power supply. We also included an optional remote fail-safe switch that uses an XBee transmitter and receiver. 
-
-[[schematic/schematic.png]]
+    The main components on Frost include the Raspberry Pi 4, Arduino,
+    OLED status display, and power supply. We also included an
+    optional remote fail-safe switch that uses an XBee transmitter and
+    receiver.
+    
+    [[./schematic/schematic.png]]
 
 *** 3D Printed Chassis
-The chassis is a remix of OpenRC on Thingiverse. Here is the most recent set of parts printed for mounting the Raspberry Pi, powersupply, and camera.
+    The chassis is a remix of OpenRC on Thingiverse. Here is the most
+    recent set of parts printed for mounting the Raspberry Pi,
+    powersupply, and camera.
 
-[[vehicle/figure/frostAV_newBodyParts_2020-03-26.png]]
+    [[./vehicle/figure/frostAV_newBodyParts_2020-03-26.png]]
