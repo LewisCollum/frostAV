@@ -2,11 +2,18 @@
 #+title: FrostAV: Lane & Sign Detecting Tenth-Scale Vehicle
 #+author: Lewis Collum
 
-* YOLOv3 Real-Time Sign Detection
-  #+include: "../frostServer/sign/README.org" :lines "4-"
-* Lane Detection
-  #+include: "../frostServer/lane/README.org" :lines "4-"
 * Vehicle Monitoring with a Web Server
   #+include: "../frostServer/README.org" :lines "4-"
+* Lane Detection
+  #+include: "../frostServer/lane/README.org" :lines "4-"
+* YOLOv3 Real-Time Sign Detection
+  #+include: "../frostServer/sign/README.org" :lines "4-"
+* Vehicle Control Model
+** Control Value Packaging on the Raspberry Pi
+   #+include: "../frostServer/vic/README.org" :lines "4-"   
+** Vehicle Interface Controller (Arduino)
+   #+include: "../vehicleInterfaceController/README.org" :lines "4-"
+* Simple Framework for Nodal Frame Processing
+  #+include: "../frostServer/frame/README.org" :lines "4-"
 * Vehicle Design :noexport:
   #+include: "../design/README.org" :lines "4-"

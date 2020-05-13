@@ -7,6 +7,8 @@
    [[./figure/yolov3_realtime_stopSigns.png]]
 
 ** How YOLOv3 was Implemented
+   #+attr_latex: :width 0.5\linewidth
+   [[../figure/blocks/block_sign.png]]
 
 ** Easy. Detect Signs Then Classify.
    No. This is how object detection[fn:detection] algorithms started

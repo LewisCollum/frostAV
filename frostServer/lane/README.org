@@ -1,3 +1,16 @@
 #+setupFile: ../../org/latex_setup.org
 #+title: Lane Detection
 #+author: Lewis Collum
+
+* Summary
+  Get lane error to plug into vehicle controller.
+* Black and White Lane Mask from Raw Frame
+  #+attr_latex: :width 0.5\linewidth
+  [[../figure/blocks/block_lane1.png]]
+* Line Segment Coordinates from Lane Mask 
+  #+attr_latex: :width 0.5\linewidth
+  [[../figure/blocks/block_lane2.png]]
+* Lane Angle Error from Line Segment Coordinates
+  #+attr_latex: :width 0.5\linewidth
+  [[../figure/blocks/block_lane3.png]]
+
