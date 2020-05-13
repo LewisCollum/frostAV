@@ -1,0 +1,5 @@
+#+latex_class: IEEEtran
+#+latex_class_options: [fleqn]
+#+bind: org-latex-minted-options (("rulecolor" "gray") ("frame" "leftline") ("fontsize" "\\scriptsize") ("xleftmargin" "20pt") ("baselinestretch" "0.9"))
+#+bind: org-latex-image-default-width "\\linewidth"
+#+options: num:t tags:nil toc:t
