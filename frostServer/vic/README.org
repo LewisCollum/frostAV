@@ -1,0 +1,7 @@
+#+setupFile: ../../org/latex_setup.org
+#+title: Vehicle Control Model
+#+author: Lewis Collum
+
+* Summary
+  Get lane error to plug into vehicle controller.
+  [[../figure/blocks/block_vic.png]]

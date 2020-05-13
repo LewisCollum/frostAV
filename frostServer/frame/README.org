@@ -1,0 +1,3 @@
+#+setupFile: ../../org/latex_setup.org
+#+title: Simple Framework for Nodal Frame Processing
+#+author: Lewis Collum
