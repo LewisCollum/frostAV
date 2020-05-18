@@ -39,7 +39,7 @@ class Model:
     
     def asDict(self):
         return {
-            'frames': self.framers[:],
-            'annotators': self.annotators.keys(),
-            'switchables': list(self.switchables)
+            'Frame': self.framers[:],
+            'Annotation': self.annotators.keys(),
+            'Switchable': list(self.switchables)
         }

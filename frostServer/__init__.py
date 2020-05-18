@@ -3,12 +3,12 @@ from flask import Flask, render_template, Response, request, jsonify
 import time 
 import cv2
 
-import vehicleModel
+#import vehicleModel
 import laneModel
 import signModel
 import frame as fm
 import stats
-import vic
+#import vic
 
 import logging
 log = logging.getLogger('werkzeug')
@@ -25,16 +25,16 @@ frameSubject = fm.Subject(0)
 models = {}
 models['lane'] = laneModel.generate(subject = frameSubject)
 models['sign'] = signModel.generate(subject = frameSubject)    
-models['vehicle'] = vehicleModel.generate()
+#models['vehicle'] = vehicleModel.generate()
 
-models['sign']['NMS'].addObservers([models['vehicle']['signs']])
+#models['sign']['NMS'].addObservers([models['vehicle']['signs']])
 # models['lane']['Error'].addObservers([
 #     models['vehicle']['driveController'],
 #     models['vehicle']['steeringController']])
 
 frameSubject.addObserver('sign', models['sign'].head)
 frameSubject.addObserver('lane', models['lane'].head)
-models['lane']['TotalError'].addObservers([models['vehicle']['controlPackager']])
+#models['lane']['TotalError'].addObservers([models['vehicle']['controlPackager']])
 
 imager = fm.Imager(defaultSubject = frameSubject)
 imageResponder = fm.ImageResponder(imager)
@@ -53,19 +53,21 @@ def gamepad():
 
 @application.route('/imageStreamChoices')
 def imageStreamChoices():
-    selections = {
-        'frames': [],
-        'annotators': [],
-        'switchables': []
+    categories = {
+        'Frame': {"type": "radio", "names": [], "defaults": []},
+        'Annotation': {"type": "toggle", "names": [], "defaults": []},
+        'Switchable': {"type": "toggle", "names": [], "defaults": []}
     }
     
     for model in models.values():
-        for name, values in model.asDict().items():
-            selections[name] += values
+        for categoryName, values in model.asDict().items():
+            categories[categoryName]['names'] += values
             
-    selections['frames'] += ['Raw']
+    categories['Frame']['names'] += ['Raw']
+    categories['Frame']['defaults'] += ['Raw']
+    print(jsonify(categories))
     
-    return jsonify(selections)
+    return jsonify(categories)
 
 
 @application.route('/updateImageStream', methods=['POST'])
@@ -73,15 +75,15 @@ def updateImageStream():
     def nodeFromFrameKey(frameKey):
         return frameSubject if frameKey == 'Raw' else models['lane'].get(frameKey)
     
-    imager.subject = nodeFromFrameKey(request.json['frame'])
+    imager.subject = nodeFromFrameKey(request.json['Frame'])
     
     imager.annotatorNodes = []
-    for annotator in request.json['annotators']:
+    for annotator in request.json['Annotation']:
         for model in models.values():
             if annotator in model.annotators:
                 imager.annotatorNodes.append(model.getAnnotator(annotator))
     
-    models['lane'].switchables.matchNames(request.json['switchables'])
+    models['lane'].switchables.matchNames(request.json['Switchable'])
     
     return ('', 204)
 
@@ -89,29 +91,29 @@ def updateImageStream():
 def imageStream():   
     return Response(imageResponder, mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@application.route('/cpuCelsius')
-def cpuCelsius(): return Response(stats.pi.cpuCelsius(), 'text/plain')
+# @application.route('/cpuCelsius')
+# def cpuCelsius(): return Response(stats.pi.cpuCelsius(), 'text/plain')
 
-@application.route('/gpuCelsius')
-def gpuCelsius(): return Response(stats.pi.gpuCelsius(), 'text/plain')
+# @application.route('/gpuCelsius')
+# def gpuCelsius(): return Response(stats.pi.gpuCelsius(), 'text/plain')
 
-@application.route('/cpuLoad')
-def cpuLoad(): return Response(stats.pi.cpuLoad(), 'text/plain')
+# @application.route('/cpuLoad')
+# def cpuLoad(): return Response(stats.pi.cpuLoad(), 'text/plain')
 
-@application.route('/memoryUsed')
-def memoryUsed(): return Response(stats.pi.memoryUsed(), 'text/plain')
+# @application.route('/memoryUsed')
+# def memoryUsed(): return Response(stats.pi.memoryUsed(), 'text/plain')
 
-@application.route('/memoryFree')
-def memoryFree(): return Response(stats.pi.memoryFree(), 'text/plain')
+# @application.route('/memoryFree')
+# def memoryFree(): return Response(stats.pi.memoryFree(), 'text/plain')
 
-@application.route('/power')
-def power(): return Response(stats.psu.power(), 'text/plain')
+# @application.route('/power')
+# def power(): return Response(stats.psu.power(), 'text/plain')
 
-@application.route('/voltage')
-def voltage(): return Response(stats.psu.voltage(), 'text/plain')
+# @application.route('/voltage')
+# def voltage(): return Response(stats.psu.voltage(), 'text/plain')
 
-@application.route('/current')
-def current(): return Response(stats.psu.current(), 'text/plain')
+# @application.route('/current')
+# def current(): return Response(stats.psu.current(), 'text/plain')
 
 
 if __name__ == '__main__':

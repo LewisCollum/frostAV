@@ -58,10 +58,6 @@ def generate(subject):
 
     model['Net'].addObservers([model['netTimer']])
 
-    model['netTimer'].addObservers([
-        lambda message: print(message)])
-
-
     model.addAnnotator(Annotator(
         name = 'NetTimer',
         node = model['netTimer'],
@@ -81,11 +77,6 @@ def generate(subject):
         node = model['NMS'],
         strategy = sign.DrawDetectionBoxes(
             classes = sign.readClasses("sign/sign.names"))))
-
-    # Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
-    # t, _ = net.getPerfProfile()
-    # label = 'Inference time: %.2f ms' % (t * 1000.0 / cv.getTickFrequency())
-    # cv.putText(frame, label, (0, 15), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
 
     model.setHead('Blob')
     return model

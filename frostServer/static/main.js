@@ -23,3 +23,35 @@ function urlResponseToChartSeries(url, series) {
         addTimestampedPointToSeries(series, parseFloat(responseText))
     })
 }
+
+
+let panel = new cpanel.ButtonPanel("panel")
+panel.buttonStyle = "PanelButton"
+panel.panelStyle = "Panel"
+panel.appendToParent(document.getElementById("cameraContainer"))
+
+panel.addButtonChangeListener((change) => {
+    var request = new XMLHttpRequest();
+    request.open("POST", "/updateImageStream")
+    request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+    request.send(JSON.stringify(change))              
+})
+
+const categoryNameToClass = {
+    'toggle': cpanel.ToggleButtonCategory,
+    'radio': cpanel.RadioButtonCategory
+}
+
+handleUrlResponse('/imageStreamChoices', (response) => {
+    categorySetups = JSON.parse(response)
+    for (let [key, categorySetup] of Object.entries(categorySetups)) {
+        let category = new categoryNameToClass[categorySetup.type](key)
+        categorySetup.names.forEach((name) => {
+            category.addButton(name)
+        })
+        categorySetup.defaults.forEach((name) => {
+            category.turnOnButton(name)
+        })
+        panel.addCategory(category)
+    }
+})
