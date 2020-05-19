@@ -7,8 +7,10 @@ def cpuCelsius():
         return cpuCelsius
 
 def gpuCelsius():
-    stream = os.popen('/opt/vc/bin/vcgencmd measure_temp');
-    gpuCelsius = str(int(re.sub('[^0-9]', '', stream.read())) / 10)
+    gpuCelsius = ''
+    if os.path.isfile('/opt/vc/bin/vcgencmd'):
+        stream = os.popen('/opt/vc/bin/vcgencmd measure_temp')
+        gpuCelsius = str(int(re.sub('[^0-9]', '', stream.read())) / 10)
     return gpuCelsius
 
 

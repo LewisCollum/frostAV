@@ -8,6 +8,7 @@ import laneModel
 import signModel
 import frame as fm
 import stats
+import ui_bridge as ui
 #import vic
 
 import logging
@@ -53,21 +54,14 @@ def gamepad():
 
 @application.route('/imageStreamChoices')
 def imageStreamChoices():
-    categories = {
-        'Frame': {"type": "radio", "names": [], "defaults": []},
-        'Annotation': {"type": "toggle", "names": [], "defaults": []},
-        'Switchable': {"type": "toggle", "names": [], "defaults": []}
-    }
-    
+    categories = ui.Categories()
     for model in models.values():
-        for categoryName, values in model.asDict().items():
-            categories[categoryName]['names'] += values
-            
-    categories['Frame']['names'] += ['Raw']
-    categories['Frame']['defaults'] += ['Raw']
-    print(jsonify(categories))
-    
-    return jsonify(categories)
+        categories += ui.modelToButtonCategories(model)
+
+    categories['Frame'].addButtons(['Raw'])
+    categories['Frame'].addDefaults(['Raw'])
+
+    return jsonify(categories.asDict())
 
 
 @application.route('/updateImageStream', methods=['POST'])
@@ -91,29 +85,29 @@ def updateImageStream():
 def imageStream():   
     return Response(imageResponder, mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# @application.route('/cpuCelsius')
-# def cpuCelsius(): return Response(stats.pi.cpuCelsius(), 'text/plain')
+@application.route('/cpuCelsius')
+def cpuCelsius(): return Response(stats.pi.cpuCelsius(), 'text/plain')
 
-# @application.route('/gpuCelsius')
-# def gpuCelsius(): return Response(stats.pi.gpuCelsius(), 'text/plain')
+@application.route('/gpuCelsius')
+def gpuCelsius(): return Response(stats.pi.gpuCelsius(), 'text/plain')
 
-# @application.route('/cpuLoad')
-# def cpuLoad(): return Response(stats.pi.cpuLoad(), 'text/plain')
+@application.route('/cpuLoad')
+def cpuLoad(): return Response(stats.pi.cpuLoad(), 'text/plain')
 
-# @application.route('/memoryUsed')
-# def memoryUsed(): return Response(stats.pi.memoryUsed(), 'text/plain')
+@application.route('/memoryUsed')
+def memoryUsed(): return Response(stats.pi.memoryUsed(), 'text/plain')
 
-# @application.route('/memoryFree')
-# def memoryFree(): return Response(stats.pi.memoryFree(), 'text/plain')
+@application.route('/memoryFree')
+def memoryFree(): return Response(stats.pi.memoryFree(), 'text/plain')
 
-# @application.route('/power')
-# def power(): return Response(stats.psu.power(), 'text/plain')
+@application.route('/power')
+def power(): return Response(stats.psu.power(), 'text/plain')
 
-# @application.route('/voltage')
-# def voltage(): return Response(stats.psu.voltage(), 'text/plain')
+@application.route('/voltage')
+def voltage(): return Response(stats.psu.voltage(), 'text/plain')
 
-# @application.route('/current')
-# def current(): return Response(stats.psu.current(), 'text/plain')
+@application.route('/current')
+def current(): return Response(stats.psu.current(), 'text/plain')
 
 
 if __name__ == '__main__':
