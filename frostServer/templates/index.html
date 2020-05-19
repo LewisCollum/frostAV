@@ -10,8 +10,9 @@
     <script src="{{url_for('static', filename='/panel/ButtonCategory.js')}}"></script>
     <script src="{{url_for('static', filename='/panel/RadioButtonCategory.js')}}"></script>
     <script src="{{url_for('static', filename='/panel/ToggleButtonCategory.js')}}"></script>
-    <script src="{{url_for('static', filename='/panel/ButtonPanel.js')}}"></script>
-    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='panel/PanelButton.css')}}"></link>
+    <script src="{{url_for('static', filename='/panel/Panel.js')}}"></script>
+    <script src="{{url_for('static', filename='/panel/PanelOpenButton.js')}}"></script>    
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='panel/PanelOpenButton.css')}}"></link>
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='panel/Panel.css')}}"></link>    
   </head>
   <body>
@@ -20,10 +21,12 @@
       <a href="#pi">RPi</a>
       <a href="#psu">PSU</a>      
     </div>
-
+    
     <section id="camera">
       <div class="container" id="cameraContainer">
         <img id="camera" src="{{ url_for('imageStream') }}"></img>
+      </div>
+      <div id="control" class="container" style="height:150px">
       </div>
     </section>
 
@@ -52,46 +55,5 @@
       <script src="{{url_for('static', filename='chartSetup.js')}}"></script>
       <script src="{{url_for('static', filename='update_stats.js')}}"></script>
     </section>
-    
-    <script>
-      window.addEventListener("gamepadconnected", function(e) {
-          console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
-                      e.gamepad.index, e.gamepad.id,
-                      e.gamepad.buttons.length, e.gamepad.axes.length);
-      })
-
-      const handleResponse = ({target}) => {
-          console.log(target.responseText)
-      }
-
-      var steeringPrevious = null
-      var forwardPrevious = null
-      var reversePrevious = null
-      setInterval(function() {
-          let gamepad = navigator.getGamepads()[0]
-          if (gamepad) {
-              let steering = gamepad.axes[0]
-              let forward = gamepad.axes[4]
-              let reverse = gamepad.axes[3]
-
-              if (steering != steeringPrevious || forward != forwardPrevious || reverse != reversePrevious) {
-                  const xhr = new XMLHttpRequest()
-                  let update = JSON.stringify({
-                      'steering': steering,
-                      'forward': forward,
-                      'reverse': reverse})
-                  
-                  xhr.addEventListener('load', handleResponse)
-                  xhr.open('POST', '/gamepad')
-                  xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-                  xhr.send(update)                                    
-
-                  steeringPrevious = steering
-                  forwardPrevious = forward
-                  reversePrevious = reverse
-              }
-          }
-      }, 50)
-    </script>  
   </body>
 </html>
