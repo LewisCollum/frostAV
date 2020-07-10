@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   sodipodi:docname="snapshots.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.5"
+     inkscape:cx="418.58473"
+     inkscape:cy="-736.94835"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="2556"
+     inkscape:window-height="1076"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <image
+       sodipodi:absref="/home/charon/frostAV/frostServer/lane/figure/1_raw.png"
+       xlink:href="1_raw.png"
+       inkscape:export-ydpi="150"
+       inkscape:export-xdpi="150"
+       width="160.86667"
+       height="136.8425"
+       preserveAspectRatio="none"
+       style="image-rendering:optimizeQuality"
+       id="image1021"
+       x="124.55887"
+       y="-68.037155" />
+    <image
+       sodipodi:absref="/home/charon/frostAV/frostServer/lane/figure/2_LAB.png"
+       xlink:href="2_LAB.png"
+       inkscape:export-ydpi="150"
+       inkscape:export-xdpi="150"
+       width="180.93581"
+       height="154.62251"
+       preserveAspectRatio="none"
+       style="stroke:none;stroke-width:20;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;image-rendering:optimizeQuality"
+       id="image1032"
+       x="-68.360596"
+       y="97.56147" />
+    <image
+       sodipodi:absref="/home/charon/frostAV/frostServer/lane/figure/3_mask.png"
+       xlink:href="3_mask.png"
+       inkscape:export-ydpi="150"
+       inkscape:export-xdpi="150"
+       width="189.75623"
+       height="154.62251"
+       preserveAspectRatio="none"
+       style="image-rendering:optimizeQuality"
+       id="image1043"
+       x="112.57521"
+       y="97.56147" />
+    <image
+       sodipodi:absref="/home/charon/frostAV/frostServer/lane/figure/4_medianBlur.png"
+       xlink:href="4_medianBlur.png"
+       inkscape:export-ydpi="150"
+       inkscape:export-xdpi="150"
+       width="183.75801"
+       height="156.5275"
+       preserveAspectRatio="none"
+       style="image-rendering:optimizeQuality"
+       id="image1054"
+       x="302.33142"
+       y="97.56147" />
+    <image
+       sodipodi:absref="/home/charon/frostAV/frostServer/lane/figure/5_canny.png"
+       xlink:href="5_canny.png"
+       inkscape:export-ydpi="150"
+       inkscape:export-xdpi="150"
+       width="179.36789"
+       height="153.35249"
+       preserveAspectRatio="none"
+       style="image-rendering:optimizeQuality"
+       id="image1065"
+       x="-68.360596"
+       y="282.93579" />
+    <image
+       sodipodi:absref="/home/charon/frostAV/frostServer/lane/figure/6_regionOfInterest.png"
+       xlink:href="6_regionOfInterest.png"
+       inkscape:export-ydpi="150"
+       inkscape:export-xdpi="150"
+       width="179.40143"
+       height="153.35251"
+       preserveAspectRatio="none"
+       style="image-rendering:optimizeQuality"
+       id="image1076"
+       x="111.00729"
+       y="282.93579" />
+    <image
+       sodipodi:absref="/home/charon/frostAV/frostServer/lane/figure/7_hough.png"
+       xlink:href="7_hough.png"
+       inkscape:export-ydpi="150"
+       inkscape:export-xdpi="150"
+       width="179.16907"
+       height="153.35251"
+       preserveAspectRatio="none"
+       style="image-rendering:optimizeQuality"
+       id="image1087"
+       x="290.40872"
+       y="282.93576" />
+    <image
+       sodipodi:absref="/home/charon/frostAV/frostServer/lane/figure/8_error.png"
+       xlink:href="8_error.png"
+       inkscape:export-ydpi="150"
+       inkscape:export-xdpi="150"
+       width="184.07159"
+       height="157.7975"
+       preserveAspectRatio="none"
+       style="image-rendering:optimizeQuality"
+       id="image1098"
+       x="109.44521"
+       y="451.68222" />
+    <path
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#787878;stroke-width:2;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       d="M 112.57521,97.561468 V 252.18398"
+       id="path1101"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150" />
+    <path
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#787878;stroke-width:2;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       d="M 302.33143,97.561468 V 252.18398"
+       id="path1103"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150" />
+    <path
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#787878;stroke-width:2;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       d="M 111.00729,282.93578 V 436.28831"
+       id="path1105"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150" />
+    <path
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#787878;stroke-width:2;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       d="M 290.40873,282.93578 V 436.28831"
+       id="path1107"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150" />
+    <path
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#787878;stroke-width:2;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       d="M -68.360596,97.561468 H 486.08942"
+       id="path1128"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150" />
+    <path
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#787878;stroke-width:2;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       d="M 486.08942,97.561468 V 254.08896 L -68.360596,252.18398 V 97.561468"
+       id="path1130"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150" />
+    <path
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#787878;stroke-width:2;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       d="m -68.360596,282.93578 537.938376,-2e-5 10e-6,153.35251"
+       id="path1150"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150" />
+    <path
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#787878;stroke-width:2;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       d="m 469.57778,436.28825 -537.938376,3e-5 V 282.93579"
+       id="path1152"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150" />
+    <path
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#787878;stroke-width:2;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       d="m 109.44521,451.68221 h 184.0716 v 157.79751 h -184.0716 z"
+       id="path1154"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150" />
+    <path
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#787878;stroke-width:2;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       d="M 124.55887,-68.037154 H 285.42554 V 68.805344 H 124.55887 l 0,-136.842499"
+       id="path1156"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150" />
+  </g>
+</svg>

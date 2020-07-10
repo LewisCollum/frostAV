@@ -1,78 +1,4 @@
- /* The sidepanel menu */
-.sidepanel {
-    width: 0;
-    position: absolute;
-    top: 10px;
-    left: 0;
-    background-color: black;
-    overflow-x: hidden;
-    transition: width 0.25s;
-}
-
-.sidepanel ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.sidepanel p {
-    padding: 2px;
-    font-weight: bold;
-    text-align: center;
-    color: lightgrey;
-    background-color: darkslategrey;
-}
-
-.sidepanel li {
-    font-size: 15px;
-    color: lightgrey;
-    display: block;
-    transition: 0.3s;
-    background-color: inherit;
-    width: 100%;    
-}
-
-.sidepanel label:hover {
-    background-color: dodgerblue;
-}
-
-.sidepanel input:checked + label {
-    background-color: darkslateblue;
-}
-
-.sidepanel input {
-    visibility: hidden;
-    display: none;
-}
-
-.sidepanel label {
-    padding-right: 20px;
-    padding-left: 20px;
-    float: left;
-    width: 100%;
-    background-color: #111;
-}
-
-/* Style the button that is used to open the sidepanel */
-.openbtn {
-    position: absolute;
-    top: 0;
-    right: 0;
-    font-size: 15px;
-    cursor: pointer;
-    background-color: #111;
-    color: white;
-    padding: 5px 10px;
-    border: none;
-}
-
-.openbtn:hover {
-  background-color: #444;
-} 
-
-html {
-    scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
     font-family: Roboto;
@@ -82,13 +8,20 @@ body {
     margin: 0 auto;
 }
 
-main-header {
-    line-height: 10px;
+header {
+    background-color: #8080F0;
+    color: white;
 }
 
-p {
-    margin: 0;
+h2 {
+    font-family: Roboto;
+    font-size: 1.4rem;
+    text-align: center;
+    margin:0.25rem;
 }
+
+main-header { line-height: 10px; }
+p { margin: 0; }
 
 img {
     max-width: 100%;
@@ -126,24 +59,12 @@ img {
   display: inline-block;
 }
 
-header {
-    background-color: #8080F0;
-    color: white;
-}
-
-h2 {
-    font-family: Roboto;
-    font-size: 1.4rem;
-    text-align: center;
-    margin:0.25rem;
-}
-
 .container {
     position: relative;
 	margin: auto;
 	max-width: 500px;
+    height: min-content;
 }
-
 
 .sticky {
     position: -webkit-sticky;

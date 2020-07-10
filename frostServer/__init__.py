@@ -7,7 +7,8 @@ import laneModel
 import signModel
 import frame as fm
 import stats
-import vic
+import ui_bridge as ui
+#import vic
 
 import logging
 log = logging.getLogger('werkzeug')
@@ -52,19 +53,14 @@ def gamepad():
 
 @application.route('/imageStreamChoices')
 def imageStreamChoices():
-    selections = {
-        'frames': [],
-        'annotators': [],
-        'switchables': []
-    }
-    
+    categories = ui.Categories()
     for model in models.values():
-        for name, values in model.asDict().items():
-            selections[name] += values
-            
-    selections['frames'] += ['Raw']
-    
-    return jsonify(selections)
+        categories += ui.modelToButtonCategories(model)
+
+    categories['Frame'].addButtons(['Raw'])
+    categories['Frame'].addDefaults(['Raw'])
+
+    return jsonify(categories.asDict())
 
 
 @application.route('/updateImageStream', methods=['POST'])
@@ -72,15 +68,15 @@ def updateImageStream():
     def nodeFromFrameKey(frameKey):
         return frameSubject if frameKey == 'Raw' else models['lane'].get(frameKey)
     
-    imager.subject = nodeFromFrameKey(request.json['frame'])
+    imager.subject = nodeFromFrameKey(request.json['Frame'])
     
     imager.annotatorNodes = []
-    for annotator in request.json['annotators']:
+    for annotator in request.json['Annotation']:
         for model in models.values():
             if annotator in model.annotators:
                 imager.annotatorNodes.append(model.getAnnotator(annotator))
     
-    models['lane'].switchables.matchNames(request.json['switchables'])
+    models['lane'].switchables.matchNames(request.json['Switchable'])
     
     return ('', 204)
 

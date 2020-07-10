@@ -1,59 +1,53 @@
+#+setupFile: ../org/latex_setup.org
 #+title: FrostServer
+#+author: Lewis Collum
 
-* Installing Nginx, Flask, and GUnicorn
-  Since we are using Arch Linux ARM on our Pi, we used Arch Linux's
-  package manager ~pacman~ for Nginx and Gunicorn. We used ~pip~ to
-  install Flask.
+* Front-End: FPV Live Stream & System Statistics
+  Everything starts with the server on the Raspberry Pi. On the server
+  we have a website that allows us to monitor the vehicle from a
+  client device. At the top, we have an FPV livestream (see figure
+  [[fig-liveStream]]). Here we can examine the internals of our image
+  processing system. The livestream is achieve by long-polling JPEG
+  images from our main (Python) application to our website.
 
-  #+begin_src bash
-pacman -S nginx
-pacman -S gunicorn
-pip install flask
-  #+end_src
+  #+name: fig-liveStream
+  #+caption: Snapshot from the vehicle's website illustrating the FPV livestream. We can choose the type of frame we want to see (e.g. the LAB color-space frame) and the type of annotations we want to see (e.g. lane state and lane lines).
+  #+attr_latex: :width 0.5\linewidth
+  [[./figure/snapshots/liveStream.png]]
 
-  These commands have to be run as sudo, since we are a user on the Pi.
+  We are also logging various system statistics, like load,
+  temperature, and memory. Load is measured in number of jobs in the
+  run queue averaged over a minute. Thanks to our custom designed
+  power supply, we can also view power usage, battery voltage and
+  current draw (see figure [[fig-stats_combined]]).
 
-* Starting the Server the First time
-  For ease, this repository was cloned on our Raspberry Pi to the user
-  directory (e.g. "/home/alarm"). In the ~frostServer/config~ directory,
-  there is a setup script which does the following:
-  
-  1. links the frostServer.service to the system directory;
-  2. links the frostServer.nginx config file to nginx's enabled-sites
-     directory;
-  3. enables both the nginx and the frostServer services;
-  4. starts both services.
-     
-  For this script to work, it should be run as ~sudo~.
-  
-  Now, on a computer connected to the same WiFi as our Pi, we can
-  type the IP of the Pi into the browser search bar
-  (e.g. "192.168.0.106") and the Frost website appears.
-
-  Since we enabled the server service, the server will start at
-  boot without any user intervention.
+  #+name: fig-stats_combined
+  #+caption: Snapshots from the vehicle's website illustrating Raspberry Pi system load, memory, and temperature, as well as power supply power, voltage, and current over time.
+  #+attr_latex: :width \linewidth
+  [[./figure/snapshots/stats_combined.png]]
 
 * Server Overview: Flask, GUnicorn, and Nginx
   We use Flask, GUnicorn, and Nginx. Let's work our way down, from the
   website, to our application code (in python).
 
-*** Nginx
-  Nginx acts as our web server, fulfilling requests from clients for
+  *Nginx* acts as our web server, fulfilling requests from clients for
   static content from our website (e.g. HTML pages, files and
   images). Nginx forwards dynamic requests (e.g. all of the requests 
   that we want Python to handle) to GUnicorn, our 
   application server.
 
-*** GUnicorn
-  GUnicorn ensures that Nginx and our Flask Python application can
+  *GUnicorn* ensures that Nginx and our Flask Python application can
   talk to each other. Ultimately, GUnicorn routes requests (passed
   through Nginx) to their corresponding function in our Flask
   application.
 
-*** Flask
-  Flask is a web [[https://en.wikipedia.org/wiki/Microframework][microframework]] in the form of a Python library. It is
+  *Flask* is a web [[https://en.wikipedia.org/wiki/Microframework][microframework]] in the form of a Python library. It is
   used in our Python application to provide functions that can receive
-  requests, and return a response (e.g. sensor data).
+  requests, and return a response (e.g. sensor data). See figure [[fig-block_server]].
+
+  #+name: fig-block_server
+  #+caption: The client can see the server's website by typing in the server IP into a browser. All static requests, for the website, like html pages, styles and images, are handled directly by Nginx. Dynamic requests, for fetching system statistics for example, are routed to GUnicorn and then to our Flask application.
+  [[./figure/blocks/block_server.png]]
 
 ** Example: Real-Time Sensor Reading
   We have real-time plots on our front-end that request sensor
@@ -68,7 +62,7 @@ pip install flask
   command). Finally, the function returns a response which contains
   the sensor data.
   
-** Resources  
+** Resources :noexport:
    - https://en.wikipedia.org/wiki/Multitier_architecture
    - https://serverfault.com/questions/331256/why-do-i-need-nginx-and-something-like-gunicorn
    - https://www.nginx.com/resources/glossary/application-server-vs-web-server/
@@ -80,3 +74,50 @@ pip install flask
 
 # * Developing with Flask
 # export FLASK_ENV=development
+* Installing Nginx, Flask, and GUnicorn
+  Since we are using Arch Linux ARM on our Pi, we used Arch Linux's
+  package manager ~pacman~ for Nginx and Gunicorn. We used ~pip~ to
+  install Flask.
+
+  #+begin_src bash
+sudo pacman -S nginx
+sudo pacman -S gunicorn
+sudo pip install flask
+  #+end_src
+
+* Starting the Server the First time
+  For ease, this repository was cloned on our Raspberry Pi to the user
+  directory (e.g. "/home/alarm"). In the =frostServer/config= directory,
+  there is a setup script[fn:asSudo] which does the following:
+  
+  1. links the frostServer.service to the system directory;
+  2. links the frostServer.nginx config file to nginx's enabled-sites
+     directory;
+  3. enables both the nginx and the frostServer services;
+  4. starts both services.
+  
+  Now, on a computer connected to the same WiFi as our Pi, we can type
+  the IP of the Pi into the browser search bar (e.g. "192.168.0.106")
+  and the Frost website appears. Since we enabled the server service,
+  the server will start at boot without any user intervention.
+
+* Automation System
+  The server is also responsible for starting the automation
+  system. The automation system begins in code with a Frame Subject
+  (see figure [[fig-frameSubject]]), which is a simple object that
+  captures images, or as we will call them, frames, continuously from
+  the camera. We have two models which take a copy of each frame: the
+  Lane Model, and the Sign Detection Model. Since these models are
+  both computationally expensive, we set them up to process the frames
+  from the Frame Subject in their own thread. This ensures that other
+  parts of our application are not slowed down by these models. It is
+  also important to note that these models are fully independent from
+  each other. That is, one model does not affect the result of the
+  other model.
+
+  #+name: fig-frameSubject
+  #+caption: Illustrates the Frame Subject being started (as a thread) from the server (Flask) application code, from which, the lane and sign detection models can pull camera frames.
+  [[./figure/blocks/block_frameSubject.png]]
+  
+* Footnotes :ignore:
+[fn:asSudo] The setup script should be run as =sudo=.

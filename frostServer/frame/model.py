@@ -36,10 +36,16 @@ class Model:
     
     def getAnnotator(self, name):
         return self.annotators[name]
-    
-    def asDict(self):
+
+    @property
+    def toggleNames(self):
         return {
-            'frames': self.framers[:],
-            'annotators': self.annotators.keys(),
-            'switchables': list(self.switchables)
+            'Annotation': self.annotators.keys(),
+            'Switchable': list(self.switchables)
+        }
+
+    @property
+    def radioNames(self):
+        return {
+            'Frame': self.framers[:]
         }

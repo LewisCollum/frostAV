@@ -1,3 +1,9 @@
+*Youtube:* https://youtu.be/KNiY2aC7Y0c
+
 *Check out some continuously updated videos and pictures:* https://photos.app.goo.gl/i7FG5oYFuoorvApo9
 
+[[https://github.com/LewisCollum/frostAV/blob/master/org/README.pdf][*Read the (not a research) paper*]]
+
 [[./org/figure/poster.png]] 
+
+[[./frostServer/figure/FrostAVSystem.png]]

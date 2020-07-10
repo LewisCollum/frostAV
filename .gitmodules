@@ -1,0 +1,3 @@
+[submodule "frostServer/static/panel"]
+	path = frostServer/static/panel
+	url = https://github.com/LewisCollum/buttonSidePanel

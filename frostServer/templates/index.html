@@ -7,7 +7,13 @@
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}"></link>
     <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <script src="{{url_for('static', filename='main.js')}}"></script>
+    <script src="{{url_for('static', filename='/panel/ButtonCategory.js')}}"></script>
+    <script src="{{url_for('static', filename='/panel/RadioButtonCategory.js')}}"></script>
+    <script src="{{url_for('static', filename='/panel/ToggleButtonCategory.js')}}"></script>
+    <script src="{{url_for('static', filename='/panel/Panel.js')}}"></script>
+    <script src="{{url_for('static', filename='/panel/PanelOpenButton.js')}}"></script>    
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='panel/PanelOpenButton.css')}}"></link>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='panel/Panel.css')}}"></link>    
   </head>
   <body>
     <div id="topNavigation" class="sticky">
@@ -15,140 +21,16 @@
       <a href="#pi">RPi</a>
       <a href="#psu">PSU</a>      
     </div>
-
+    
     <section id="camera">
       <div class="container" id="cameraContainer">
-        <form id="cameraPanel" class="sidepanel">
-          <p>Frame</p>
-          <ul id="frameChoices"></ul>
-          <p>Annotation</p>
-          <ul id="annotationChoices"></ul>
-          <p>Modifier</p>
-          <ul id="frameModifierChoices"></ul>
-        </form>
-
-        <button class="openbtn" id="cameraPanelButton">&#9776;</button>
-        <script>
-          var choiceCount = 0;
-          function generateChoice(label, inputType, subType="") {
-              var choice = document.createElement("li");
-              choice.setAttribute("id", `li_${label}${subType}`)
-              choice.innerHTML = `<input type=${inputType} value='${label}${subType}' name='${inputType}${subType}' id='${label}${subType}'/>
-              <label for='${label}${subType}'>${label}</label>`
-              choiceCount += 1
-              return choice
-          }
-
-          function labelsToChoices(labels, inputType, subType="") {
-              var choices = []
-              labels.forEach((label) => {
-                  choices.push(generateChoice(label, inputType, subType))
-              })
-              return choices
-          }
-
-          function choicesToElementChildren(choices, element) {
-              choices.forEach((choice) => {
-                  element.appendChild(choice)
-              })
-          }
-
-          var currentFrameChoiceElement = null
-          var currentFrameChoice = null
-          
-          var frameChoicesContainer = document.getElementById("frameChoices")
-          var annotationChoicesContainer = document.getElementById("annotationChoices")
-          var frameModifierChoicesContainer = document.getElementById("frameModifierChoices")          
-          
-          var frameLabels = []
-          var frameChoices = []
-          var annotationLabels = []
-          var frameModifierLabels = []
-          handleUrlResponse('/imageStreamChoices', (response) => {
-              choiceLabels = JSON.parse(response)
-
-              frameLabels = choiceLabels["frames"]
-              frameChoices = labelsToChoices(frameLabels, "radio")
-              choicesToElementChildren(frameChoices, frameChoicesContainer)
-
-              annotationLabels = choiceLabels["annotators"]
-              var annotationChoices = labelsToChoices(annotationLabels, "checkbox")
-              choicesToElementChildren(annotationChoices, annotationChoicesContainer)
-
-              frameModifierLabels = choiceLabels["switchables"]
-              var frameModifierChoices = labelsToChoices(frameModifierLabels, "checkbox", "_modifier")
-              choicesToElementChildren(frameModifierChoices, frameModifierChoicesContainer)
-              
-              currentFrameChoiceElement = document.getElementById("Raw")
-              currentFrameChoiceElement.checked = true
-              currentFrameChoice = currentFrameChoiceElement.value
-          })
-
-          
-          var checkedAnnotators = new Set()
-          var checkedModifiers = new Set()          
-          document.forms.cameraPanel.addEventListener('change', function(event) {
-              if(event.target.name === 'radio') {
-                  currentFrameChoice = event.target.value
-              }
-              else if (event.target.name === 'checkbox') {
-                  let annotation = event.target.value
-                  if (checkedAnnotators.has(annotation)) {
-                      checkedAnnotators.delete(annotation)
-                  }
-                  else {
-                      checkedAnnotators.add(annotation)
-                  }
-                  console.log(checkedAnnotators)
-              }
-              else if (event.target.name === 'checkbox_modifier') {
-                  let value = event.target.value
-                  let modifierName = value.split("_")[0]
-                  let subType = value.split("_")[1]
-                  
-                  console.log(modifierName)
-                  if (checkedModifiers.has(modifierName)) {
-                      checkedModifiers.delete(modifierName)
-                      let frameItem = document.getElementById(`li_${modifierName}`)
-                      frameItem.parentNode.removeChild(frameItem)
-                  }
-                  else {
-                      checkedModifiers.add(modifierName)
-                      frameChoicesContainer.appendChild(generateChoice(modifierName, "radio"))
-                  }
-                  console.log(checkedModifiers)
-              }              
-              let selections = JSON.stringify({
-                  'frame': currentFrameChoice,
-                  'annotators': [...checkedAnnotators,],
-                  'switchables': [...checkedModifiers,]})
-              console.log(selections)
-              var xmlhttp = new XMLHttpRequest();
-              xmlhttp.open("POST", "/updateImageStream")
-              xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-              xmlhttp.send(selections)
-          });
-          
-          // for (let i = 0; i < frameChoicesContainer.children.length; ++i) {
-          //     frameChoicesContainer.children[i].addEventListener('change', () =>)
-          // }
-          
-          var panel = document.getElementById("cameraPanel")
-          panel.addEventListener('click', (event) => event.stopPropagation())
-          
-          var cameraPanelButton = document.getElementById("cameraPanelButton")
-          cameraPanelButton.addEventListener('click', (event) => {
-              event.stopPropagation()
-              panel.style.width = "100px"
-          })
-
-          document.addEventListener('click', () => panel.style.width = "0")
-        </script>
-
-        
         <img id="camera" src="{{ url_for('imageStream') }}"></img>
       </div>
+      <div id="control" class="container" style="height:150px">
+      </div>
     </section>
+
+    <script src="{{url_for('static', filename='main.js')}}"></script>
 
     <section id="pi">
       <header>
@@ -173,46 +55,5 @@
       <script src="{{url_for('static', filename='chartSetup.js')}}"></script>
       <script src="{{url_for('static', filename='update_stats.js')}}"></script>
     </section>
-    
-    <script>
-      window.addEventListener("gamepadconnected", function(e) {
-          console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
-                      e.gamepad.index, e.gamepad.id,
-                      e.gamepad.buttons.length, e.gamepad.axes.length);
-      })
-
-      const handleResponse = ({target}) => {
-          console.log(target.responseText)
-      }
-
-      var steeringPrevious = null
-      var forwardPrevious = null
-      var reversePrevious = null
-      setInterval(function() {
-          let gamepad = navigator.getGamepads()[0]
-          if (gamepad) {
-              let steering = gamepad.axes[0]
-              let forward = gamepad.axes[4]
-              let reverse = gamepad.axes[3]
-
-              if (steering != steeringPrevious || forward != forwardPrevious || reverse != reversePrevious) {
-                  const xhr = new XMLHttpRequest()
-                  let update = JSON.stringify({
-                      'steering': steering,
-                      'forward': forward,
-                      'reverse': reverse})
-                  
-                  xhr.addEventListener('load', handleResponse)
-                  xhr.open('POST', '/gamepad')
-                  xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-                  xhr.send(update)                                    
-
-                  steeringPrevious = steering
-                  forwardPrevious = forward
-                  reversePrevious = reverse
-              }
-          }
-      }, 50)
-    </script>  
   </body>
 </html>

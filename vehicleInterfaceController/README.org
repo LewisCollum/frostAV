@@ -1,11 +1,23 @@
+#+setupFile: ../org/latex_setup.org
 #+title: Vehicle Interface Controller (VIC)
-** Overview
-  We are using an Arduino Uno to take in i2c steering and drive values to control the vehicle's steering servo and electronic   speed controller (ESC). We refer to the Arduino as the Vehicle Interface Controller (VIC).
+#+author: Lewis Collum
 
-  The VIC is programmed in C++ (not using Arduino's packages). This gives us control over the implementation details of utilities like strings, pwm, usart, and i2c. Note that this decision was made for our own academic curiousity.
+** Overview
+  We are using an Arduino Uno to take in i2c steering and drive values
+  to control the vehicle's steering servo and electronic speed
+  controller (ESC). We refer to the Arduino as the Vehicle Interface
+  Controller (VIC).
+
+  The VIC is programmed in C++ (not using Arduino's packages). This
+  gives us control over the implementation details of utilities like
+  strings, pwm, usart, and i2c. Note that this decision was made for
+  our own academic curiousity.
 
 ** Application Makefiles
-  The VIC uses GNU Makefiles. We have modularized the makefile process, such that when starting a new application file (i.e. a    source file which contains =main=) the makefile to build the application only needs to contain
+  The VIC uses GNU Makefiles. We have modularized the makefile
+  process, such that when starting a new application file (i.e. a
+  source file which contains =main=) the makefile to build the
+  application only needs to contain
 
   #+begin_src makefile
 TARGET = <name of your application>
@@ -16,19 +28,26 @@ include $(ROOT)/mk/all.mk
   where =ROOT= is the directory that contains the =mk= directory.
 
 ** Making a New Application 
-  We have included a bash script in =app= called =createNewApp=. To make a new application, go to the app directory and run
+  We have included a bash script in =app= called =createNewApp=. To
+  make a new application, we can go to the app directory and run
   
   #+begin_src bash
   ./createNewApp <name of application>
   #+end_src
   
-  This script ensure there are no existing applications and if that is true:
-    1. will make a directory with the same name as your application;
-    2. will make a =cpp= source file with the name of your application;
-    3. will create a Makefile, filled with everything necessary to build your application.
+  This script ensures there are no existing applications and if that is true:
+    1. will make a directory with the same name as our application;
+    2. will make a =cpp= source file with the name as our application;
+    3. will create a Makefile, filled with everything necessary to
+       build our application.
     
 ** Flashing the Arduino
-  Go to the directory of an application (in the =app= directory), and run =make flash=.
+   To flash the Arduino, we go to the directory of an application (in
+   the =app= directory), and then we run =make flash=. The build files
+   are exported to the =app/build= directory.
   
 ** Serial Interface
-  Go to the directory of an application (in the =app= directory), and run =make com=. This uses *picocom*, so make sure picocom is installed.
+   To communicate with the Arduino, via Serial, we use =picocom=, a
+   linux terminal utility. As part of our modular makefile system, we
+   can open =picocom= by going to the directory of an application (in
+   the =app= directory), and running =make com=.

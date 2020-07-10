@@ -33,9 +33,7 @@ def generate(subject):
             rootPath = 'sign/yolov3-tiny-prn'))))
 
     model['Net'].addObservers(model['netTimer'])
-
     model['netTimer'].addObservers(lambda message: print(message))
-
 
     model.addAnnotator(Annotator(
         name = 'NetTimer',
