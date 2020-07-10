@@ -1,32 +1,8 @@
 import cv2
 import numpy
-import time
 
-from frame import Node, Switchable, Model, Annotator
+from frame import Node, Switchable, Model, Annotator, Timer
 import sign
-
-class Timer:
-    initialTime = None
-    def __init__(self, node):
-        self.node = node
-
-    @property
-    def name(self):
-        return self.node.name
-
-    def addObservers(self, observers):
-        self.node.addObservers(observers)
-        
-    def __call__(self, unused):
-        if self.initialTime:
-            self.node(time.time() - self.initialTime)
-            self.initialTime = None
-        else:
-            self.initialTime = time.time()
-
-    def pull(self):
-        return self.node.pull()
-
     
 def generate(subject):
     model = Model()
@@ -48,7 +24,7 @@ def generate(subject):
         strategy = lambda delay: (f'Sign FPS: {1/delay:.2f}'))))
 
     
-    model['Blob'].addObservers([model['netTimer']])        
+    model['Blob'].addObservers(model['netTimer'])        
 
     model.add(Node(
         name = 'Net',
@@ -56,10 +32,9 @@ def generate(subject):
         strategy = sign.Net(sign.makeCpuDarknet(
             rootPath = 'sign/yolov3-tiny-prn'))))
 
-    model['Net'].addObservers([model['netTimer']])
+    model['Net'].addObservers(model['netTimer'])
 
-    model['netTimer'].addObservers([
-        lambda message: print(message)])
+    model['netTimer'].addObservers(lambda message: print(message))
 
 
     model.addAnnotator(Annotator(
@@ -82,16 +57,5 @@ def generate(subject):
         strategy = sign.DrawDetectionBoxes(
             classes = sign.readClasses("sign/sign.names"))))
 
-    # Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
-    # t, _ = net.getPerfProfile()
-    # label = 'Inference time: %.2f ms' % (t * 1000.0 / cv.getTickFrequency())
-    # cv.putText(frame, label, (0, 15), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
-
     model.setHead('Blob')
     return model
-
-
-
-
-
-

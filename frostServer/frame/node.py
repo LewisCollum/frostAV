@@ -1,5 +1,5 @@
 def addObserverToSubjects(observer, subjects):
-    for subject in subjects: subject.addObservers([observer])
+    for subject in subjects: subject.addObservers(observer)
 
 class Node:
     def __init__(self, name, subjects, strategy):
@@ -10,7 +10,7 @@ class Node:
         self.name = name
         addObserverToSubjects(self, self.subjects)
         
-    def addObservers(self, observers):
+    def addObservers(self, *observers):
         self.observers += observers
         
     def __call__(self, package):

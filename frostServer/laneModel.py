@@ -4,48 +4,15 @@ import time
 
 import lane
 
-from frame import Node, Switchable, Model, Annotator, Joiner
-import frame.node as node 
-
-from collections import namedtuple
-Package = namedtuple('Package', ['name', 'content'])
-class Packager:
-    def __init__(self, node):
-        self.node = node
-        self.packagingNode = Node(
-            name = None,
-            subjects = [self.node],
-            strategy = lambda content: Package(self.node.name, content))
-
-    @property
-    def name(self):
-        return self.node.name
-
-    def pull(self):
-        return self.node.pull()
-    
-    def addObservers(self, observers):
-        self.packagingNode.addObservers(observers)
-        
-    def __call__(self, content):
-        self.packagingNode(content)
-
-    
-def delay(frame):
-    time.sleep(0.02)
-    return frame
+from frame import Node, Switchable, Model, Annotator, Joiner, Packager
+import frame.node as node
 
 def generate(subject):
     model = Model()
-
-    model.add(Node(
-        name = 'delay',
-        subjects = [],
-        strategy = delay))
     
     model.addFramer(Node(
         name = 'LAB',
-        subjects = [model['delay']],
+        subjects = [],
         strategy = lambda frame: cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)))
 
     model.addFramer(Node(
@@ -197,5 +164,5 @@ def generate(subject):
     #     model['CrossTrackError']])
     
     model['Lane']
-    model.setHead('delay')
+    model.setHead('LAB')
     return model

@@ -1,6 +1,5 @@
 import os
 from flask import Flask, render_template, Response, request, jsonify
-import time 
 import cv2
 
 import vehicleModel
@@ -27,14 +26,14 @@ models['lane'] = laneModel.generate(subject = frameSubject)
 models['sign'] = signModel.generate(subject = frameSubject)    
 models['vehicle'] = vehicleModel.generate()
 
-models['sign']['NMS'].addObservers([models['vehicle']['signs']])
+models['sign']['NMS'].addObservers(models['vehicle']['signs'])
 # models['lane']['Error'].addObservers([
 #     models['vehicle']['driveController'],
 #     models['vehicle']['steeringController']])
 
 frameSubject.addObserver('sign', models['sign'].head)
 frameSubject.addObserver('lane', models['lane'].head)
-models['lane']['TotalError'].addObservers([models['vehicle']['controlPackager']])
+#models['lane']['TotalError'].addObservers([models['vehicle']['controlPackager']])
 
 imager = fm.Imager(defaultSubject = frameSubject)
 imageResponder = fm.ImageResponder(imager)
