@@ -17,4 +17,4 @@
 
   #+name: fig-block-vic
   #+caption: Lane error and detected signs are used to control the driving and steering values send to the Arduino over I2C.
-  [[../figure/blocks/block_vic.png]]
+  [[../README.org.d/figure/blocks/block_vic.png]]

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+function main {
+    while read -d '' path; do
+        runSetupInPath "$path"
+    done < <(find . -mindepth 2 -name setup -type f -print0)
+}
+
+function runSetupInPath {
+    pushd `dirname $1`
+    source setup
+    popd
+}
+
+main $@

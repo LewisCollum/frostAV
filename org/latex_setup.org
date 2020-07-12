@@ -4,3 +4,4 @@
 #+bind: org-latex-image-default-width "0.8\\linewidth"
 #+options: num:t tags:nil toc:t
 #+bind: org-latex-default-figure-position "H"
+#+setupFile: https://fniessen.github.io/org-html-themes/setup/theme-readtheorg.setup

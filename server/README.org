@@ -13,7 +13,7 @@
   #+name: fig-liveStream
   #+caption: Snapshot from the vehicle's website illustrating the FPV livestream. We can choose the type of frame we want to see (e.g. the LAB color-space frame) and the type of annotations we want to see (e.g. lane state and lane lines).
   #+attr_latex: :width 0.5\linewidth
-  [[./figure/snapshots/liveStream.png]]
+  [[./README.org.d/figure/snapshots/liveStream.png]]
 
   We are also logging various system statistics, like load,
   temperature, and memory. Load is measured in number of jobs in the
@@ -24,7 +24,7 @@
   #+name: fig-stats_combined
   #+caption: Snapshots from the vehicle's website illustrating Raspberry Pi system load, memory, and temperature, as well as power supply power, voltage, and current over time.
   #+attr_latex: :width \linewidth
-  [[./figure/snapshots/stats_combined.png]]
+  [[./README.org.d/figure/snapshots/stats_combined.png]]
 
 * Server Overview: Flask, GUnicorn, and Nginx
   We use Flask, GUnicorn, and Nginx. Let's work our way down, from the
@@ -47,7 +47,7 @@
 
   #+name: fig-block_server
   #+caption: The client can see the server's website by typing in the server IP into a browser. All static requests, for the website, like html pages, styles and images, are handled directly by Nginx. Dynamic requests, for fetching system statistics for example, are routed to GUnicorn and then to our Flask application.
-  [[./figure/blocks/block_server.png]]
+  [[./README.org.d/figure/blocks/block_server.png]]
 
 ** Example: Real-Time Sensor Reading
   We have real-time plots on our front-end that request sensor
@@ -104,7 +104,7 @@ sudo pip install flask
 * Automation System
   The server is also responsible for starting the automation
   system. The automation system begins in code with a Frame Subject
-  (see figure [[fig-frameSubject]]), which is a simple object that
+  (see README.org.d/figure [[fig-frameSubject]]), which is a simple object that
   captures images, or as we will call them, frames, continuously from
   the camera. We have two models which take a copy of each frame: the
   Lane Model, and the Sign Detection Model. Since these models are
@@ -117,7 +117,7 @@ sudo pip install flask
 
   #+name: fig-frameSubject
   #+caption: Illustrates the Frame Subject being started (as a thread) from the server (Flask) application code, from which, the lane and sign detection models can pull camera frames.
-  [[./figure/blocks/block_frameSubject.png]]
+  [[./README.org.d/figure/blocks/block_frameSubject.png]]
   
 * Footnotes :ignore:
 [fn:asSudo] The setup script should be run as =sudo=.

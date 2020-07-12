@@ -18,21 +18,21 @@
 
   #+caption: 3D-printed tenth-scale chassis.
   #+attr_latex: :width 0.5\linewidth
-  [[../design/vehicle/figure/2020_03-newPartsChassis.JPG]]
+  [[../design/vehicle_cad/figure/2020_03-newPartsChassis.JPG]]
   
 * Vehicle Monitoring with a Web Server
-  #+include: "../frostServer/README.org" :lines "4-"
+  #+include: "../server/README.org" :lines "4-"
 * Lane Detection
-  #+include: "../frostServer/lane/README.org" :lines "4-"
+  #+include: "../server/lane/README.org" :lines "4-"
 * YOLOv3 Real-Time Sign Detection
-  #+include: "../frostServer/sign/README.org" :lines "4-"
+  #+include: "../server/sign/README.org" :lines "4-"
 * Vehicle Control Model
 ** Control Value Packaging on the Raspberry Pi
-   #+include: "../frostServer/vic/README.org" :lines "4-"   
+   #+include: "../server/vic/README.org" :lines "4-"   
 ** Vehicle Interface Controller (Arduino)
-   #+include: "../vehicleInterfaceController/README.org" :lines "4-"
+   #+include: "../controller/README.org" :lines "4-"
 * Simple Framework for Nodal Frame Processing                      :noexport:
-  #+include: "../frostServer/frame/README.org" :lines "4-"
+  #+include: "../server/frame/README.org" :lines "4-"
 * Vehicle Design                                                   :noexport:
   #+include: "../design/README.org" :lines "4-"
 * Conclusion & Necessary Improvements

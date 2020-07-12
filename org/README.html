@@ -1,0 +1,1102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2020-07-12 Sun 00:25 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FrostAV: Lane &amp; Sign Detecting Tenth-Scale Vehicle</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Lewis Collum" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/readtheorg/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/readtheorg/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/readtheorg/js/readtheorg.js"></script>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2020 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">FrostAV: Lane &amp; Sign Detecting Tenth-Scale Vehicle</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org64b7057">1. Introduction</a></li>
+<li><a href="#org9d508bc">2. Vehicle Monitoring with a Web Server</a>
+<ul>
+<li><a href="#org3993bba">2.1. Front-End: FPV Live Stream &amp; System Statistics</a></li>
+<li><a href="#orgc296a34">2.2. Server Overview: Flask, GUnicorn, and Nginx</a>
+<ul>
+<li><a href="#orgb82118d">2.2.1. Example: Real-Time Sensor Reading</a></li>
+</ul>
+</li>
+<li><a href="#org1ac390f">2.3. Installing Nginx, Flask, and GUnicorn</a></li>
+<li><a href="#org47f08cb">2.4. Starting the Server the First time</a></li>
+<li><a href="#orgc2ce275">2.5. Automation System</a></li>
+</ul>
+</li>
+<li><a href="#org4a2b9ab">3. Lane Detection</a>
+<ul>
+<li><a href="#org7cff5c0">3.1. Summary</a></li>
+<li><a href="#orgdcff632">3.2. Black and White Lane Mask from Raw Frame</a></li>
+<li><a href="#org191cb0a">3.3. Line Segment Coordinates from Lane Mask</a></li>
+<li><a href="#orgfd55e89">3.4. Lane Angle Error from Line Segment Coordinates</a></li>
+</ul>
+</li>
+<li><a href="#orga502ff4">4. YOLOv3 Real-Time Sign Detection</a>
+<ul>
+<li><a href="#org7dc8dab">4.1. Example Results</a></li>
+<li><a href="#orge484c46">4.2. Choice of Object Detector</a></li>
+<li><a href="#org0ac9d4e">4.3. YOLOv3 Implementation</a></li>
+<li><a href="#orgf60cc59">4.4. Training the YOLOv3 Network</a>
+<ul>
+<li><a href="#orgd0302b5">4.4.1. Dataset: GTSDB</a></li>
+<li><a href="#orge839a9e">4.4.2. YOLOv3 Darknet</a></li>
+<li><a href="#orgcf9a473">4.4.3. Training/Testing Distribution of Images</a></li>
+<li><a href="#org0aed455">4.4.4. Results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org3f6962d">5. Vehicle Control Model</a>
+<ul>
+<li><a href="#orgd7337bb">5.1. Control Value Packaging on the Raspberry Pi</a>
+<ul>
+<li><a href="#org4630795">5.1.1. Summary</a></li>
+</ul>
+</li>
+<li><a href="#org4aff474">5.2. Vehicle Interface Controller (Arduino)</a>
+<ul>
+<li><a href="#orge9baa0f">5.2.1. Overview</a></li>
+<li><a href="#orgdfbd5f2">5.2.2. Application Makefiles</a></li>
+<li><a href="#org0e5ecfc">5.2.3. Making a New Application</a></li>
+<li><a href="#org26aca3c">5.2.4. Flashing the Arduino</a></li>
+<li><a href="#org6fcd5ec">5.2.5. Serial Interface</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org7922594">6. Conclusion &amp; Necessary Improvements</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org64b7057" class="outline-2">
+<h2 id="org64b7057"><span class="section-number-2">1</span> Introduction</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Autonomous vehicles need to be able to follow a path, and react to
+environmental queues. The research that encompasses autonomous
+vehicles is not only useful for self-driving cars, but also within
+factory settings and places where transportation work can be
+automated.
+</p>
+
+<p>
+We 3D printed a vehicle, which holds a raspberry pi 4, Arduino, and
+a $5 USB camera, that is capable of following a lane and reacting to
+signs. This project demonstrates a real-time object detection
+network, a web server, and a lane detection system all
+simultaneously running on a $35 raspberry pi computer. In total,
+the cost of all parts on our vehicle is around $160.
+</p>
+
+
+<div class="figure">
+<p><img src="../design/vehicle_cad/figure/2020_03-newPartsChassis.JPG" alt="2020_03-newPartsChassis.JPG" />
+</p>
+<p><span class="figure-number">Figure 1: </span>3D-printed tenth-scale chassis.</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org9d508bc" class="outline-2">
+<h2 id="org9d508bc"><span class="section-number-2">2</span> Vehicle Monitoring with a Web Server</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-org3993bba" class="outline-3">
+<h3 id="org3993bba"><span class="section-number-3">2.1</span> Front-End: FPV Live Stream &amp; System Statistics</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+Everything starts with the server on the Raspberry Pi. On the server
+we have a website that allows us to monitor the vehicle from a
+client device. At the top, we have an FPV livestream (see figure
+<a href="#org344098e">2</a>). Here we can examine the internals of our image
+processing system. The livestream is achieve by long-polling JPEG
+images from our main (Python) application to our website.
+</p>
+
+
+<div id="org344098e" class="figure">
+<p><img src="../server/README.org.d/figure/snapshots/liveStream.png" alt="liveStream.png" />
+</p>
+<p><span class="figure-number">Figure 2: </span>Snapshot from the vehicle's website illustrating the FPV livestream. We can choose the type of frame we want to see (e.g. the LAB color-space frame) and the type of annotations we want to see (e.g. lane state and lane lines).</p>
+</div>
+
+<p>
+We are also logging various system statistics, like load,
+temperature, and memory. Load is measured in number of jobs in the
+run queue averaged over a minute. Thanks to our custom designed
+power supply, we can also view power usage, battery voltage and
+current draw (see figure <a href="#orgc7c9c86">3</a>).
+</p>
+
+
+<div id="orgc7c9c86" class="figure">
+<p><img src="../server/README.org.d/figure/snapshots/stats_combined.png" alt="stats_combined.png" />
+</p>
+<p><span class="figure-number">Figure 3: </span>Snapshots from the vehicle's website illustrating Raspberry Pi system load, memory, and temperature, as well as power supply power, voltage, and current over time.</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgc296a34" class="outline-3">
+<h3 id="orgc296a34"><span class="section-number-3">2.2</span> Server Overview: Flask, GUnicorn, and Nginx</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+We use Flask, GUnicorn, and Nginx. Let's work our way down, from the
+website, to our application code (in python).
+</p>
+
+<p>
+<b>Nginx</b> acts as our web server, fulfilling requests from clients for
+static content from our website (e.g. HTML pages, files and
+images). Nginx forwards dynamic requests (e.g. all of the requests 
+that we want Python to handle) to GUnicorn, our 
+application server.
+</p>
+
+<p>
+<b>GUnicorn</b> ensures that Nginx and our Flask Python application can
+talk to each other. Ultimately, GUnicorn routes requests (passed
+through Nginx) to their corresponding function in our Flask
+application.
+</p>
+
+<p>
+<b>Flask</b> is a web <a href="https://en.wikipedia.org/wiki/Microframework">microframework</a> in the form of a Python library. It is
+used in our Python application to provide functions that can receive
+requests, and return a response (e.g. sensor data). See figure <a href="#orgc3cc001">4</a>.
+</p>
+
+
+<div id="orgc3cc001" class="figure">
+<p><img src="../server/README.org.d/figure/blocks/block_server.png" alt="block_server.png" />
+</p>
+<p><span class="figure-number">Figure 4: </span>The client can see the server's website by typing in the server IP into a browser. All static requests, for the website, like html pages, styles and images, are handled directly by Nginx. Dynamic requests, for fetching system statistics for example, are routed to GUnicorn and then to our Flask application.</p>
+</div>
+</div>
+
+<div id="outline-container-orgb82118d" class="outline-4">
+<h4 id="orgb82118d"><span class="section-number-4">2.2.1</span> Example: Real-Time Sensor Reading</h4>
+<div class="outline-text-4" id="text-2-2-1">
+<p>
+We have real-time plots on our front-end that request sensor
+data. Eventually, we expect to receive this sensor data from a URL
+of our choice (e.g. "/sensor_reading"). These requests are sent to
+Nginx, which are then passed to GUnicorn (since they are dynamic
+requests). GUnicorn sends the requests to a function in our python
+application that is registered for the formerly mentioned URL. The
+function is registered with the given URL using Flask. This function
+has code to get sensor data from the underlying linux system
+(typically, by reading a sensor file or running a shell
+command). Finally, the function returns a response which contains
+the sensor data.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org1ac390f" class="outline-3">
+<h3 id="org1ac390f"><span class="section-number-3">2.3</span> Installing Nginx, Flask, and GUnicorn</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+Since we are using Arch Linux ARM on our Pi, we used Arch Linux's
+package manager <code>pacman</code> for Nginx and Gunicorn. We used <code>pip</code> to
+install Flask.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">sudo pacman -S nginx
+sudo pacman -S gunicorn
+sudo pip install flask
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org47f08cb" class="outline-3">
+<h3 id="org47f08cb"><span class="section-number-3">2.4</span> Starting the Server the First time</h3>
+<div class="outline-text-3" id="text-2-4">
+<p>
+For ease, this repository was cloned on our Raspberry Pi to the user
+directory (e.g. "/home/alarm"). In the <code>frostServer/config</code> directory,
+there is a setup script<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup> which does the following:
+</p>
+
+<ol class="org-ol">
+<li>links the frostServer.service to the system directory;</li>
+<li>links the frostServer.nginx config file to nginx's enabled-sites
+directory;</li>
+<li>enables both the nginx and the frostServer services;</li>
+<li>starts both services.</li>
+</ol>
+
+<p>
+Now, on a computer connected to the same WiFi as our Pi, we can type
+the IP of the Pi into the browser search bar (e.g. "192.168.0.106")
+and the Frost website appears. Since we enabled the server service,
+the server will start at boot without any user intervention.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgc2ce275" class="outline-3">
+<h3 id="orgc2ce275"><span class="section-number-3">2.5</span> Automation System</h3>
+<div class="outline-text-3" id="text-2-5">
+<p>
+The server is also responsible for starting the automation
+system. The automation system begins in code with a Frame Subject
+(see README.org.d/figure <a href="#orgcf2945f">5</a>), which is a simple object that
+captures images, or as we will call them, frames, continuously from
+the camera. We have two models which take a copy of each frame: the
+Lane Model, and the Sign Detection Model. Since these models are
+both computationally expensive, we set them up to process the frames
+from the Frame Subject in their own thread. This ensures that other
+parts of our application are not slowed down by these models. It is
+also important to note that these models are fully independent from
+each other. That is, one model does not affect the result of the
+other model.
+</p>
+
+
+<div id="orgcf2945f" class="figure">
+<p><img src="../server/README.org.d/figure/blocks/block_frameSubject.png" alt="block_frameSubject.png" />
+</p>
+<p><span class="figure-number">Figure 5: </span>Illustrates the Frame Subject being started (as a thread) from the server (Flask) application code, from which, the lane and sign detection models can pull camera frames.</p>
+</div>
+</div>
+</div>
+
+<div class="outline-text-2" id="text-2">
+</div>
+</div>
+<div id="outline-container-org4a2b9ab" class="outline-2">
+<h2 id="org4a2b9ab"><span class="section-number-2">3</span> Lane Detection</h2>
+<div class="outline-text-2" id="text-3">
+</div>
+<div id="outline-container-org7cff5c0" class="outline-3">
+<h3 id="org7cff5c0"><span class="section-number-3">3.1</span> Summary</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+The goal of the Lane Model is to detect a lane and to find the error
+between the vehicle's trajectory and the center of the lane. As the
+vehicle is driving, we will try to minimize this error, shown in
+figure <a href="#org2fc6d4e">6</a>, by steering the vehicle accordingly.
+</p>
+
+
+<div id="org2fc6d4e" class="figure">
+<p><img src="../server/lane/figure/8_error_framed.png" alt="8_error_framed.png" />
+</p>
+<p><span class="figure-number">Figure 6: </span>Error generated by the lane model that will be used to steer the vehicle.</p>
+</div>
+
+<p>
+As stated before, the Frame Subject is responsible for fetching
+frames from the camera. These frames are unprocessed and in RGB
+format (see figure <a href="#orgdc8d1db">7</a>). Before extracting the lane lines, and
+subsequently, an error value, we need to send the frame from the
+Frame Subject through a series of filters.
+</p>
+
+
+<div id="orgdc8d1db" class="figure">
+<p><img src="../server/lane/figure/1_raw_framed.png" alt="1_raw_framed.png" />  
+</p>
+<p><span class="figure-number">Figure 7: </span>The raw frame we pull from the Frame Subject.</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgdcff632" class="outline-3">
+<h3 id="orgdcff632"><span class="section-number-3">3.2</span> Black and White Lane Mask from Raw Frame</h3>
+<div class="outline-text-3" id="text-3-2">
+
+<div id="orga4513cf" class="figure">
+<p><img src="../server/figure/blocks/block_lane1.png" alt="block_lane1.png" />
+</p>
+<p><span class="figure-number">Figure 8: </span>Block diagram of the 3 steps we used to get a masked frame from the raw frame.</p>
+</div>
+
+<p>
+The incoming frame is in RGB format. The RGB channels are highly
+sensitive to changes in light, meaning that slight changes in
+environmental lighting, will change our model's ability to detect
+lane lines. As an antidote, we convert the frame to the LAB color
+space. The LAB color space seperates the luminosity of the frame
+into its own channel, so the other two channels, which represent
+color, are less succeptible to changes in light. This allows us to
+tune our model to look for a specific color, that is mostly
+independent from lighting conditions.
+</p>
+
+<p>
+We are using blue painters tape as lane lines. So, we pass the LAB
+frame into a masking operation which creates a black and white
+frame, where the lane lines are masked out as black, and the
+background, is white.
+</p>
+
+<p>
+The masked frame typically has noise. We use a median blur to reduce
+the noise. Median blur slides a small window across the frame and
+for each pixel, replaces it with the median of the pixel intensities
+for the window.  
+</p>
+
+
+<div id="orgafd0576" class="figure">
+<p><img src="../server/lane/figure/234_combined.png" alt="234_combined.png" />
+</p>
+<p><span class="figure-number">Figure 9: </span>Illustrates 3 steps to get a black and white mask of the lane lines, including, (left) converting the RGB frame to LAB, (middle) masking for the color of the lane lines, and (right) applying a median blur to reduce noise.</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org191cb0a" class="outline-3">
+<h3 id="org191cb0a"><span class="section-number-3">3.3</span> Line Segment Coordinates from Lane Mask</h3>
+<div class="outline-text-3" id="text-3-3">
+
+<div id="org1d13385" class="figure">
+<p><img src="../server/figure/blocks/block_lane2.png" alt="block_lane2.png" />
+</p>
+<p><span class="figure-number">Figure 10: </span>Canny Edge Detection and Hough Line Transform are used to get lane line coordinates from the masked frame.</p>
+</div>
+
+<p>
+Canny Edge detection is done next, yielding edge features by looking
+for significant gradients in pixel intensity. Additionally, we know
+where in the frame the lane should be, so we simply ignore
+everything outside of the region that should contain the lane. This
+reduces the number of edge features which are not part of the lane,
+and parts of the lane which are not important yet.
+</p>
+
+<p>
+Furthermore, we get line segments using the Hough Line transform,
+which returns the endpoint coordinates of edges that are
+specifically straight lines.
+</p>
+
+
+<div id="org1e485b4" class="figure">
+<p><img src="../server/lane/figure/567_combined.png" alt="567_combined.png" />
+</p>
+<p><span class="figure-number">Figure 11: </span>Illustrates 3 steps to get lane line coordinates, including, (left) finding edge features with Canny Edge Detection, (middle) Applying a region-of-interest, and (right) using the Hough Line Transform to find straight line coordinates from the remaining edge features.</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfd55e89" class="outline-3">
+<h3 id="orgfd55e89"><span class="section-number-3">3.4</span> Lane Angle Error from Line Segment Coordinates</h3>
+<div class="outline-text-3" id="text-3-4">
+
+<div id="org4696363" class="figure">
+<p><img src="../server/figure/blocks/block_lane3.png" alt="block_lane3.png" />
+</p>
+<p><span class="figure-number">Figure 12: </span>The lane lines are average and used to detect the state of the lines (both, left, right or none) and the angle of the line, which we use to approximate lane error.</p>
+</div>
+
+<p>
+We need to get only two lines that represent the lane. So, we
+seperate all segments with bottom intercepts on the left side of
+the frame from those on the right side of the frame. Then, we
+average the two groups of segments, to get the left and right lane
+lines.
+</p>
+
+<p>
+When two lines are detected, the error between the vehicle's
+trajectory and the lane, we currently define as the difference
+between the angle of the bottom intercept of the left and right
+lines from the center of the frame. In our case, a positive error
+means the vehicle needs to steer left, and a negative error means
+the vehicle needs to steer right. If only one line is detected, we
+use a state machine which estimates the error between the line and a
+user-specified calibration angle. If no lines are detected the error
+does not change. The final error is illustrated in figure <a href="#org2fc6d4e">6</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orga502ff4" class="outline-2">
+<h2 id="orga502ff4"><span class="section-number-2">4</span> YOLOv3 Real-Time Sign Detection</h2>
+<div class="outline-text-2" id="text-4">
+</div>
+<div id="outline-container-org7dc8dab" class="outline-3">
+<h3 id="org7dc8dab"><span class="section-number-3">4.1</span> Example Results</h3>
+<div class="outline-text-3" id="text-4-1">
+
+<div class="figure">
+<p><img src="../server/sign/figure/yolov3_realtime_stopSigns.png" alt="yolov3_realtime_stopSigns.png" />
+</p>
+<p><span class="figure-number">Figure 13: </span>Stop sign images on a monitor (left), and the processed video feed (right).</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge484c46" class="outline-3">
+<h3 id="orge484c46"><span class="section-number-3">4.2</span> Choice of Object Detector</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+Object detection and classification is as simple as, detect signs
+then classify &#x2013;not exactly. This is how object detection<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>
+algorithms started (e.g. R-CNN), but they can be too slow for
+real-time (and embedded) object detection. Those looking for speed,
+use algorithms that extract classified objects from the frame in a
+single pass, as opposed to two passes. YOLOv3 is an algorithm that
+detects in a single pass, such that it detects <b>and</b> classifies
+signs at once.
+</p>
+
+<p>
+There are multiple versions of YOLOv3. We are using
+YOLOv3-tiny-prn, which has the highest frames per second (FPS)
+compared to other commonly used algorithms (see figure
+<a href="#org4871738">14</a>). The sacrifice for speed is accuracy, as
+YOLOv3-tiny-prn borders around 35% average precision. Since we
+implemented sign detection on a Raspberry Pi as a proof-of-concept,
+this accuracy is acceptable.
+</p>
+
+
+<div id="org4871738" class="figure">
+<p><img src="../server/sign/figure/detectorComparison.png" alt="detectorComparison.png" />
+</p>
+<p><span class="figure-number">Figure 14: </span>YOLOv3-tiny-prn has the highest FPS, with an acceptable 35% average precision.</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0ac9d4e" class="outline-3">
+<h3 id="org0ac9d4e"><span class="section-number-3">4.3</span> YOLOv3 Implementation</h3>
+<div class="outline-text-3" id="text-4-3">
+
+<div id="orgbc98784" class="figure">
+<p><img src="../server/figure/blocks/block_sign.png" alt="block_sign.png" />
+</p>
+<p><span class="figure-number">Figure 15: </span>The frame is formatted to fit in our YOLOv3 network, after the formatted frame is passed in, the resulting predictions are filtered by non-max suppresion and sent to the vehicle control model.</p>
+</div>
+
+<p>
+Before we started the automation system, we used OpenCV to import
+our trained Darknet<sup><a id="fnr.3" class="footref" href="#fn.3">3</a></sup> YOLOv3 model configurations. This
+allows us to pass frames into our custom-trained YOLOv3 network and
+receive sign predictions.
+</p>
+
+<p>
+As the automation system is running, the incoming frame from the
+frame subject is first formatted for our YOLOv3 sign detection
+neural network. This includes scaling the image by \(1/255\) so the
+image fits in our network, and flipping the blue and red channels.
+Subsequently, the formatted frame is passed into our YOLOv3
+network. The network outputs predictions that include the name of
+the predicted sign, and the bounding box which provides the location
+of the sign. We pass this output through a non-max suppression
+algorithm to potentially reduce the number of overlapping
+predictions. This is all we need from our sign detection model. The
+predictions are now sent to the vehicle control model.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgf60cc59" class="outline-3">
+<h3 id="orgf60cc59"><span class="section-number-3">4.4</span> Training the YOLOv3 Network</h3>
+<div class="outline-text-3" id="text-4-4">
+</div>
+<div id="outline-container-orgd0302b5" class="outline-4">
+<h4 id="orgd0302b5"><span class="section-number-4">4.4.1</span> Dataset: GTSDB</h4>
+<div class="outline-text-4" id="text-4-4-1">
+<p>
+We trained our network on the GTSDB dataset containing 900 images
+from the point-of-view of vehicles on a road.
+</p>
+
+<div id="org08099fe" class="figure">
+<p><img src="../server/sign/figure/gtsdb.jpg" alt="gtsdb.jpg" />
+</p>
+<p><span class="figure-number">Figure 16: </span>An example image from the GTSDB dataset</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge839a9e" class="outline-4">
+<h4 id="orge839a9e"><span class="section-number-4">4.4.2</span> YOLOv3 Darknet</h4>
+<div class="outline-text-4" id="text-4-4-2">
+<p>
+We trained out YOLOv3 network with Darknet. Darknet requires that
+we provide it with annotations for each image. Annotations include
+information about the bounding box and class of each sign in an
+image. The GTSDB dataset we are using contains an annotation file
+but it is not in the same format as what Darknet requires. We use a
+script to convert this annotation file to the Darknet annotation
+format (as illustrated in figure <a href="#org0bce114">17</a>).
+</p>
+
+
+<div id="org0bce114" class="figure">
+<p><img src="../server/sign/figure/darknet_annotationFormat.png" alt="darknet_annotationFormat.png" />
+</p>
+<p><span class="figure-number">Figure 17: </span>Darknet annotation file, <code>00001.txt</code>, for a single image <code>00001.jpg</code>. The file contains only space-seperated numbers, with five fields.</p>
+</div>
+
+<p>
+We can train using Darknet as an executable and supply it with a
+directory configuration file and a model layers configuration
+file. 
+</p>
+
+
+<div id="org1c3bf62" class="figure">
+<p><img src="../server/sign/figure/darknet_trainCommand.png" alt="darknet_trainCommand.png" />
+</p>
+<p><span class="figure-number">Figure 18: </span>A typical darknet command to train our YOLOv3 network. <code>yolov3-tiny.conv.11</code> is a trained network provided by Darknet, and we use it for transfer learning.</p>
+</div>
+
+<p>
+In reference to figure <a href="#org1c3bf62">18</a>, our <code>sign.data</code> file
+looks like
+</p>
+
+<div class="org-src-container">
+<pre class="src src-text">classes = 43
+train = &lt;data directory&gt;/train.txt
+valid = &lt;data directory&gt;/test.txt
+names = &lt;data directory&gt;/sign.names
+backup = &lt;weights directory&gt;
+</pre>
+</div>
+
+<p>
+And, a directory setup may look as follows:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-text">- cfg
+  - yolov3-tiny.conv.11  &lt;Trained network (from Darknet), used for transfer learning&gt;
+  - yolov3-tiny-prn.cfg  &lt;Network layer configuration&gt;
+- data
+  - images_jpg  &lt;raw jpg GTSDB images&gt;
+  - images_ppm  &lt;GTSDB images converted to PPM&gt;
+  - labels  &lt;Darknet text lettering&gt;
+  - obj  &lt;Mixed PPM images and Annotations&gt; IMPORTANT
+  - sign.data  &lt;directory configuration file&gt;
+  - sign.names  &lt;class names sperated with a newline&gt;
+  - test.txt  &lt;absolute path to testing images&gt;
+  - train.txt &lt;absolute path to training images&gt;
+- weights
+  - yolov3-tiny-prn_best.weights  &lt;Output from Darknet&gt;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgcf9a473" class="outline-4">
+<h4 id="orgcf9a473"><span class="section-number-4">4.4.3</span> Training/Testing Distribution of Images</h4>
+<div class="outline-text-4" id="text-4-4-3">
+<p>
+We created the <code>test.txt</code> and <code>train.txt</code> files (mentioned in the
+previous section) by randomly selecting a proportion of images to
+be training images and testing images, and then providing the
+absolute path of the images in their respective <code>test.txt</code> or
+<code>train.txt</code> file.
+</p>
+
+
+<div class="figure">
+<p><img src="../server/sign/figure/distribution_training.png" alt="distribution_training.png" />
+</p>
+<p><span class="figure-number">Figure 19: </span>Distribution of testing images.</p>
+</div>
+
+
+<div class="figure">
+<p><img src="../server/sign/figure/distribution_testing.png" alt="distribution_testing.png" />
+</p>
+<p><span class="figure-number">Figure 20: </span>Distribution of training images.</p>
+</div>
+
+<p>
+These distributions have some classes with only a few or no
+images. This causes a lower average precision for our network,
+since it does not have enough of those images to train and test
+on. 
+</p>
+</div>
+</div>
+
+<div id="outline-container-org0aed455" class="outline-4">
+<h4 id="org0aed455"><span class="section-number-4">4.4.4</span> Results</h4>
+<div class="outline-text-4" id="text-4-4-4">
+<p>
+We obtained a mean-average precision on the validation set of
+around 10% (see figure <a href="#orgd0bd83f">21</a>). However, more specifically,
+the average precision for easy to classify signs (such as stop
+signs and yield signs) was much higher than signs which had few
+training images, and signs that relied on textual classification
+(such as speed limits). On the Raspberry Pi, the YoloV3 network
+operates at around one frame-per-second (see figure
+<a href="#org5da8138">22</a>).
+</p>
+
+
+<div id="orgd0bd83f" class="figure">
+<p><img src="../server/sign/figure/apResults.png" alt="apResults.png" />
+</p>
+<p><span class="figure-number">Figure 21: </span>mean average precision over 6000 training iteration at around 10%. Loss (in blue) drops quickly, due to transfer learning.</p>
+</div>
+
+<p>
+Once the model was trained, we loaded the model into our main
+application on the Raspberry Pi. We added the option, in the
+side-panel of our livestream, to show detected signs. Now, on the
+vehicle's website we can see the bounding box and class of detected
+signs (as seen in figure <a href="#org5da8138">22</a>).
+</p>
+
+
+<div id="org5da8138" class="figure">
+<p><img src="../server/sign/figure/pi_yieldDetection.png" alt="pi_yieldDetection.png" />
+</p>
+<p><span class="figure-number">Figure 22: </span>Sign detection on the Raspberry Pi. Detects signs at about 1 frame-per-second.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org3f6962d" class="outline-2">
+<h2 id="org3f6962d"><span class="section-number-2">5</span> Vehicle Control Model</h2>
+<div class="outline-text-2" id="text-5">
+</div>
+<div id="outline-container-orgd7337bb" class="outline-3">
+<h3 id="orgd7337bb"><span class="section-number-3">5.1</span> Control Value Packaging on the Raspberry Pi</h3>
+<div class="outline-text-3" id="text-5-1">
+</div>
+<div id="outline-container-org4630795" class="outline-4">
+<h4 id="org4630795"><span class="section-number-4">5.1.1</span> Summary</h4>
+<div class="outline-text-4" id="text-5-1-1">
+<p>
+The vehicle control model contains the decision making for
+controlling the vehicle. We use the lane error, we got from the lane
+model, to proportionally control the steering and driving. The
+signs, we get from our sign detection model, are pushed to a queue
+and, handled by the drive controller. Currently, we are only
+reacting to stop signs. If a stop sign is detected, the drive
+controller outputs a drive value which stops the vehicle. The final
+drive and steering values, determined by the drive and steering
+controllers, are sent over I2C to the Arduino which maps the values
+to a pulse-width to control the steering servo and the Electronic
+Speed Controller for the drive motor.
+</p>
+
+
+<div id="orgcf13931" class="figure">
+<p><img src="../server/README.org.d/figure/blocks/block_vic.png" alt="block_vic.png" />
+</p>
+<p><span class="figure-number">Figure 23: </span>Lane error and detected signs are used to control the driving and steering values send to the Arduino over I2C.</p>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org4aff474" class="outline-3">
+<h3 id="org4aff474"><span class="section-number-3">5.2</span> Vehicle Interface Controller (Arduino)</h3>
+<div class="outline-text-3" id="text-5-2">
+</div>
+<div id="outline-container-orge9baa0f" class="outline-4">
+<h4 id="orge9baa0f"><span class="section-number-4">5.2.1</span> Overview</h4>
+<div class="outline-text-4" id="text-5-2-1">
+<p>
+We are using an Arduino Uno to take in i2c steering and drive values
+to control the vehicle's steering servo and electronic speed
+controller (ESC). We refer to the Arduino as the Vehicle Interface
+Controller (VIC).
+</p>
+
+<p>
+The VIC is programmed in C++ (not using Arduino's packages). This
+gives us control over the implementation details of utilities like
+strings, pwm, usart, and i2c. Note that this decision was made for
+our own academic curiousity.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgdfbd5f2" class="outline-4">
+<h4 id="orgdfbd5f2"><span class="section-number-4">5.2.2</span> Application Makefiles</h4>
+<div class="outline-text-4" id="text-5-2-2">
+<p>
+The VIC uses GNU Makefiles. We have modularized the makefile
+process, such that when starting a new application file (i.e. a
+source file which contains <code>main</code>) the makefile to build the
+application only needs to contain
+</p>
+
+<div class="org-src-container">
+<pre class="src src-makefile"><span style="color: #a54242;">TARGET</span> = &lt;name of your application&gt;
+<span style="color: #a54242;">ROOT</span> = ../..
+<span style="color: #de935f; font-weight: bold;">include</span> $(<span style="color: #a54242;">ROOT</span>)/mk/all.mk
+</pre>
+</div>
+
+<p>
+where <code>ROOT</code> is the directory that contains the <code>mk</code> directory.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org0e5ecfc" class="outline-4">
+<h4 id="org0e5ecfc"><span class="section-number-4">5.2.3</span> Making a New Application</h4>
+<div class="outline-text-4" id="text-5-2-3">
+<p>
+We have included a bash script in <code>app</code> called <code>createNewApp</code>. To
+make a new application, we can go to the app directory and run
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">  ./createNewApp &lt;name of application&gt;
+</pre>
+</div>
+
+<p>
+This script ensures there are no existing applications and if that is true:
+</p>
+<ol class="org-ol">
+<li>will make a directory with the same name as our application;</li>
+<li>will make a <code>cpp</code> source file with the name as our application;</li>
+<li>will create a Makefile, filled with everything necessary to
+build our application.</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org26aca3c" class="outline-4">
+<h4 id="org26aca3c"><span class="section-number-4">5.2.4</span> Flashing the Arduino</h4>
+<div class="outline-text-4" id="text-5-2-4">
+<p>
+To flash the Arduino, we go to the directory of an application (in
+the <code>app</code> directory), and then we run <code>make flash</code>. The build files
+are exported to the <code>app/build</code> directory.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org6fcd5ec" class="outline-4">
+<h4 id="org6fcd5ec"><span class="section-number-4">5.2.5</span> Serial Interface</h4>
+<div class="outline-text-4" id="text-5-2-5">
+<p>
+To communicate with the Arduino, via Serial, we use <code>picocom</code>, a
+linux terminal utility. As part of our modular makefile system, we
+can open <code>picocom</code> by going to the directory of an application (in
+the <code>app</code> directory), and running <code>make com</code>.
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org7922594" class="outline-2">
+<h2 id="org7922594"><span class="section-number-2">6</span> Conclusion &amp; Necessary Improvements</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+We demonstrated the ability for a low-cost, $35 Raspberry Pi 4, to
+run a web server, lane detection system, and sign detection
+system. The method we used for calculating lane error has edge cases
+which make it inaccurate, (such as if the vehicle is outside the
+lane lines). This method would need to be improve the reliability of
+the vehicle navigation. Our sign detection model runs at about 1
+frame-per-second, which would need to be increased (through
+optimizations) if we want the vehicle to travel faster. Increasing
+the speed of the vehicle now, generally results in a sign being
+missed.
+</p>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
+The setup script should be run as <code>sudo</code>.
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara"><p class="footpara">
+Classification is not detection. Objects first need to be detected
+before they can be classified. But, for briefness, we say "object
+detection" when we really mean "object detection and classification."
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3">3</a></sup> <div class="footpara"><p class="footpara">
+Darknet is an open source neural network framework.
+</p></div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<p class="author">Author: Lewis Collum</p>
+<p class="date">Created: 2020-07-12 Sun 00:25</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
