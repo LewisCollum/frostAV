@@ -5,16 +5,12 @@ from .node import Node
 Package = namedtuple('Package', ['name', 'content'])
 
 class Packager:
-    def __init__(self, node):
+    def __init__(self, name, node):
+        self.name = name
         self.node = node
         self.packagingNode = Node(
-            name = None,
-            subjects = [self.node],
-            strategy = lambda content: Package(self.node.name, content))
-
-    @property
-    def name(self):
-        return self.node.name
+            subject = self.node,
+            strategy = lambda content: Package(self.name, content))
 
     def pull(self):
         return self.node.pull()

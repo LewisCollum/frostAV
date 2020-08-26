@@ -4,56 +4,66 @@ import numpy
 from frame import Node, Switchable, Model, Annotator, Timer
 import sign
     
-def generate(subject):
+def generate(frameShape):
     model = Model()
 
-    model.add(Node(
-        name = 'Blob',
-        subjects = [],
-        strategy = lambda frame: cv2.dnn.blobFromImage(
-            image = frame,
-            scalefactor = 1/255,
-            size = (416, 416),
-            mean = [0,0,0],
-            swapRB = True,
-            crop = False)))
+    model.addNode(
+        name = "Blob",
+        category = "preprocessing",
+        node = Node(
+            subject = None,
+            strategy = lambda frame: cv2.dnn.blobFromImage(
+                image = frame,
+                scalefactor = 1/255,
+                size = (416, 416),
+                mean = [0,0,0],
+                swapRB = True,
+                crop = False)))
 
-    model.add(Timer(Node(
-        name = 'netTimer',
-        subjects = [],
-        strategy = lambda delay: (f'Sign FPS: {1/delay:.2f}'))))
-
-    
-    model['Blob'].addObservers(model['netTimer'])        
-
-    model.add(Node(
-        name = 'Net',
-        subjects = [model['Blob']],
-        strategy = sign.Net(sign.makeCpuDarknet(
-            rootPath = 'sign/yolov3-tiny-prn'))))
-
-    model['Net'].addObservers(model['netTimer'])
-    model['netTimer'].addObservers(lambda message: print(message))
-
-    model.addAnnotator(Annotator(
-        name = 'NetTimer',
-        node = model['netTimer'],
-        strategy = sign.label))
+    model.addNode(
+        name = "NetTimer",
+        category = "logging",
+        node = Timer(Node(
+            subject = None,
+            strategy = lambda delay: (f'Sign FPS: {1/delay:.2f}'))))
 
     
-    model.add(Node(
-        name = 'NMS',
-        subjects = [model['Net']],
-        strategy = sign.DetectionBoxes(
-            frameShape = subject.frameShape,
-            confidenceThreshold = 0.1,
-            nonMaxSuppressionThreshold = 0.2)))
-    
-    model.addAnnotator(Annotator(
-        name = 'Signs',
-        node = model['NMS'],
-        strategy = sign.DrawDetectionBoxes(
-            classes = sign.readClasses("sign/sign.names"))))
+    model("Blob", "preprocessing").addObservers(model("NetTimer", "logging"))
 
-    model.setHead('Blob')
+    model.addNode(
+        name = "Net",
+        category = "interpreted",
+        node = Node(
+            subject = model("Blob", "preprocessing"),
+            strategy = sign.Net(sign.makeCpuDarknet(
+                rootPath = 'sign/yolov3-tiny-prn'))))
+
+    model("Net", "interpreted").addObservers(model("NetTimer", "logging"))
+
+    model.addNode(
+        name = "NetTimer",
+        category = "annotator",
+        node = Annotator(
+            node = model("NetTimer", "logging"),
+            strategy = sign.label))
+
+    
+    model.addNode(
+        name = "NMS",
+        category = "interpreted",
+        node = Node(
+            subject = model("Net", "interpreted"),
+            strategy = sign.DetectionBoxes(
+                frameShape = frameShape,
+                confidenceThreshold = 0.1,
+                nonMaxSuppressionThreshold = 0.2)))
+    
+    model.addNode(
+        name = "Signs",
+        category = "annotator",
+        node = Annotator(
+            node = model("NMS", "interpreted"),
+            strategy = sign.DrawDetectionBoxes(
+                classes = sign.readClasses("sign/sign.names"))))
+
     return model

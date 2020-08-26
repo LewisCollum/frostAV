@@ -1,15 +1,20 @@
-def addObserverToSubjects(observer, subjects):
+def addObserverToSubjects(observer, *subjects):
     for subject in subjects: subject.addObservers(observer)
 
 class Node:
-    def __init__(self, name, subjects, strategy):
-        self.strategy = strategy
+    def __init__(self, subject, strategy):
+        self.subject = subject
+        self.strategy = strategy        
         self.observers = []
-        self.subjects = subjects
         self.output = None
-        self.name = name
-        addObserverToSubjects(self, self.subjects)
-        
+
+        if subject is not None:
+            try:
+                iter(self.subject)
+                addObserverToSubjects(self, *self.subject)
+            except:
+                addObserverToSubjects(self, self.subject)
+                
     def addObservers(self, *observers):
         self.observers += observers
         

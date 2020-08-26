@@ -1,51 +1,36 @@
+from collections import defaultdict
+
 from .switchable import Switchables
 
 class Model:
     def __init__(self):
-        self.model = {}
-        self.framers = []
-        self.switchables = Switchables()
-        self.annotators = {}        
-        self.headName = None
+        self.model = defaultdict(dict)
+        self.head = None
+        self.previous = None
 
-    def setHead(self, headName):
-        self.headName = headName
+    def addNode(self, name, category, node):
+        isHead = len(self.model.keys()) == 0
 
-    @property
-    def head(self): return self.get(self.headName)
-        
-    def add(self, node):
-        self.model[node.name] = node
-        
-    def addFramer(self, node):
-        self.add(node)
-        self.framers.append(node.name)
+        self.model[category][name] = node
 
-    def addSwitchable(self, node):
-        self.add(node)
-        self.switchables.add(node.name, node)
-        
-    def addAnnotator(self, annotator):
-        self.annotators[annotator.name] = annotator
-        
-    def get(self, name):
-        return self.model[name]
+        if isHead: self.head = self(name, category)
+        self.previous = self(name, category)
 
-    def __getitem__(self, name):
-        return self.model[name]
+    def __call__(self, name, category):
+        return self.model[category][name]
     
-    def getAnnotator(self, name):
-        return self.annotators[name]
+    def category(self, category):
+        return self.model[category]
+    
+    # @property
+    # def toggleNames(self):
+    #     return {
+    #         'Annotation': self.annotators.keys(),
+    #         'Switchable': list(self.switchables)
+    #     }
 
-    @property
-    def toggleNames(self):
-        return {
-            'Annotation': self.annotators.keys(),
-            'Switchable': list(self.switchables)
-        }
-
-    @property
-    def radioNames(self):
-        return {
-            'Frame': self.framers[:]
-        }
+    # @property
+    # def radioNames(self):
+    #     return {
+    #         'Frame': self.framers[:]
+    #     }

@@ -1,8 +1,13 @@
 from .node import Node
 
 class Joiner(Node):
-    def __init__(self, name, subjects, strategy):
-        super().__init__(name, subjects, strategy)
+    def __init__(self, subjectMap, strategy):
+        self.subjectMap = subjectMap
+        
+        super().__init__(
+            subject = self.subjectMap.values(),
+            strategy = strategy)
+        
         self.packages = self.makeEmptyPackages()
         
     def __call__(self, package):
@@ -16,4 +21,4 @@ class Joiner(Node):
         return None not in self.packages.values()
         
     def makeEmptyPackages(self):
-        return dict.fromkeys([subject.name for subject in self.subjects])
+        return dict.fromkeys(self.subjectMap.keys())

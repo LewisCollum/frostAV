@@ -2,9 +2,9 @@ import os
 from flask import Flask, render_template, Response, request, jsonify
 import cv2
 
-import vehicleModel
 import laneModel
 import signModel
+# import vehicleModel
 import frame as fm
 import stats
 import ui_bridge as ui
@@ -17,17 +17,16 @@ log.setLevel(logging.ERROR)
 application = Flask(__name__)
 
 gamepadNode = fm.Node(
-    name = 'gamepad',
-    subjects = [],
+    subject = None,
     strategy = lambda package: package)
 
 frameSubject = fm.Subject(0)
 models = {}
-models['lane'] = laneModel.generate(subject = frameSubject)
-models['sign'] = signModel.generate(subject = frameSubject)    
-models['vehicle'] = vehicleModel.generate()
+models['lane'] = laneModel.generate(frameShape = frameSubject.frameShape)
+models['sign'] = signModel.generate(frameShape = frameSubject.frameShape)    
+# models['vehicle'] = vehicleModel.generate()
 
-models['sign']['NMS'].addObservers(models['vehicle']['signs'])
+# models['sign']['NMS'].addObservers(models['vehicle']['signs'])
 # models['lane']['Error'].addObservers([
 #     models['vehicle']['driveController'],
 #     models['vehicle']['steeringController']])
@@ -51,14 +50,29 @@ def gamepad():
     models['vehicle']['controller'](request.json)
     return ('', 204)
 
+def modelToButtonCategories(model):
+    categories = ui.Categories()
+    
+    category = ui.ButtonCategory("toggle")
+    category.addButtons(model.category("annotator").keys())
+    categories.addCategory("Annotation", category)
+    
+    category = ui.ButtonCategory("radio")
+    category.addButtons(model.category("framer").keys())
+    categories.addCategory("Frame", category)
+
+    return categories
+
+
 @application.route('/imageStreamChoices')
 def imageStreamChoices():
     categories = ui.Categories()
     for model in models.values():
-        categories += ui.modelToButtonCategories(model)
+        categories += modelToButtonCategories(model)
 
-    categories['Frame'].addButtons(['Raw'])
-    categories['Frame'].addDefaults(['Raw'])
+    print(categories.asDict())        
+    categories["Frame"].addButtons(["Raw"])
+    categories["Frame"].addDefaults(["Raw"])
 
     return jsonify(categories.asDict())
 
@@ -66,17 +80,15 @@ def imageStreamChoices():
 @application.route('/updateImageStream', methods=['POST'])
 def updateImageStream():
     def nodeFromFrameKey(frameKey):
-        return frameSubject if frameKey == 'Raw' else models['lane'].get(frameKey)
+        return frameSubject if frameKey == 'Raw' else models['lane'](frameKey, "framer")
     
     imager.subject = nodeFromFrameKey(request.json['Frame'])
     
     imager.annotatorNodes = []
     for annotator in request.json['Annotation']:
         for model in models.values():
-            if annotator in model.annotators:
-                imager.annotatorNodes.append(model.getAnnotator(annotator))
-    
-    models['lane'].switchables.matchNames(request.json['Switchable'])
+            if annotator in model.category("annotator"):
+                imager.annotatorNodes.append(model(annotator, "annotator"))
     
     return ('', 204)
 

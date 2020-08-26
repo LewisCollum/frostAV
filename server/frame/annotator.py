@@ -1,8 +1,7 @@
 import numpy
 
 class Annotator:
-    def __init__(self, name, node, strategy):
-        self.name = name
+    def __init__(self, node, strategy):
         self.node = node
         self.strategy = strategy
                 

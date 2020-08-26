@@ -51,19 +51,3 @@ class Categories:
 
     def asDict(self):
         return {name: category.asDict() for name, category in self.categories.items()}
-
-    
-def modelToButtonCategories(model):
-    categories = Categories()
-    
-    for categoryName, buttonNames in model.toggleNames.items():
-        category = ButtonCategory("toggle")
-        category.addButtons(buttonNames)
-        categories.addCategory(categoryName, category)
-
-    for categoryName, buttonNames in model.radioNames.items():
-        category = ButtonCategory("radio")
-        category.addButtons(buttonNames)
-        categories.addCategory(categoryName, category)
-        
-    return categories
