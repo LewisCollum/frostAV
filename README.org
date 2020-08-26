@@ -6,4 +6,4 @@
 
 [[./org/figure/poster.png]] 
 
-[[./server/figure/FrostAVSystem.png]]
+[[./server/README.org.d/figure/FrostAVSystem.png]]
