@@ -4,11 +4,10 @@ import cv2
 
 import laneModel
 import signModel
-# import vehicleModel
+import vehicleModel
 import frame as fm
 import stats
 import ui_bridge as ui
-#import vic
 
 import logging
 log = logging.getLogger('werkzeug')
@@ -24,16 +23,16 @@ frameSubject = fm.Subject(0)
 models = {}
 models['lane'] = laneModel.generate(frameShape = frameSubject.frameShape)
 models['sign'] = signModel.generate(frameShape = frameSubject.frameShape)    
-# models['vehicle'] = vehicleModel.generate()
+models['vehicle'] = vehicleModel.generate()
 
-# models['sign']['NMS'].addObservers(models['vehicle']['signs'])
-# models['lane']['Error'].addObservers([
+models['sign']("NMS", "interpreted").addObservers(models['vehicle']("signs", "storage"))
+# models['lane']("Error", "interpreted").addObservers(
 #     models['vehicle']['driveController'],
-#     models['vehicle']['steeringController']])
+#     models['vehicle']['steeringController'])
 
 frameSubject.addObserver('sign', models['sign'].head)
 frameSubject.addObserver('lane', models['lane'].head)
-#models['lane']['TotalError'].addObservers([models['vehicle']['controlPackager']])
+models['lane']("TotalError", "interpreted").addObservers(models['vehicle']("controlPackager", "control"))
 
 imager = fm.Imager(defaultSubject = frameSubject)
 imageResponder = fm.ImageResponder(imager)
@@ -47,7 +46,7 @@ def index(): return render_template('index.html')
 @application.route('/gamepad', methods=['POST'])
 def gamepad():
     #gamepadNode(request.json)
-    models['vehicle']['controller'](request.json)
+    models['vehicle']("controller", "control")(request.json)
     return ('', 204)
 
 def modelToButtonCategories(model):

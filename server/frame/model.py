@@ -21,16 +21,3 @@ class Model:
     
     def category(self, category):
         return self.model[category]
-    
-    # @property
-    # def toggleNames(self):
-    #     return {
-    #         'Annotation': self.annotators.keys(),
-    #         'Switchable': list(self.switchables)
-    #     }
-
-    # @property
-    # def radioNames(self):
-    #     return {
-    #         'Frame': self.framers[:]
-    #     }

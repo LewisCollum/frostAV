@@ -12,9 +12,9 @@ class Signs:
     def __call__(self, sign):
         if sign:
             self.signs.append(sign)
-            print('Sign Added')
+            # print('Sign Added')
         else:
-            print('popped')
+            # print('popped')
             if not self.isEmpty():
                 self.signs.pop()
 
@@ -28,20 +28,29 @@ class Signs:
 def generate():
     model = Model()
 
-    model.add(Node(
-        name = 'signs',
-        subjects = [],
-        strategy = Signs(maxSigns = 1)))    
+    model.addNode(
+        name = "signs",
+        category = "storage",
+        node = Node(
+            subject = None,
+            strategy = Signs(maxSigns = 1)))    
     
-    model.add(Node(
-        name = 'controlPackager',
-        subjects = [],
-        strategy = lambda error: {'steering': error, 'forward': 5 if model['signs'].strategy.isEmpty() else 0, 'reverse': 0}))
-    
-    model.add(Node(
-        name = 'controller',
-        subjects = [model['controlPackager']],
-        strategy = vic.VehicleInterfaceController()))
+    model.addNode(
+        name = "controlPackager",
+        category = "control",
+        node = Node(
+            subject = None,
+            strategy = lambda error: {
+                'steering': error,
+                'forward': 5 if model("signs", "storage").strategy.isEmpty() else 0,
+                'reverse': 0}))
+        
+    model.addNode(
+        name = "controller",
+        category = "control",
+        node = Node(
+            subject = model("controlPackager", "control"),
+            strategy = vic.VehicleInterfaceController()))
     
     # model.add(Node(
     #     name = 'driveController',

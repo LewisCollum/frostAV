@@ -158,14 +158,14 @@ def addInterpretationNodes(model, frameShape):
             name = "SmoothCrossTrackError",
             node = Node(
                 subject = model("CrossTrackError", "interpreted"),
-                strategy =  lane.MovingAverage(5))))
+                strategy = lane.MovingAverage(5))))
 
     model.addNode(
         name = "TotalError",
         category = "interpreted",
         node = Joiner(
             subjectMap = {
-                "SmoothTurnAngle": model("SmoothTurnError", "interpreted"),
+                "SmoothTurnError": model("SmoothTurnError", "interpreted"),
                 "SmoothCrossTrackError": model("SmoothCrossTrackError", "interpreted")},
             strategy = lambda errors: errors["SmoothTurnError"] + errors["SmoothCrossTrackError"]))
     
@@ -205,7 +205,7 @@ def addInterpretationAnnotators(model):
     
     model.addNode(
         name = "TotalError",
-        category = "annotation",
+        category = "annotator",
         node = Annotator(
             node = model("TotalError", "interpreted"),
             strategy = lane.annotation.Error(

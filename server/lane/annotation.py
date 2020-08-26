@@ -12,6 +12,8 @@ class Error:
         height, width, _ = frame.shape
         y = int(self.yWeight * height)
         xCenter = int(0.5*width)
+        if error is None:
+            error = 0
         normalizedError = error/self.maxError
         x = int(-normalizedError * width/2 + xCenter)
 
