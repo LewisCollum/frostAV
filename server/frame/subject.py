@@ -1,44 +1,69 @@
-import cv2
-import sys
 import threading 
-import time 
-        
+import time
+import warnings
+
 class Subject:
-    def __init__(self, source):
-        self.capture = cv2.VideoCapture(source)
-        self.frameShape = (
-            int(self.capture.get(cv2.CAP_PROP_FRAME_HEIGHT)),
-            int(self.capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
-            3)
-
-        self.observers = {}
+    def __init__(self, strategy, delay = 0):
+        self.strategy = strategy
+        self.delay = delay
         self.output = None
-    
-    def addObserver(self, name, observer):
-        self.observers[name] = observer
+        self.observers = {}
 
-    def removeObserver(self, name):
-        del self.observers[name]
+    def addObservers(self, *observers):
+        for observer in observers:
+            self.observers[observer] = threading.Thread(target=self.observerLoop, args=(observer,))
 
-    def startCapture(self):
-        while True:
-            hasFrame, frame = self.capture.read()
-            if hasFrame:
-                self.output = frame
-            time.sleep(0.05)
+    def start(self):
+        self.isRunning = True
+        self.thread = threading.Thread(target=self.loop)        
+        self.thread.start()
+        for observer in self.observers.keys():
+            self.observers[observer] = threading.Thread(target=self.observerLoop, args=(observer,))
+            self.observers[observer].start()
 
-    def startDistribution(self, observer):
-        print(f"Distribution started for {observer}...")
-        while True:
+    def stop(self):
+        self.isRunning = False
+        for observerThread in self.observers.values():
+            observerThread.join()
+        self.thread.join()
+
+    def removeObserver(self, observer):
+        if self.isRunning:
+            warnings.warn("Cannot remove observer while running", RuntimeWarning)
+        else:
+            del self.observers[observer]
+
+    def loop(self):
+        while self.isRunning:
+            self.output = self.strategy()
+            time.sleep(self.delay)
+
+    def observerLoop(self, observer):
+        while self.isRunning:
             if self.output is not None:
                 observer(self.output)
-                                
-    def startThreadedCapture(self):
-        threading.Thread(target=self.startCapture).start()
-        for observer in self.observers.values():
-            threading.Thread(target=self.startDistribution, args=(observer,)).start()            
+            time.sleep(self.delay)
 
-    def stop():
-        # self.captureThread.terminate()
-        # self.captureThread = None
-        self.capture.release()
+            
+if __name__ == '__main__':
+    subject = Subject(lambda: "test", delay = 0.05)
+
+    def a(output): print(output)
+    def b(output): print(output + " me")
+
+    subject.addObservers(a, b)
+    subject.start()
+    time.sleep(0.1)
+    # Does not remove observer
+    print("trying to remove observer a")
+    subject.removeObserver(a)
+    time.sleep(0.1)    
+    subject.stop()
+    # Works without warning
+    print("trying to remove observer a")    
+    subject.removeObserver(a)
+    subject.start()
+    time.sleep(0.3)
+    subject.stop()
+
+    

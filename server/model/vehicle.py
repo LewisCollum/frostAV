@@ -2,7 +2,7 @@ import cv2
 import numpy
 
 from frame import Node, Switchable, Model, Annotator
-import vic
+from autonomy import vic
 
 from collections import deque
 class Signs:

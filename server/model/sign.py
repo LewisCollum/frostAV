@@ -2,7 +2,7 @@ import cv2
 import numpy
 
 from frame import Node, Switchable, Model, Annotator, Timer
-import sign
+from autonomy import sign
     
 def generate(frameShape):
     model = Model()
@@ -36,7 +36,7 @@ def generate(frameShape):
         node = Node(
             subject = model("Blob", "preprocessing"),
             strategy = sign.Net(sign.makeCpuDarknet(
-                rootPath = 'sign/yolov3-tiny-prn'))))
+                rootPath = "autonomy/sign/yolov3-tiny-prn"))))
 
     model("Net", "interpreted").addObservers(model("NetTimer", "logging"))
 
@@ -64,6 +64,6 @@ def generate(frameShape):
         node = Annotator(
             node = model("NMS", "interpreted"),
             strategy = sign.DrawDetectionBoxes(
-                classes = sign.readClasses("sign/sign.names"))))
+                classes = sign.readClasses("autonomy/sign/sign.names"))))
 
     return model

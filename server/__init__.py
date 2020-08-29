@@ -1,11 +1,8 @@
-import os
 from flask import Flask, render_template, Response, request, jsonify
-import cv2
 
-import laneModel
-import signModel
-import vehicleModel
-import frame as fm
+from autonomy.sensing import Camera
+import model
+import frame
 import stats
 import ui_bridge as ui
 
@@ -15,79 +12,46 @@ log.setLevel(logging.ERROR)
 
 application = Flask(__name__)
 
-gamepadNode = fm.Node(
-    subject = None,
-    strategy = lambda package: package)
-
-frameSubject = fm.Subject(0)
-models = {}
-models['lane'] = laneModel.generate(frameShape = frameSubject.frameShape)
-models['sign'] = signModel.generate(frameShape = frameSubject.frameShape)    
-models['vehicle'] = vehicleModel.generate()
-
-models['sign']("NMS", "interpreted").addObservers(models['vehicle']("signs", "storage"))
-# models['lane']("Error", "interpreted").addObservers(
-#     models['vehicle']['driveController'],
-#     models['vehicle']['steeringController'])
-
-frameSubject.addObserver('sign', models['sign'].head)
-frameSubject.addObserver('lane', models['lane'].head)
-models['lane']("TotalError", "interpreted").addObservers(models['vehicle']("controlPackager", "control"))
-
-imager = fm.Imager(defaultSubject = frameSubject)
-imageResponder = fm.ImageResponder(imager)
-
-frameSubject.startThreadedCapture()
-
+frostModels = model.generateForCamera(Camera(0))
+imager = frame.Imager(defaultSubject = frostModels['sensing']("Camera", "framer"))
+imageResponder = frame.ImageResponder(imager)
+frostModels['sensing']("Camera", "framer").start()
 
 @application.route('/')
 def index(): return render_template('index.html')
 
 @application.route('/gamepad', methods=['POST'])
 def gamepad():
-    #gamepadNode(request.json)
-    models['vehicle']("controller", "control")(request.json)
+    frostModels['vehicle']("controller", "control")(request.json)
     return ('', 204)
-
-def modelToButtonCategories(model):
-    categories = ui.Categories()
-    
-    category = ui.ButtonCategory("toggle")
-    category.addButtons(model.category("annotator").keys())
-    categories.addCategory("Annotation", category)
-    
-    category = ui.ButtonCategory("radio")
-    category.addButtons(model.category("framer").keys())
-    categories.addCategory("Frame", category)
-
-    return categories
-
 
 @application.route('/imageStreamChoices')
 def imageStreamChoices():
     categories = ui.Categories()
-    for model in models.values():
-        categories += modelToButtonCategories(model)
+    for frostModel in frostModels.values():
+        categories += model.toButtonCategories(frostModel)
 
     print(categories.asDict())        
-    categories["Frame"].addButtons(["Raw"])
-    categories["Frame"].addDefaults(["Raw"])
+    categories["Frame"].addDefaults(["Camera"])
 
     return jsonify(categories.asDict())
 
 
 @application.route('/updateImageStream', methods=['POST'])
 def updateImageStream():
-    def nodeFromFrameKey(frameKey):
-        return frameSubject if frameKey == 'Raw' else models['lane'](frameKey, "framer")
-    
-    imager.subject = nodeFromFrameKey(request.json['Frame'])
-    
+    frameKey = request.json['Frame']
     imager.annotatorNodes = []
-    for annotator in request.json['Annotation']:
-        for model in models.values():
-            if annotator in model.category("annotator"):
-                imager.annotatorNodes.append(model(annotator, "annotator"))
+    annotators = request.json['Annotation']
+    
+    for frostModel in frostModels.values():
+        if frameKey in frostModel.category("framer"):
+            imager.subject = frostModel(frameKey, "framer")
+            break
+
+    for annotator in annotators:
+        for frostModel in frostModels.values():            
+            if annotator in frostModel.category("annotator"):
+                imager.annotatorNodes.append(frostModel(annotator, "annotator"))
     
     return ('', 204)
 
@@ -121,5 +85,6 @@ def current(): return Response(stats.psu.current(), 'text/plain')
 
 
 if __name__ == '__main__':
+    import os    
     os.environ["FLASK_ENV"] = "development"
     application.run(debug=True, use_reloader=False, host='0.0.0.0')

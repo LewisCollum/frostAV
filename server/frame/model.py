@@ -1,7 +1,5 @@
 from collections import defaultdict
 
-from .switchable import Switchables
-
 class Model:
     def __init__(self):
         self.model = defaultdict(dict)

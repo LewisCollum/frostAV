@@ -2,7 +2,7 @@ import cv2
 import numpy
 import time
 
-import lane
+from autonomy import lane
 from frame import Node, Model, Annotator, Joiner, Packager
 
 
