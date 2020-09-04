@@ -1,3 +1,6 @@
 [submodule "server/static/buttonSidePanel"]
 	path = server/static/buttonSidePanel
 	url = https://github.com/LewisCollum/buttonSidePanel
+[submodule "server/nodal"]
+	path = server/nodal
+	url = https://github.com/LewisCollum/nodal

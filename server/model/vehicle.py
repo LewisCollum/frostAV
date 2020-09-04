@@ -1,7 +1,7 @@
 import cv2
 import numpy
 
-from frame import Node, Switchable, Model, Annotator
+from nodal import Node, Model, Annotator
 from autonomy import vic
 
 from collections import deque

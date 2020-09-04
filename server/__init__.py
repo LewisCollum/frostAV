@@ -2,7 +2,7 @@ from flask import Flask, render_template, Response, request, jsonify
 
 from autonomy.sensing import Camera
 import model
-import frame
+import nodal_frost
 import stats
 import ui_bridge as ui
 
@@ -13,8 +13,8 @@ log.setLevel(logging.ERROR)
 application = Flask(__name__)
 
 frostModels = model.generateForCamera(Camera(0))
-imager = frame.Imager(defaultSubject = frostModels['sensing']("Camera", "framer"))
-imageResponder = frame.ImageResponder(imager)
+imager = nodal_frost.Imager(defaultSubject = frostModels['sensing']("Camera", "framer"))
+imageResponder = nodal_frost.ImageResponder(imager)
 frostModels['sensing']("Camera", "framer").start()
 
 @application.route('/')

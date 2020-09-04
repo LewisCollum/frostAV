@@ -3,7 +3,7 @@ import numpy
 import time
 
 from autonomy import lane
-from frame import Node, Model, Annotator, Joiner, Packager
+from nodal import Node, Model, Annotator, Joiner, Packager
 
 
 def generate(frameShape):

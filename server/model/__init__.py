@@ -1,4 +1,4 @@
-from frame import Model, Subject
+from nodal import Model, Subject
 from . import lane
 from . import sign
 from . import vehicle

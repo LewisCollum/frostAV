@@ -1,7 +1,7 @@
 import cv2
 import numpy
 
-from frame import Node, Switchable, Model, Annotator, Timer
+from nodal import Node, Model, Annotator, Timer
 from autonomy import sign
     
 def generate(frameShape):
