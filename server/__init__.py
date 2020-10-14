@@ -12,49 +12,27 @@ log.setLevel(logging.ERROR)
 
 application = Flask(__name__)
 
-frostModels = model.generateForCamera(Camera(0))
-imager = nodal_frost.Imager(defaultSubject = frostModels['sensing']("Camera", "framer"))
-imageResponder = nodal_frost.ImageResponder(imager)
-frostModels['sensing']("Camera", "framer").start()
+frost = model.Frost(Camera(0))
+frost.start()
 
 @application.route('/')
 def index(): return render_template('index.html')
 
 @application.route('/gamepad', methods=['POST'])
 def gamepad():
-    frostModels['vehicle']("controller", "control")(request.json)
+    frost.updateController(request.json)
     return ('', 204)
 
 @application.route('/imageStreamChoices')
 def imageStreamChoices():
-    categories = ui.Categories()
-    for frostModel in frostModels.values():
-        categories += model.toButtonCategories(frostModel)
-
-    print(categories.asDict())        
-    categories["Frame"].addDefaults(["Camera"])
-
-    return jsonify(categories.asDict())
-
+    return jsonify(frost.generateButtonCategories().asDict())
 
 @application.route('/updateImageStream', methods=['POST'])
 def updateImageStream():
-    frameKey = request.json['Frame']
-    imager.annotatorNodes = []
-    annotators = request.json['Annotation']
-    
-    for frostModel in frostModels.values():
-        if frameKey in frostModel.category("framer"):
-            imager.subject = frostModel(frameKey, "framer")
-            break
-
-    for annotator in annotators:
-        for frostModel in frostModels.values():            
-            if annotator in frostModel.category("annotator"):
-                imager.annotatorNodes.append(frostModel(annotator, "annotator"))
-    
+    frost.updateImager(frame = request.json['Frame'], annotators = request.json['Annotation'])    
     return ('', 204)
 
+imageResponder = nodal_frost.ImageResponder(frost.imager)
 @application.route('/imageStream')
 def imageStream():   
     return Response(imageResponder, mimetype='multipart/x-mixed-replace; boundary=frame')
