@@ -1,3 +1,19 @@
+function addTimestampedPointToSeries(series, value) {
+    var x = (new Date()).getTime()
+    var y = value
+    
+    if(series.data.length > 40)
+        series.addPoint([x, y], true, true, true)
+    else
+        series.addPoint([x, y], true, false, true)
+}
+
+function urlResponseToChartSeries(url, series) {
+    handleUrlResponse(url, (responseText) => {
+        addTimestampedPointToSeries(series, parseFloat(responseText))
+    })
+}
+
 function updateStats() {
     let cpuCelsiusText = document.getElementById("cpuCelsiusText")
     handleUrlResponse("/cpuCelsius", (responseText) => {

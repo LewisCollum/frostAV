@@ -1,13 +1,3 @@
-function addTimestampedPointToSeries(series, value) {
-    var x = (new Date()).getTime()
-    var y = value
-    
-    if(series.data.length > 40)
-        series.addPoint([x, y], true, true, true)
-    else
-        series.addPoint([x, y], true, false, true)
-}
-
 function handleUrlResponse(url, onUrlResponseText) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
@@ -18,11 +8,6 @@ function handleUrlResponse(url, onUrlResponseText) {
     xhttp.send();
 }
 
-function urlResponseToChartSeries(url, series) {
-    handleUrlResponse(url, (responseText) => {
-        addTimestampedPointToSeries(series, parseFloat(responseText))
-    })
-}
 
 let controlPanel = new cpanel.Panel("controlPanel")
 controlPanel.style = "Panel"
@@ -49,24 +34,40 @@ panel.addButtonChangeListener((change) => {
     request.send(JSON.stringify(change))              
 })
 
-const categoryNameToClass = {
+
+function addNamesToCategory(names, category) {
+    names.forEach((name) => {
+        category.addButton(name)
+    })
+}
+function turnOnButtonsInCategory(names, category) {
+    names.forEach((name) => {
+        category.turnOnButton(name)
+    })
+}
+const buttonFormatToCategoryType = {
     'toggle': cpanel.ToggleButtonCategory,
     'radio': cpanel.RadioButtonCategory
 }
-
-handleUrlResponse('/imageStreamChoices', (response) => {
-    categorySetups = JSON.parse(response)
-    for (let [key, categorySetup] of Object.entries(categorySetups)) {
-        let category = new categoryNameToClass[categorySetup.type](key)
-        categorySetup.names.forEach((name) => {
-            category.addButton(name)
-        })
-        categorySetup.defaults.forEach((name) => {
-            category.turnOnButton(name)
-        })
+function createCategoryFromServerCategory(categoryName, serverCategory) {
+    let buttonFormat = serverCategory.type
+    let CategoryType = buttonFormatToCategoryType[buttonFormat]    
+    let category = new CategoryType(categoryName)
+    addNamesToCategory(serverCategory.names, category)
+    turnOnButtonsInCategory(serverCategory.defaults, category)
+    return category
+}
+function setupPanelFromServerCategories(panel, serverCategories) {
+    for (let [categoryName, serverCategory] of Object.entries(serverCategories)) {
+        let category = createCategoryFromServerCategory(categoryName, serverCategory)
         panel.addCategory(category)
     }
+}
+handleUrlResponse('/imageStreamChoices', (response) => {
+    let serverCategories = JSON.parse(response)
+    setupPanelFromServerCategories(panel, serverCategories)
 })
+
 
 
 
