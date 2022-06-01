@@ -5,10 +5,6 @@ try:
         
         def __call__(self, package):
             print("p:", package)
-            # mappedSteering = int(10*(float(package['steering']) - (-0.8))/1.6)
-            # mappedForward = int(20*(float(package['forward']) - (-0.8))/1.7)
-            # mappedReverse = int(20*(float(package['reverse']) - (-0.8))/1.7)
-            
             mappedSteering = int(10*(-package['steering'] + 40)/80)
             mappedForward = package['forward']
             mappedReverse = package['reverse']
@@ -25,7 +21,7 @@ try:
 except ImportError as e:
     class VehicleInterfaceController:
         def __call__(self, package):
-            print("p:", package)
+            pass
             
 
                 

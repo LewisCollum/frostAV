@@ -1,8 +1,8 @@
 import cv2
 import numpy
 
-from nodal import Node, Model, Annotator
-from autonomy import vic
+from ..nodal import Node, Model, Annotator
+from ..autonomy import vic
 
 from collections import deque
 class Signs:
@@ -12,9 +12,7 @@ class Signs:
     def __call__(self, sign):
         if sign:
             self.signs.append(sign)
-            # print('Sign Added')
         else:
-            # print('popped')
             if not self.isEmpty():
                 self.signs.pop()
 
@@ -51,15 +49,5 @@ def generate():
         node = Node(
             subject = model("controlPackager", "control"),
             strategy = vic.VehicleInterfaceController()))
-    
-    # model.add(Node(
-    #     name = 'driveController',
-    #     subjects = [],
-    #     strategy = lambda error: None))
-    
-    # model.add(Node(
-    #     name = 'steeringController',
-    #     subjects = [],
-    #     strategy = lambda error: None))
             
     return model

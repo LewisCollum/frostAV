@@ -2,8 +2,8 @@ import cv2
 import numpy
 import time
 
-from autonomy import lane
-from nodal import Node, Model, Annotator, Joiner, Packager
+from ..autonomy import lane
+from ..nodal import Node, Model, Annotator, Joiner, Packager
 
 
 def generate(frameShape):

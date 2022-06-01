@@ -1,9 +1,32 @@
-*Youtube:* https://youtu.be/KNiY2aC7Y0c
+Check out [[https://youtu.be/KNiY2aC7Y0c][youtube]], [[https://photos.app.goo.gl/i7FG5oYFuoorvApo9][images]], [[file:org/README.pdf][paper]]
 
-*Check out some continuously updated videos and pictures:* https://photos.app.goo.gl/i7FG5oYFuoorvApo9
+** Getting Started
+You do not need a vehicle to get started. As long as you have a
+camera/webcam and a computer, you can run this application. This
+project uses [[https://python-poetry.org/][Poetry]]. To run the application
+#+begin_src bash
+  poetry install
+  poetry run
+#+end_src
 
-[[https://github.com/LewisCollum/frostAV/blob/master/org/README.pdf][*Read the (not a research) paper*]]
+Now in your browser, go to =localhost:5000=. If you have a camera
+available (at =/dev/video0=) then you should see a livestream of the
+camera. You can play around with the annotations provided in the
+drop-down. For example, clicking the "signs" annotation will show a
+box around detected signs (try holding a "stop" sign phone image in
+front of the camera to see). Lane lines can be detected if you have
+blue painter's tape held up to the camera (you may need to calibrate
+the colors in code due to camera settings).
 
+** I2C Communication
+If you are running the application on a board that has i2c (e.g. RPi)
+then install =smbus2= and the application will attempt to write JSON
+steering and drive values to address =0x32=
+#+begin_src bash
+  poetry add smbus2
+#+end_src
+
+** Figures
 [[./org/figure/poster.png]] 
 
 [[./server/README.org.d/figure/FrostAVSystem.png]]

@@ -35,3 +35,4 @@ data
 
 # Compressed
 **.zip
+poetry.lock

@@ -27,7 +27,7 @@ class Net:
 
     def outputNamesFromNet(self):
         layerNames = self.net.getLayerNames()
-        return [layerNames[i[0] - 1] for i in self.net.getUnconnectedOutLayers()]
+        return [layerNames[i - 1] for i in self.net.getUnconnectedOutLayers()]
         
     def __call__(self, blob):
         self.net.setInput(blob)
@@ -70,7 +70,6 @@ class DetectionBoxes:
 
         detectionBoxes = []
         for i in indices:
-            i = i[0]
             box = boxes[i]
             left = box[0]
             top = box[1]

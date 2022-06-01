@@ -1,10 +1,11 @@
 from flask import Flask, render_template, Response, request, jsonify
 import logging
+import os
 
-from autonomy.sensing import Camera
-import model
-import nodal_frost
-import stats
+from .autonomy.sensing import Camera
+from . import model
+from . import nodal_frost
+from . import stats
 
 
 log = logging.getLogger('werkzeug')
@@ -70,8 +71,9 @@ def voltage():
 def current():
     return Response(stats.psu.current(), 'text/plain')
 
-
-if __name__ == '__main__':
-    import os    
+def main():
     os.environ["FLASK_ENV"] = "development"
     application.run(debug=True, use_reloader=False, host='0.0.0.0')
+
+if __name__ == '__main__':
+    main()

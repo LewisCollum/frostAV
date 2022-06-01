@@ -1,9 +1,9 @@
 from . import lane
 from . import sign
 from . import vehicle
-from nodal import Model, Subject
-import ui_bridge as ui
-import nodal_frost
+from ..nodal import Model, Subject
+from .. import ui_bridge as ui
+from .. import nodal_frost
 
 class Frost:
     def __init__(self, camera):
