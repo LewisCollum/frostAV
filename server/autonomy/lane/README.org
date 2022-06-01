@@ -27,7 +27,7 @@
   #+name: fig-block-lane1
   #+caption: Block diagram of the 3 steps we used to get a masked frame from the raw frame.  
   #+attr_latex: :width 0.5\linewidth
-  [[../figure/blocks/block_lane1.png]]
+  [[../../README.org.d/figure/blocks/block_lane1.png]]
 
   The incoming frame is in RGB format. The RGB channels are highly
   sensitive to changes in light, meaning that slight changes in
@@ -56,7 +56,7 @@
   #+name: fig-block-lane2
   #+caption: Canny Edge Detection and Hough Line Transform are used to get lane line coordinates from the masked frame.
   #+attr_latex: :width 0.5\linewidth
-  [[../figure/blocks/block_lane2.png]]
+  [[../../README.org.d/figure/blocks/block_lane2.png]]
 
   Canny Edge detection is done next, yielding edge features by looking
   for significant gradients in pixel intensity. Additionally, we know
@@ -76,7 +76,7 @@
   #+name: fig-block-lane2
   #+caption: The lane lines are average and used to detect the state of the lines (both, left, right or none) and the angle of the line, which we use to approximate lane error.
   #+attr_latex: :width 0.5\linewidth
-  [[../figure/blocks/block_lane3.png]]
+  [[../../README.org.d/figure/blocks/block_lane3.png]]
   
   We need to get only two lines that represent the lane. So, we
   seperate all segments with bottom intercepts on the left side of

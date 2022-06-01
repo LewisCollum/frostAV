@@ -23,16 +23,14 @@
 * Vehicle Monitoring with a Web Server
   #+include: "../server/README.org" :lines "4-"
 * Lane Detection
-  #+include: "../server/lane/README.org" :lines "4-"
+  #+include: "../server/autonomy/lane/README.org" :lines "4-"
 * YOLOv3 Real-Time Sign Detection
-  #+include: "../server/sign/README.org" :lines "4-"
+  #+include: "../server/autonomy/sign/README.org" :lines "4-"
 * Vehicle Control Model
 ** Control Value Packaging on the Raspberry Pi
-   #+include: "../server/vic/README.org" :lines "4-"   
+   #+include: "../server/autonomy/vic/README.org" :lines "4-"
 ** Vehicle Interface Controller (Arduino)
    #+include: "../controller/README.org" :lines "4-"
-* Simple Framework for Nodal Frame Processing                      :noexport:
-  #+include: "../server/frame/README.org" :lines "4-"
 * Vehicle Design                                                   :noexport:
   #+include: "../design/README.org" :lines "4-"
 * Conclusion & Necessary Improvements

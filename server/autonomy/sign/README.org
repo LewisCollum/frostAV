@@ -32,7 +32,7 @@
   #+name: fig-block-sign
   #+caption: The frame is formatted to fit in our YOLOv3 network, after the formatted frame is passed in, the resulting predictions are filtered by non-max suppresion and sent to the vehicle control model.
   #+attr_latex: :width 0.5\linewidth
-  [[../figure/blocks/block_sign.png]]
+  [[../../README.org.d/figure/blocks/block_sign.png]]
 
   Before we started the automation system, we used OpenCV to import
   our trained Darknet[fn:darknet] YOLOv3 model configurations. This
