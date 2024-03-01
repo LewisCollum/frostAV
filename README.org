@@ -6,7 +6,7 @@ camera/webcam and a computer, you can run this application. This
 project uses [[https://python-poetry.org/][Poetry]]. To run the application
 #+begin_src bash
   poetry install
-  poetry run
+  poetry run frostav
 #+end_src
 
 Now in your browser, go to =localhost:5000=. If you have a camera

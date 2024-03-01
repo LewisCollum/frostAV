@@ -6,7 +6,7 @@ authors = ["Lewis Collum"]
 license = "MIT"
 
 [tool.poetry.scripts]
-run = "server.__main__:main"
+frostav = "server.__main__:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"
