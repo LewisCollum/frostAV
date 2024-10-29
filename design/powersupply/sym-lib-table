@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name Senior-Design-Power-PCB-rescue)(type Legacy)(uri "${KIPRJMOD}/Senior Design Power PCB-rescue.lib")(options "")(descr ""))
+)
